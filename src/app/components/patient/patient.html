@@ -1,0 +1,147 @@
+<div class="container mt-5 pt-4">
+  @for (patient of patient_list; track patient._id) {
+
+    <!-- PATIENT HEADER -->
+    <div class="row mb-4">
+      <div class="col-sm-12">
+        <h2>{{ patient.name }}</h2>
+        <p>
+          <strong>Age:</strong> {{ patient.age }} <br>
+          <strong>Age Group:</strong> {{ age_group }} <br>
+          <strong>Condition:</strong> {{ patient.condition }} <br>
+          <strong>Town:</strong> {{ town }} <br>
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-md-6">
+
+        <!-- APPOINTMENTS -->
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h4>Appointments</h4>
+
+            @if (appointments.length === 0) {
+              <p>No appointments recorded.</p>
+            } @else {
+
+              <ul class="list-group">
+                <!-- SHOW ONLY THE FIRST 5 APPOINTMENTS -->
+                @for (a of appointments.slice(0, 5); track a._id) {
+                  <li class="list-group-item">
+                    <strong>Date:</strong> {{ a.date }} <br>
+                    <strong>Doctor:</strong> {{ a.doctor }} <br>
+                    <strong>Notes:</strong> {{ a.notes }} <br>
+                    <strong>Status:</strong> {{ a.status }}
+                  </li>
+                }
+              </ul>
+
+              <!-- Show More Button -->
+              @if (appointments.length > 5) {
+                <button class="btn btn-primary btn-sm mt-3"
+                        (click)="showAllAppointments = !showAllAppointments">
+                  {{ showAllAppointments ? 'Show Less' : 'Show More' }}
+                </button>
+
+                <!-- Render full list if showAllAppointments is TRUE -->
+                @if (showAllAppointments) {
+                  <ul class="list-group mt-3">
+                    @for (a of appointments; track a._id) {
+                      <li class="list-group-item">
+                        <strong>Date:</strong> {{ a.date }} <br>
+                        <strong>Doctor:</strong> {{ a.doctor }} <br>
+                        <strong>Notes:</strong> {{ a.notes }} <br>
+                        <strong>Status:</strong> {{ a.status }}
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+            }
+          </div>
+        </div>
+
+        <!-- PRESCRIPTIONS -->
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h4>Prescriptions</h4>
+
+            @if (prescriptions.length === 0) {
+              <p>No prescriptions recorded.</p>
+            } @else {
+              <ul class="list-group">
+                @for (rx of prescriptions; track rx._id) {
+                  <li class="list-group-item">
+                    <strong>Medication:</strong> {{ rx.medication }} <br>
+                    <strong>Dosage:</strong> {{ rx.dosage }} <br>
+                    <strong>Status:</strong> {{ rx.status }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-md-6">
+
+        <!-- CAREPLANS -->
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h4>Care Plans</h4>
+
+            @if (careplans.length === 0) {
+              <p>No careplans available.</p>
+            } @else {
+              <ul class="list-group">
+                @for (c of careplans; track c._id) {
+                  <li class="list-group-item">
+                    <strong>{{ c.name }}</strong> <br>
+                    <strong>Goal:</strong> {{ c.goal }} <br>
+                    <strong>Status:</strong> {{ c.status }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+
+        <!-- GOOGLE MAP -->
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h4>Patient Location</h4>
+
+            <google-map
+              height="300px"
+              width="100%"
+              [options]="map_options">
+
+              @for (marker of map_markers; track marker) {
+                <map-advanced-marker
+                  [position]="marker.position"
+                  [title]="marker.title">
+                </map-advanced-marker>
+              }
+            </google-map>
+          </div>
+        </div>
+
+        <!-- CLINICAL SUMMARY -->
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h4>Clinical Summary</h4>
+            <p>{{ loremText }}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  }
+</div>

@@ -1,0 +1,44 @@
+<div class="container mt-4">
+
+  <h2 class="mb-3">Patients</h2>
+
+  <!-- SEARCH BAR -->
+  <div class="input-group mb-4">
+    <input type="text"
+           class="form-control"
+           placeholder="Search by name, condition, or town..."
+           [(ngModel)]="searchQuery"
+           (input)="filterPatients()">
+    <span class="input-group-text">
+      <i class="bi bi-search"></i>
+    </span>
+  </div>
+
+  <div class="row">
+    @for (patient of filteredPatients; track patient._id) {
+      <div class="col-md-6 mb-3">
+        <div class="card shadow-sm"
+             style="cursor:pointer"
+             [routerLink]="['/patients', patient._id?.$oid || patient._id]">
+
+          <div class="card-body">
+            <h5 class="card-title">{{ patient.name }}</h5>
+            <p class="card-text">Age: {{ patient.age }}</p>
+            <p class="card-text">Condition: {{ patient.condition }}</p>
+          </div>
+
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Pagination controls -->
+  <div class="d-flex justify-content-between mt-3">
+    <button class="btn btn-primary" (click)="previousPage()">Previous</button>
+    <div class="align-self-center">
+      Page {{ page }} of {{ patientData.getLastPageNumber() }}
+    </div>
+    <button class="btn btn-primary" (click)="nextPage()">Next</button>
+  </div>
+
+</div>
