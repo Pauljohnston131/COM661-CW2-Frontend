@@ -113,22 +113,19 @@ export class Patient {
   }
 
   updateAppointmentStatus(appt: any, newStatus: string) {
-    const patientId = this.route.snapshot.paramMap.get('id')!;
-    const appointmentId = appt._id || appt.id;
+  const patientId = this.route.snapshot.paramMap.get('id')!;
+  const appointmentId = appt._id; // FIXED – appointments use _id ONLY
 
-    this.api.updateAppointment(patientId, appointmentId, { status: newStatus })
-      .subscribe(() => {
-        this.loadPatient(patientId);
-      });
-  }
+  this.api.updateAppointment(patientId, appointmentId, { status: newStatus })
+    .subscribe(() => this.loadPatient(patientId));
+}
 
-  deleteAppointment(appt: any) {
-    const patientId = this.route.snapshot.paramMap.get('id')!;
-    const appointmentId = appt._id || appt.id;
+deleteAppointment(appt: any) {
+  const patientId = this.route.snapshot.paramMap.get('id')!;
+  const appointmentId = appt._id; // FIXED – appointments use _id ONLY
 
-    this.api.deleteAppointment(patientId, appointmentId)
-      .subscribe(() => {
-        this.loadPatient(patientId);
-      });
-  }
+  this.api.deleteAppointment(patientId, appointmentId)
+    .subscribe(() => this.loadPatient(patientId));
+}
+
 }

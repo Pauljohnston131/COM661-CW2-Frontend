@@ -11,7 +11,7 @@ export class Api {
   baseUrl = 'http://127.0.0.1:5000/api/v1.0';
 
   // TEMP — will replace with real login later
-  private adminToken: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicGF1bCIsImFkbWluIjp0cnVlLCJleHAiOjE3NjM2NTc0MDd9.MkIBEN5qoq3Wtol46sUhJB6IdwsepJdSqsWfN9q4aos';
+  private adminToken: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicGF1bCIsImFkbWluIjp0cnVlLCJleHAiOjE3NjM2NjM3Mzd9.Yro1ngryMJ3FoO1ZJVCnS_Z3pU5oexdo8jlxHhTTJ34';
 
   constructor(private http: HttpClient) {}
 
