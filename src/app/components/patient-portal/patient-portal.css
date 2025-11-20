@@ -1,0 +1,16 @@
+.card h4 {
+  font-weight: 600;
+}
+
+.list-group-item {
+  background-color: #f8f9fa;
+}
+
+.btn-link {
+  color: #007bff;
+  font-size: 0.9rem;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}

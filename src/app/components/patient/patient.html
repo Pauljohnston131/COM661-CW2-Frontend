@@ -1,5 +1,6 @@
+<!-- src/app/components/patient/patient.html -->
 <div class="container mt-5 pt-4">
-  @for (patient of patient_list; track patient._id) {
+  @for (patient of patient_list; track patient.id) {
 
     <!-- PATIENT HEADER -->
     <div class="row mb-4">
@@ -35,7 +36,21 @@
                     <strong>Date:</strong> {{ a.date }} <br>
                     <strong>Doctor:</strong> {{ a.doctor }} <br>
                     <strong>Notes:</strong> {{ a.notes }} <br>
-                    <strong>Status:</strong> {{ a.status }}
+                    <strong>Status:</strong> {{ a.status }} <br>
+
+                    <!-- GP controls -->
+                    <button class="btn btn-sm btn-outline-success me-2 mt-2"
+                            (click)="updateAppointmentStatus(a, 'completed')">
+                      Mark Completed
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning me-2 mt-2"
+                            (click)="updateAppointmentStatus(a, 'cancelled')">
+                      Cancel
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger mt-2"
+                            (click)="deleteAppointment(a)">
+                      Delete
+                    </button>
                   </li>
                 }
               </ul>
@@ -55,13 +70,80 @@
                         <strong>Date:</strong> {{ a.date }} <br>
                         <strong>Doctor:</strong> {{ a.doctor }} <br>
                         <strong>Notes:</strong> {{ a.notes }} <br>
-                        <strong>Status:</strong> {{ a.status }}
+                        <strong>Status:</strong> {{ a.status }} <br>
+
+                        <button class="btn btn-sm btn-outline-success me-2 mt-2"
+                                (click)="updateAppointmentStatus(a, 'completed')">
+                          Mark Completed
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning me-2 mt-2"
+                                (click)="updateAppointmentStatus(a, 'cancelled')">
+                          Cancel
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger mt-2"
+                                (click)="deleteAppointment(a)">
+                          Delete
+                        </button>
                       </li>
                     }
                   </ul>
                 }
               }
             }
+
+            <!-- Add Appointment Form -->
+            <hr class="mt-4 mb-3">
+
+            <h5>Add Appointment</h5>
+
+            <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
+              <div class="form-group mb-3">
+                <label for="doctor">Doctor</label>
+                <input type="text"
+                       id="doctor"
+                       class="form-control"
+                       formControlName="doctor"
+                       [ngClass]="{ 'error': isInvalid('doctor') }">
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="date">Date</label>
+                <input type="date"
+                       id="date"
+                       class="form-control"
+                       formControlName="date"
+                       [ngClass]="{ 'error': isInvalid('date') }">
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="notes">Notes</label>
+                <textarea id="notes"
+                          class="form-control"
+                          formControlName="notes">
+                </textarea>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="status">Status</label>
+                <select id="status"
+                        class="form-control"
+                        formControlName="status">
+                  <option value="scheduled">Scheduled</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              <span *ngIf="isIncomplete()" class="text-danger">
+                You must complete the required fields (doctor and date).
+              </span>
+
+              <button *ngIf="!isIncomplete()"
+                      class="btn btn-primary mt-2"
+                      type="submit">
+                Submit
+              </button>
+            </form>
           </div>
         </div>
 

@@ -1,0 +1,120 @@
+<div class="container mt-5 pt-4" *ngIf="patient">
+
+  <h2>{{ patient.name }}</h2>
+  <p>
+    <strong>Age:</strong> {{ patient.age }} <br>
+    <strong>Condition:</strong> {{ patient.condition }} <br>
+    <strong>Town:</strong> {{ patient.town }} <br>
+  </p>
+
+  <!-- APPOINTMENT HISTORY -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h4>Your Appointments</h4>
+
+      @if (patient.appointments.length === 0) {
+        <p>You have no appointments recorded.</p>
+      } @else {
+
+        <ul class="list-group">
+          @for (a of (showAllAppointments ? patient.appointments : patient.appointments.slice(0, 5)); track a._id) {
+            <li class="list-group-item">
+              <strong>Date:</strong> {{ a.date }} <br>
+              <strong>Doctor:</strong> {{ a.doctor }} <br>
+              <strong>Status:</strong> {{ a.status }}
+            </li>
+          }
+        </ul>
+
+        @if (patient.appointments.length > 5) {
+          <button class="btn btn-link mt-2 p-0"
+                  (click)="showAllAppointments = !showAllAppointments">
+            {{ showAllAppointments ? 'Show Less' : 'Show More' }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- PRESCRIPTION HISTORY -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h4>Your Prescriptions</h4>
+
+      @if (prescriptions.length === 0) {
+        <p>You have no prescriptions recorded.</p>
+      } @else {
+        <ul class="list-group">
+          @for (p of prescriptions; track p._id) {
+            <li class="list-group-item">
+              <strong>Medication:</strong> {{ p.medication }} <br>
+              <strong>Dosage:</strong> {{ p.dosage }} <br>
+              <strong>Status:</strong> {{ p.status }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+  <!-- CARE PLAN SUMMARY -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h4>Your Care Plans</h4>
+
+      @if (careplans.length === 0) {
+        <p>You are not currently assigned any care plans.</p>
+      } @else {
+        <ul class="list-group">
+          @for (c of careplans; track c._id) {
+            <li class="list-group-item">
+              <strong>{{ c.name }}</strong> <br>
+              <strong>Goal:</strong> {{ c.goal }} <br>
+              <strong>Status:</strong> {{ c.status }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+  <!-- APPOINTMENT REQUEST -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h4>Request an Appointment</h4>
+
+      <div class="form-group mb-3">
+        <label>Select Appointment Date</label>
+        <input type="date" class="form-control" [(ngModel)]="requestDate">
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Severity Rating (1–5)</label>
+        <select class="form-control" [(ngModel)]="requestSeverity">
+          <option *ngFor="let s of [1,2,3,4,5]" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Symptom Score: {{ symptomScore }}</label>
+        <input type="range" class="form-range" min="1" max="10" [(ngModel)]="symptomScore">
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Describe Symptoms</label>
+        <textarea class="form-control" rows="3"
+                  [(ngModel)]="requestSymptoms"
+                  placeholder="Briefly describe your symptoms"></textarea>
+      </div>
+
+      <button class="btn btn-primary" (click)="submitRequest()">
+        Submit Request
+      </button>
+
+      <p class="text-success mt-2" *ngIf="submitted">
+        Your appointment request has been submitted.
+      </p>
+    </div>
+  </div>
+
+</div>

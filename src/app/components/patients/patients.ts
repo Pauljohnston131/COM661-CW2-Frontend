@@ -2,57 +2,56 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { PatientDataService } from '../../services/patient-data';
+import { Api } from '../../services/api';
 
 @Component({
   selector: 'app-patients',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './patients.html',
-  styleUrl: './patients.css',
-  providers: [PatientDataService]
+  styleUrl: './patients.css'
 })
 export class PatientsComponent {
-  patients: any[] = [];          // Full list for this page
-  filteredPatients: any[] = [];  // Search results
+
+  patients: any[] = [];
+  filteredPatients: any[] = [];
   searchQuery: string = "";
 
   page: number = 1;
+  lastPage: number = 1;
 
-  constructor(protected patientData: PatientDataService) {}
+  constructor(private api: Api) {}
 
   ngOnInit() {
-    // Load first page
-    this.patients = this.patientData.getPatientsPage(this.page);
-    this.filteredPatients = this.patients;
+    this.loadPage(this.page);
   }
 
-  // FILTER FUNCTION
-  filterPatients() {
-    const query = this.searchQuery.toLowerCase();
+  loadPage(page: number) {
+    this.api.getPatients(page).subscribe(res => {
+      this.patients = res.data.patients;
+      this.filteredPatients = this.patients;
+      this.page = res.data.page;
+      this.lastPage = Math.ceil(res.data.count / 10); // adjust if backend changes
+    });
+  }
 
+  filterPatients() {
+    const q = this.searchQuery.toLowerCase();
     this.filteredPatients = this.patients.filter(p =>
-      p.name.toLowerCase().includes(query) ||
-      p.condition.toLowerCase().includes(query) ||
-      (p.town && p.town.toLowerCase().includes(query))
+      p.name.toLowerCase().includes(q) ||
+      p.condition.toLowerCase().includes(q)
     );
   }
 
   nextPage() {
-    if (this.page < this.patientData.getLastPageNumber()) {
-      this.page++;
-      this.patients = this.patientData.getPatientsPage(this.page);
-      this.filterPatients();
-      sessionStorage['patient_page'] = this.page;
+    if (this.page < this.lastPage) {
+      this.loadPage(this.page + 1);
     }
   }
 
   previousPage() {
     if (this.page > 1) {
-      this.page--;
-      this.patients = this.patientData.getPatientsPage(this.page);
-      this.filterPatients();
-      sessionStorage['patient_page'] = this.page;
+      this.loadPage(this.page - 1);
     }
   }
 }
