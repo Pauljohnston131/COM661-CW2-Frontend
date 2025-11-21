@@ -1,7 +1,7 @@
 // src/app/auth/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { jwtDecode } from "c:/COM661 CW1 Synthea/COM661-CW2-Frontend/node_modules/jwt-decode/build/esm/index";
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -19,10 +19,6 @@ export class AuthService {
 
     // assumes backend returns { success: true, token: "..." }
     return this.http.get<any>(`${this.baseUrl}/auth/login`, { headers });
-  }
-
-  logout() {
-    localStorage.removeItem(this.tokenKey);
   }
 
   // ---- TOKEN HANDLING ----
@@ -58,4 +54,18 @@ export class AuthService {
     const decoded = this.decode();
     return !!decoded && decoded.admin === false;
   }
+
+  logoutApi() {
+  const token = this.getToken();
+
+  return this.http.get(`${this.baseUrl}/auth/logout`, {
+    headers: new HttpHeaders({
+      'x-access-token': token || ''
+    })
+  });
+}
+
+logout() {
+  localStorage.removeItem(this.tokenKey);
+}
 }

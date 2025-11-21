@@ -8,19 +8,36 @@
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto">
 
-        <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/']">Home</a>
+        <!-- Visible when NOT logged in -->
+        <li class="nav-item" *ngIf="!auth.isLoggedIn()">
+          <a class="nav-link" [routerLink]="['/login']">Login</a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/patients']">GP Portal</a>
-        </li>
+        <!-- GP LINKS -->
+        <ng-container *ngIf="auth.isGP()">
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/gp/patients']">GP: Patients</a>
+          </li>
 
-        <li class="nav-item">
-          <a class="nav-link" [routerLink]="['/patient-portal']">Patient Portal</a>
-        </li>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/gp/analytics']">GP: Analytics</a>
+          </li>
+        </ng-container>
+
+        <!-- PATIENT LINKS -->
+        <ng-container *ngIf="auth.isPatient()">
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/patient-portal']">My Portal</a>
+          </li>
+        </ng-container>
 
       </ul>
+
+      <!-- LOGOUT button (right aligned) -->
+      <div class="d-flex" *ngIf="auth.isLoggedIn()">
+        <button class="btn btn-warning" (click)="logout()">Logout</button>
+      </div>
+
     </div>
 
   </div>
