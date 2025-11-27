@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { AuthService } from '../../auth/auth.service'; // adjust path if needed
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-navigation',
   standalone: true,
   imports: [RouterModule, CommonModule],
   templateUrl: './navigation.html',
-  styleUrl: './navigation.css'
+  styleUrls: ['./navigation.css']
 })
 export class NavigationComponent {
 
@@ -17,14 +17,20 @@ export class NavigationComponent {
     private router: Router
   ) {}
 
+  get username(): string | null {
+    return this.auth.getUsername();
+  }
+
+  get isGP(): boolean {
+    return this.auth.isGP();
+  }
+
+  get isPatient(): boolean {
+    return this.auth.isPatient();
+  }
+
   logout() {
-    this.auth.logoutApi().subscribe(() => {
-      this.auth.logout();
-      this.router.navigate(['/login']);
-    }, () => {
-      // even if logout fails, remove token
-      this.auth.logout();
-      this.router.navigate(['/login']);
-    });
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

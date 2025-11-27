@@ -3,6 +3,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
 
+interface DecodedToken {
+  exp?: number;
+  user?: string;
+  admin?: boolean;
+  patient_id?: string;
+  [key: string]: any;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
@@ -26,18 +34,22 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  isLoggedIn(): boolean {
-    return !!this.getToken();
-  }
-
-  private decode(): any | null {
+  private decode(): DecodedToken | null {
     const token = this.getToken();
     if (!token) return null;
     try {
-      return jwtDecode(token);
+      return jwtDecode<DecodedToken>(token);
     } catch {
       return null;
     }
+  }
+
+  /** Check if token exists AND not expired */
+  isLoggedIn(): boolean {
+    const decoded = this.decode();
+    if (!decoded?.exp) return !!this.getToken();
+    const now = Date.now() / 1000;
+    return decoded.exp > now;
   }
 
   getUsername(): string | null {

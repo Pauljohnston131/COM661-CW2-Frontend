@@ -1,0 +1,24 @@
+<!-- src/app/shared/toast-container.component.html -->
+<div class="toast-wrapper">
+  @for (t of toasts; track t.id) {
+    <div class="toast-item" [ngClass]="cssClass(t)" (click)="dismiss(t.id)">
+      <div class="toast-icon">
+        @if (t.type === 'success') {
+          ✓
+        } @else if (t.type === 'error') {
+          ⚠
+        } @else if (t.type === 'warning') {
+          !
+        } @else {
+          i
+        }
+      </div>
+      <div class="toast-content">
+        @if (t.title) {
+          <div class="toast-title">{{ t.title }}</div>
+        }
+        <div class="toast-message">{{ t.message }}</div>
+      </div>
+    </div>
+  }
+</div>

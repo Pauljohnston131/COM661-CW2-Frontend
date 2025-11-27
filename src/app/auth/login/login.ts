@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { ToastService } from '../../shared/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,8 @@ export class LoginComponent {
 
   constructor(
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {}
 
   onSubmit() {
@@ -27,6 +29,7 @@ export class LoginComponent {
 
     if (!this.username || !this.password) {
       this.error = 'Please enter username and password.';
+      this.toast.warning(this.error, 'Missing details');
       return;
     }
 
@@ -35,24 +38,28 @@ export class LoginComponent {
         next: (res) => {
           const token = res.data?.token;
 
-if (!token) {
-  this.error = 'No token returned from API.';
-  return;
-}
+          if (!token) {
+            this.error = 'No token returned from API.';
+            this.toast.error(this.error, 'Login error');
+            return;
+          }
 
-this.auth.storeToken(token);
+          this.auth.storeToken(token);
 
           if (this.auth.isGP()) {
+            this.toast.success('Logged in as GP.', 'Welcome');
             this.router.navigate(['/gp/patients']);
           } else if (this.auth.isPatient()) {
+            this.toast.success('Logged in as patient.', 'Welcome');
             this.router.navigate(['/patient-portal']);
           } else {
             this.error = 'Unknown role in token.';
+            this.toast.error(this.error, 'Login error');
           }
         },
-        error: (err) => {
-          console.error(err);
+        error: () => {
           this.error = 'Login failed. Check your credentials.';
+          this.toast.error(this.error, 'Login failed');
         }
       });
   }

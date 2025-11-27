@@ -22,11 +22,6 @@ interface PatientRecord {
   };
 }
 
-interface MapMarker {
-  position: google.maps.LatLngLiteral;
-  title: string;
-}
-
 @Component({
   selector: 'app-patient',
   standalone: true,
@@ -35,6 +30,16 @@ interface MapMarker {
   styleUrls: ['./patient.css']
 })
 export class Patient implements OnInit {
+
+  // Toast + Loading
+  toastMessage: string | null = null;
+  toastType: 'success' | 'error' = 'success';
+  loading = false;
+
+  // Editing states (required by your HTML)
+  editingAppointmentId: string | null = null;
+  editingPrescriptionId: string | null = null;
+  editingCareplanId: string | null = null;
 
   patient: PatientRecord | null = null;
 
@@ -53,22 +58,12 @@ export class Patient implements OnInit {
   prescriptionForm!: FormGroup;
   careplanForm!: FormGroup;
 
-  // editing state
-  editingAppointmentId: string | null = null;
-  editingPrescriptionId: string | null = null;
-  editingCareplanId: string | null = null;
-
-  // UI state
-  loading = false;
-  toastMessage = '';
-  toastType: 'success' | 'danger' | '' = '';
-
   map_options: google.maps.MapOptions = {
     zoom: 12,
     center: { lat: 54.948, lng: -7.75 }
   };
 
-  map_markers: MapMarker[] = [];
+  map_markers: any[] = [];
 
   constructor(
     private api: Api,
@@ -80,7 +75,7 @@ export class Patient implements OnInit {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.loadPatient(id);
 
-    // ----------- FORMS -----------
+    // FORMS
     this.appointmentForm = this.fb.group({
       doctor: ['', Validators.required],
       date: ['', Validators.required],
@@ -88,7 +83,6 @@ export class Patient implements OnInit {
       status: ['scheduled', Validators.required]
     });
 
-    // Prescriptions must match backend: name, start, stop, status
     this.prescriptionForm = this.fb.group({
       name: ['', Validators.required],
       start: ['', Validators.required],
@@ -96,7 +90,6 @@ export class Patient implements OnInit {
       status: ['active', Validators.required]
     });
 
-    // Careplans must match backend: description + start required
     this.careplanForm = this.fb.group({
       description: ['', Validators.required],
       start: ['', Validators.required],
@@ -104,27 +97,12 @@ export class Patient implements OnInit {
     });
   }
 
-  // --------------------------
-  // TOAST + HELPERS
-  // --------------------------
-  private showToast(message: string, type: 'success' | 'danger' = 'success') {
-    this.toastMessage = message;
-    this.toastType = type;
-    window.setTimeout(() => {
-      this.toastMessage = '';
-      this.toastType = '';
-    }, 3000);
-  }
-
-  private get patientId(): string | null {
-    return this.patient?._id ?? this.patient?.id ?? null;
-  }
-
-  // --------------------------
+  //---------------------------------------------------
   // LOAD PATIENT
-  // --------------------------
+  //---------------------------------------------------
   private loadPatient(id: string) {
     this.loading = true;
+
     this.api.getPatient(id).subscribe({
       next: (res: any) => {
         const p: PatientRecord = res.data;
@@ -144,36 +122,30 @@ export class Patient implements OnInit {
           };
 
           this.map_markers = [
-            {
-              position: { lat: this.patient_lat, lng: this.patient_lng },
-              title: p.name
-            }
+            { position: { lat: this.patient_lat, lng: this.patient_lng }, title: p.name }
           ];
-        } else {
-          this.map_markers = [];
         }
       },
-      error: () => {
-        this.showToast('Failed to load patient details.', 'danger');
-      },
-      complete: () => {
-        this.loading = false;
-      }
+      error: () => this.showToast("Failed to load patient", "error"),
+      complete: () => this.loading = false
     });
   }
 
-  // --------------------------
-  // APPOINTMENTS
-  // --------------------------
+  //---------------------------------------------------
+  // TOAST
+  //---------------------------------------------------
+  showToast(msg: string, type: 'success' | 'error' = 'success') {
+    this.toastMessage = msg;
+    this.toastType = type;
+    setTimeout(() => this.toastMessage = null, 2500);
+  }
+
+  //---------------------------------------------------
+  // APPOINTMENT — EDIT + SAVE
+  //---------------------------------------------------
   startEditAppointment(a: any) {
     this.editingAppointmentId = a._id;
-    this.appointmentForm.setValue({
-      doctor: a.doctor || '',
-      date: a.date ? a.date.substring(0, 10) : '',
-      notes: a.notes || '',
-      status: a.status || 'scheduled'
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.appointmentForm.patchValue(a);
   }
 
   cancelEditAppointment() {
@@ -187,80 +159,67 @@ export class Patient implements OnInit {
   }
 
   saveAppointment() {
-    if (this.appointmentForm.invalid || !this.patientId) return;
-    const id = this.patientId;
-    const payload = this.appointmentForm.value;
+    if (!this.patient) return;
+    const id = this.patient._id ?? this.patient.id;
 
-    // Update existing
+    this.loading = true;
+
+    // EDITING
     if (this.editingAppointmentId) {
-      this.api.updateAppointment(id, this.editingAppointmentId, payload).subscribe({
-        next: () => {
-          this.showToast('Appointment updated successfully.');
-          this.loadPatient(id);
-          this.cancelEditAppointment();
-        },
-        error: () => this.showToast('Failed to update appointment.', 'danger')
-      });
-    } else {
-      // Add new
-      this.api.addAppointment(id, payload).subscribe({
-        next: () => {
-          this.showToast('Appointment added successfully.');
-          this.loadPatient(id);
-          this.appointmentForm.reset({
-            doctor: '',
-            date: '',
-            notes: '',
-            status: 'scheduled'
-          });
-        },
-        error: () => this.showToast('Failed to add appointment.', 'danger')
-      });
+      this.api.updateAppointment(id!, this.editingAppointmentId, this.appointmentForm.value)
+        .subscribe({
+          next: () => {
+            this.showToast("Appointment updated!", "success");
+            this.loadPatient(id!);
+            this.cancelEditAppointment();
+          },
+          error: () => this.showToast("Failed to update appointment", "error"),
+          complete: () => this.loading = false
+        });
+      return;
     }
-  }
 
-  updateAppointmentStatus(appt: any, status: string) {
-    if (!this.patientId) return;
-    const id = this.patientId;
-
-    this.api.updateAppointment(id, appt._id, { status }).subscribe({
+    // ADDING
+    this.api.addAppointment(id!, this.appointmentForm.value).subscribe({
       next: () => {
-        this.showToast('Appointment status updated.');
-        this.loadPatient(id);
+        this.showToast("Appointment added!", "success");
+        this.loadPatient(id!);
+        this.appointmentForm.reset({
+          doctor: '', date: '', notes: '', status: 'scheduled'
+        });
       },
-      error: () => this.showToast('Failed to update status.', 'danger')
+      error: () => this.showToast("Error adding appointment", "error"),
+      complete: () => this.loading = false
     });
   }
 
-  deleteAppointment(appt: any) {
-    if (!this.patientId) return;
-    const id = this.patientId;
+  //---------------------------------------------------
+// APPOINTMENT STATUS UPDATE (needed by HTML)
+//---------------------------------------------------
+updateAppointmentStatus(appt: any, status: string) {
+  if (!this.patient) return;
+  const id = this.patient._id ?? this.patient.id;
+  const apptId = appt._id;
 
-    this.api.deleteAppointment(id, appt._id).subscribe({
-      next: () => {
-        this.showToast('Appointment deleted.');
-        // If we were editing this appointment, cancel
-        if (this.editingAppointmentId === appt._id) {
-          this.cancelEditAppointment();
-        }
-        this.loadPatient(id);
-      },
-      error: () => this.showToast('Failed to delete appointment.', 'danger')
-    });
-  }
+  this.loading = true;
 
-  // --------------------------
-  // PRESCRIPTIONS
-  // --------------------------
+  this.api.updateAppointment(id!, apptId, { status }).subscribe({
+    next: () => {
+      this.showToast(`Appointment marked ${status}`, "success");
+      this.loadPatient(id!);
+    },
+    error: () => this.showToast("Failed to update appointment status", "error"),
+    complete: () => this.loading = false
+  });
+}
+
+
+  //---------------------------------------------------
+  // PRESCRIPTION — EDIT + SAVE
+  //---------------------------------------------------
   startEditPrescription(rx: any) {
     this.editingPrescriptionId = rx._id;
-    this.prescriptionForm.setValue({
-      name: rx.name || '',
-      start: rx.start ? rx.start.substring(0, 10) : '',
-      stop: rx.stop ? rx.stop.substring(0, 10) : '',
-      status: rx.status || 'active'
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.prescriptionForm.patchValue(rx);
   }
 
   cancelEditPrescription() {
@@ -274,71 +233,42 @@ export class Patient implements OnInit {
   }
 
   savePrescription() {
-    if (this.prescriptionForm.invalid || !this.patientId) return;
+    if (!this.patient) return;
+    const id = this.patient._id ?? this.patient.id;
 
-    const id = this.patientId;
-    const payload = {
-      name: this.prescriptionForm.value.name,
-      start: this.prescriptionForm.value.start,
-      stop: this.prescriptionForm.value.stop || null,
-      status: this.prescriptionForm.value.status
-    };
+    this.loading = true;
 
     if (this.editingPrescriptionId) {
-      // Update
-      this.api.updatePrescription(id, this.editingPrescriptionId, payload).subscribe({
-        next: () => {
-          this.showToast('Prescription updated successfully.');
-          this.loadPatient(id);
-          this.cancelEditPrescription();
-        },
-        error: () => this.showToast('Failed to update prescription.', 'danger')
-      });
-    } else {
-      // Add
-      this.api.addPrescription(id, payload).subscribe({
-        next: () => {
-          this.showToast('Prescription added successfully.');
-          this.loadPatient(id);
-          this.prescriptionForm.reset({
-            name: '',
-            start: '',
-            stop: '',
-            status: 'active'
-          });
-        },
-        error: () => this.showToast('Failed to add prescription.', 'danger')
-      });
+      this.api.updatePrescription(id!, this.editingPrescriptionId, this.prescriptionForm.value)
+        .subscribe({
+          next: () => {
+            this.showToast("Prescription updated!", "success");
+            this.loadPatient(id!);
+            this.cancelEditPrescription();
+          },
+          error: () => this.showToast("Failed to update prescription", "error"),
+          complete: () => this.loading = false
+        });
+      return;
     }
-  }
 
-  deletePrescription(rx: any) {
-    if (!this.patientId) return;
-    const id = this.patientId;
-
-    this.api.deletePrescription(id, rx._id).subscribe({
+    this.api.addPrescription(id!, this.prescriptionForm.value).subscribe({
       next: () => {
-        this.showToast('Prescription deleted.');
-        if (this.editingPrescriptionId === rx._id) {
-          this.cancelEditPrescription();
-        }
-        this.loadPatient(id);
+        this.showToast("Prescription added!", "success");
+        this.loadPatient(id!);
+        this.cancelEditPrescription();
       },
-      error: () => this.showToast('Failed to delete prescription.', 'danger')
+      error: () => this.showToast("Failed to add prescription", "error"),
+      complete: () => this.loading = false
     });
   }
 
-  // --------------------------
-  // CAREPLANS
-  // --------------------------
-  startEditCareplan(cp: any) {
-    this.editingCareplanId = cp._id;
-    this.careplanForm.setValue({
-      description: cp.description || '',
-      start: cp.start ? cp.start.substring(0, 10) : '',
-      stop: cp.stop ? cp.stop.substring(0, 10) : ''
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  //---------------------------------------------------
+  // CAREPLAN — EDIT + SAVE
+  //---------------------------------------------------
+  startEditCareplan(c: any) {
+    this.editingCareplanId = c._id;
+    this.careplanForm.patchValue(c);
   }
 
   cancelEditCareplan() {
@@ -351,65 +281,61 @@ export class Patient implements OnInit {
   }
 
   saveCareplan() {
-    if (this.careplanForm.invalid || !this.patientId) return;
+    if (!this.patient) return;
+    const id = this.patient._id ?? this.patient.id;
 
-    const id = this.patientId;
-    const payload = {
-      description: this.careplanForm.value.description,
-      start: this.careplanForm.value.start,
-      stop: this.careplanForm.value.stop || null
-    };
+    this.loading = true;
 
     if (this.editingCareplanId) {
-      this.api.updateCareplan(id, this.editingCareplanId, payload).subscribe({
-        next: () => {
-          this.showToast('Careplan updated successfully.');
-          this.loadPatient(id);
-          this.cancelEditCareplan();
-        },
-        error: () => this.showToast('Failed to update careplan.', 'danger')
-      });
-    } else {
-      this.api.addCareplan(id, payload).subscribe({
-        next: () => {
-          this.showToast('Careplan added successfully.');
-          this.loadPatient(id);
-          this.careplanForm.reset({
-            description: '',
-            start: '',
-            stop: ''
-          });
-        },
-        error: () => this.showToast('Failed to add careplan.', 'danger')
-      });
+      this.api.updateCareplan(id!, this.editingCareplanId, this.careplanForm.value)
+        .subscribe({
+          next: () => {
+            this.showToast("Careplan updated!", "success");
+            this.loadPatient(id!);
+            this.cancelEditCareplan();
+          },
+          error: () => this.showToast("Failed to update careplan", "error"),
+          complete: () => this.loading = false
+        });
+      return;
     }
-  }
 
-  deleteCareplan(cp: any) {
-    if (!this.patientId) return;
-    const id = this.patientId;
-
-    this.api.deleteCareplan(id, cp._id).subscribe({
+    this.api.addCareplan(id!, this.careplanForm.value).subscribe({
       next: () => {
-        this.showToast('Careplan deleted.');
-        if (this.editingCareplanId === cp._id) {
-          this.cancelEditCareplan();
-        }
-        this.loadPatient(id);
+        this.showToast("Careplan added!", "success");
+        this.loadPatient(id!);
+        this.cancelEditCareplan();
       },
-      error: () => this.showToast('Failed to delete careplan.', 'danger')
+      error: () => this.showToast("Failed to add careplan", "error"),
+      complete: () => this.loading = false
     });
   }
 
-  // --------------------------
+  //---------------------------------------------------
+  // DELETE HELPERS
+  //---------------------------------------------------
+  deleteAppointment(a: any) {
+    const id = this.patient?._id ?? this.patient?.id;
+    this.api.deleteAppointment(id!, a._id).subscribe(() => this.loadPatient(id!));
+  }
+
+  deletePrescription(rx: any) {
+    const id = this.patient?._id ?? this.patient?.id;
+    this.api.deletePrescription(id!, rx._id).subscribe(() => this.loadPatient(id!));
+  }
+
+  deleteCareplan(c: any) {
+    const id = this.patient?._id ?? this.patient?.id;
+    this.api.deleteCareplan(id!, c._id).subscribe(() => this.loadPatient(id!));
+  }
+
+  //---------------------------------------------------
   // HELPERS
-  // --------------------------
+  //---------------------------------------------------
   fmt(date: string): string {
-    if (!date) return '—';
+    if (!date) return '';
     return new Date(date).toLocaleDateString('en-UK', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+      month: 'short', day: 'numeric', year: 'numeric'
     });
   }
 

@@ -1,13 +1,19 @@
+// src/app/app.ts
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PatientsComponent } from './components/patients/patients';
 import { NavigationComponent } from './components/navigation/navigation';
-
+import { LoadingSpinnerComponent } from './shared/loading-spinner.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  standalone: true, // ensure this is included!
-  imports: [RouterOutlet, NavigationComponent],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    NavigationComponent,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

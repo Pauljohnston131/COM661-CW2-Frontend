@@ -1,28 +1,73 @@
-<div class="container mt-5 pt-5">
+<div class="container mt-5 pt-5" *ngIf="patient">
 
+  <!-- TOAST -->
+  <div *ngIf="toastMessage"
+       class="alert mt-2"
+       [ngClass]="toastType === 'success' ? 'alert-success' : 'alert-danger'">
+    {{ toastMessage }}
+  </div>
 
-  <h2>{{ patient.name }}</h2>
-  <p>
-    <strong>Age:</strong> {{ patient.age }} <br>
-    <strong>Condition:</strong> {{ patient.condition }} <br>
-    <strong>Town:</strong> {{ patient.town }} <br>
+  <!-- LOADING SPINNER -->
+  <div *ngIf="loading" class="d-flex justify-content-center my-3">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <h2 class="mb-1">{{ patient.name }}</h2>
+  <p class="text-muted">
+    Age: <strong>{{ patient.age }}</strong> ·
+    Condition: <strong>{{ patient.condition }}</strong> ·
+    Town: <strong>{{ patient.town }}</strong>
   </p>
 
+  <!-- ========================= -->
+  <!-- PENDING APPOINTMENT REQUESTS -->
+  <!-- ========================= -->
+  <div class="card shadow-sm mb-4" *ngIf="pendingRequests.length > 0">
+    <div class="card-body">
+      <h4 class="mb-3">Pending Requests</h4>
+
+      <ul class="list-group">
+        @for (a of pendingRequests; track a._id) {
+          <li class="list-group-item">
+            <strong>{{ fmt(a.date) }}</strong><br>
+            Status:
+            <span class="badge" [ngClass]="badge(a.status)">
+              {{ a.status }}
+            </span>
+            <br>
+            <small class="text-muted">Symptoms: {{ a.notes }}</small>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <!-- ========================= -->
   <!-- APPOINTMENTS -->
+  <!-- ========================= -->
   <div class="card shadow-sm mb-3">
     <div class="card-body">
+
       <h4>Your Appointments</h4>
 
       @if (patient.appointments.length === 0) {
-        <p>You have no appointments recorded.</p>
+
+        <p class="text-muted">You have no completed or upcoming appointments.</p>
+
       } @else {
 
         <ul class="list-group">
           @for (a of (showAllAppointments ? patient.appointments : patient.appointments.slice(0, 5)); track a._id) {
             <li class="list-group-item">
-              <strong>Date:</strong> {{ a.date }} <br>
-              <strong>Doctor:</strong> {{ a.doctor }} <br>
-              <strong>Status:</strong> {{ a.status }}
+              <strong>{{ fmt(a.date) }}</strong><br>
+              Doctor: {{ a.doctor }}<br>
+
+              <span class="badge mt-2" [ngClass]="badge(a.status)">
+                {{ a.status }}
+              </span>
             </li>
           }
         </ul>
@@ -37,69 +82,78 @@
     </div>
   </div>
 
+  <!-- ========================= -->
   <!-- PRESCRIPTIONS -->
-<div class="card shadow-sm mb-3">
-  <div class="card-body">
-    <h4>Your Prescriptions</h4>
-
-    @if (prescriptions.length === 0) {
-      <p>You have no prescriptions recorded.</p>
-    } @else {
-
-      <ul class="list-group">
-        @for (p of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 5)); track p._id) {
-          <li class="list-group-item">
-            <strong>Medication:</strong> {{ p.name }} <br>
-            <strong>Start:</strong> {{ p.start }} <br>
-            <strong>Stop:</strong> {{ p.stop }} <br>
-            <strong>Status:</strong> {{ p.status }}
-          </li>
-        }
-      </ul>
-
-      @if (prescriptions.length > 5) {
-        <button class="btn btn-link mt-2 p-0"
-                (click)="showAllPrescriptions = !showAllPrescriptions">
-          {{ showAllPrescriptions ? 'Show Less' : 'Show More' }}
-        </button>
-      }
-    }
-  </div>
-</div>
-
-<!-- CARE PLANS -->
-<div class="card shadow-sm mb-3">
-  <div class="card-body">
-    <h4>Your Care Plans</h4>
-
-    @if (careplans.length === 0) {
-      <p>You are not currently assigned any care plans.</p>
-    } @else {
-
-      <ul class="list-group">
-        @for (c of (showAllCareplans ? careplans : careplans.slice(0, 5)); track c._id) {
-          <li class="list-group-item">
-            <strong>Description:</strong> {{ c.description }} <br>
-            <strong>Start:</strong> {{ c.start }} <br>
-            <strong>Stop:</strong> {{ c.stop }}
-          </li>
-        }
-      </ul>
-
-      @if (careplans.length > 5) {
-        <button class="btn btn-link mt-2 p-0"
-                (click)="showAllCareplans = !showAllCareplans">
-          {{ showAllCareplans ? 'Show Less' : 'Show More' }}
-        </button>
-      }
-    }
-  </div>
-</div>
-
-
-  <!-- REQUEST APPOINTMENT -->
+  <!-- ========================= -->
   <div class="card shadow-sm mb-3">
     <div class="card-body">
+
+      <h4>Your Prescriptions</h4>
+
+      @if (prescriptions.length === 0) {
+        <p class="text-muted">You have no prescriptions recorded.</p>
+
+      } @else {
+        <ul class="list-group">
+          @for (p of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 5)); track p._id) {
+            <li class="list-group-item">
+              <strong>{{ p.name }}</strong><br>
+              Start: {{ fmt(p.start) }}<br>
+              Stop: {{ fmt(p.stop) }}<br>
+              Status:
+              <span class="badge bg-info">{{ p.status }}</span>
+            </li>
+          }
+        </ul>
+
+        @if (prescriptions.length > 5) {
+          <button class="btn btn-link mt-2 p-0"
+                  (click)="showAllPrescriptions = !showAllPrescriptions">
+            {{ showAllPrescriptions ? 'Show Less' : 'Show More' }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- CAREPLANS -->
+  <!-- ========================= -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+
+      <h4>Your Care Plans</h4>
+
+      @if (careplans.length === 0) {
+        <p class="text-muted">No care plans currently assigned.</p>
+
+      } @else {
+        <ul class="list-group">
+          @for (c of (showAllCareplans ? careplans : careplans.slice(0, 5)); track c._id) {
+            <li class="list-group-item">
+              <strong>{{ c.description }}</strong><br>
+              Start: {{ fmt(c.start) }}<br>
+              Stop: {{ fmt(c.stop) }}
+            </li>
+          }
+        </ul>
+
+        @if (careplans.length > 5) {
+          <button class="btn btn-link mt-2 p-0"
+                  (click)="showAllCareplans = !showAllCareplans">
+            {{ showAllCareplans ? 'Show Less' : 'Show More' }}
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- REQUEST APPOINTMENT -->
+  <!-- ========================= -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+
       <h4>Request an Appointment</h4>
 
       <div class="form-group mb-3">
@@ -119,8 +173,9 @@
       </button>
 
       <p class="text-success mt-2" *ngIf="submitted">
-        Your appointment request has been submitted.
+        Appointment request successfully submitted.
       </p>
+
     </div>
   </div>
 

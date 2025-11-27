@@ -8,36 +8,34 @@
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto">
 
-        <!-- Visible when NOT logged in -->
-        <li class="nav-item" *ngIf="!auth.isLoggedIn()">
-          <a class="nav-link" [routerLink]="['/login']">Login</a>
+        <li class="nav-item" *ngIf="auth.isLoggedIn() && isGP">
+          <a class="nav-link" [routerLink]="['/gp/patients']">GP Portal</a>
         </li>
 
-        <!-- GP LINKS -->
-        <ng-container *ngIf="auth.isGP()">
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/']">GP: Dashboard</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/gp/patients']">GP: Patients</a>
-          </li>
-        </ng-container>
-
-        <!-- PATIENT LINKS -->
-        <ng-container *ngIf="auth.isPatient()">
-          <li class="nav-item">
-            <a class="nav-link" [routerLink]="['/patient-portal']">My Portal</a>
-          </li>
-        </ng-container>
+        <li class="nav-item" *ngIf="auth.isLoggedIn() && isPatient">
+          <a class="nav-link" [routerLink]="['/patient-portal']">Patient Portal</a>
+        </li>
 
       </ul>
 
-      <!-- LOGOUT button (right aligned) -->
-      <div class="d-flex" *ngIf="auth.isLoggedIn()">
-        <button class="btn btn-warning" (click)="logout()">Logout</button>
+      <div class="d-flex align-items-center" *ngIf="auth.isLoggedIn(); else loginLink">
+        <span class="me-3 text-light small">
+          {{ username }}
+          <span class="badge ms-1"
+                [ngClass]="isGP ? 'bg-warning text-dark' : 'bg-info text-dark'">
+            {{ isGP ? 'GP' : 'Patient' }}
+          </span>
+        </span>
+        <button class="btn btn-outline-light btn-sm" (click)="logout()">
+          Logout
+        </button>
       </div>
 
+      <ng-template #loginLink>
+        <a class="btn btn-outline-light btn-sm" [routerLink]="['/login']">
+          Login
+        </a>
+      </ng-template>
     </div>
 
   </div>
