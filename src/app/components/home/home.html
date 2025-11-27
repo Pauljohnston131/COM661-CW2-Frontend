@@ -1,120 +1,158 @@
-<div class="container mt-5 pt-4">
+<div class="container mt-5 pt-5">
 
-<!-- HEADER -->
+  <!-- PAGE HEADER -->
   <div class="row mb-4">
-    <div class="col-sm-12">
-      <h1>GP Portal Dashboard</h1>
-      <p class="text-muted">
-        Overview of patients, activity, and locations powered by Synthea data.
-      </p>
+    <div class="col-12">
+      <h1 class="fw-bold mb-1">GP Portal Dashboard</h1>
+      <p class="text-muted">Real-time overview of patients, activity, and location analytics.</p>
     </div>
   </div>
 
-  <!-- TOP STATS CARDS -->
-  <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Patients</h5>
-          <h2>{{ totalPatients }}</h2>
+  <!-- PENDING APPOINTMENT ALERT -->
+  <div class="row mb-4" *ngIf="pendingRequests > 0">
+    <div class="col-12">
+      <div class="alert alert-warning shadow-sm d-flex justify-content-between align-items-center"
+           style="cursor:pointer"
+           (click)="router.navigate(['/gp/patients'])">
+        <div>
+          <strong>{{ pendingRequests }}</strong> appointment request(s) awaiting GP review.
         </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Appointments</h5>
-          <h2>{{ totalAppointments }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Prescriptions</h5>
-          <h2>{{ totalPrescriptions }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5>Total Care Plans</h5>
-          <h2>{{ totalCareplans }}</h2>
-        </div>
+        <span class="fw-bold">Review →</span>
       </div>
     </div>
   </div>
 
-  <!-- MIDDLE ROW: CHART + MAP -->
-  <div class="row mb-4">
-    <div class="col-md-6 mb-3">
-      <div class="card shadow-sm">
+  <!-- QUICK STATS ROW -->
+  <div class="row g-3 mb-4">
+    <div class="col-xxl-3 col-md-6">
+      <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h4>Patients per Town</h4>
-          <canvas #patientsByTownChart></canvas>
+          <h6 class="text-secondary">Total Patients</h6>
+          <h2 class="fw-bold mb-0">{{ totalPatients }}</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-md-6 mb-3">
-      <div class="card shadow-sm">
+    <div class="col-xxl-3 col-md-6">
+      <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h4>Patient Locations</h4>
-          <google-map
-            height="350px"
-            width="100%"
-            [options]="mapOptions">
-            @for (marker of mapMarkers; track marker) {
-              <map-advanced-marker
-                [position]="marker.position"
-                [title]="marker.title">
-              </map-advanced-marker>
+          <h6 class="text-secondary">Total Appointments</h6>
+          <h2 class="fw-bold mb-0">{{ totalAppointments }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-secondary">Total Prescriptions</h6>
+          <h2 class="fw-bold mb-0">{{ totalPrescriptions }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-secondary">Total Care Plans</h6>
+          <h2 class="fw-bold mb-0">{{ totalCareplans }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS: CHART + MAP -->
+  <div class="row g-3 mb-4">
+
+    <!-- PATIENTS PER TOWN CHART -->
+    <div class="col-xl-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h4 class="mb-3">Patients per Town</h4>
+          <div style="position: relative; height: 360px;">
+            <canvas #patientsByTownChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENT LOCATIONS MAP -->
+    <div class="col-xl-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body p-0 d-flex flex-column">
+          <div class="p-3 border-bottom bg-light">
+            <h4 class="mb-0">Patient Locations</h4>
+          </div>
+          <div class="flex-grow-1 position-relative">
+            <google-map
+              height="380px"
+              width="100%"
+              [options]="mapOptions">
+              @for (marker of mapMarkers; track marker.lat + ',' + marker.lng) {
+                <map-marker
+                  [position]="marker"
+                  title="Patient Location">
+                </map-marker>
+              }
+            </google-map>
+
+            @if (mapMarkers.length === 0) {
+              <div class="d-flex align-items-center justify-content-center text-muted h-100 position-absolute top-0 start-0 w-100 bg-white bg-opacity-75">
+                <p class="mb-0">No location data available</p>
+              </div>
             }
-          </google-map>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- BOTTOM ROW: RECENT APPOINTMENTS + QUICK LINKS -->
-  <div class="row mb-4">
-    <div class="col-md-6 mb-3">
-      <div class="card shadow-sm">
+  <!-- RECENT ACTIVITY + QUICK LINKS -->
+  <div class="row g-3 mb-5">
+
+    <div class="col-xl-6">
+      <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h4>Recent Appointments</h4>
+          <h4 class="mb-3">Recent Appointments</h4>
 
           @if (recentAppointments.length === 0) {
-            <p>No appointments available.</p>
+            <p class="text-muted">No recent appointments available.</p>
           } @else {
-            <ul class="list-group">
+            <div class="list-group list-group-flush">
               @for (a of recentAppointments; track a._id) {
-                <li class="list-group-item">
-                  <strong>{{ a.date }}</strong> – {{ a.patientName }} <br>
-                  Doctor: {{ a.doctor }} <br>
-                  Status: {{ a.status }}
-                </li>
+                <a href="#" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">{{ a.patientName }}</h6>
+                    <small>{{ a.date }}</small>
+                  </div>
+                  <small class="text-muted">
+                    Doctor: {{ a.doctor }} • Status: <span class="badge bg-{{ a.status === 'completed' ? 'success' : 'warning' }}">{{ a.status }}</span>
+                  </small>
+                </a>
               }
-            </ul>
+            </div>
           }
         </div>
       </div>
     </div>
 
-    <div class="col-md-6 mb-3">
-      <div class="card shadow-sm">
+    <div class="col-xl-6">
+      <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h4>Quick Actions</h4>
-          <p>Jump quickly to common workflows.</p>
-          <a class="btn btn-primary me-2 mb-2" [routerLink]="['/patients']">
-            View Patients
+          <h4 class="mb-3">Quick Actions</h4>
+          <p class="text-muted">Jump quickly to common workflows.</p>
+
+          <a class="btn btn-primary me-2 mb-2" [routerLink]="['/gp/patients']">
+            View All Patients
           </a>
-          <!-- You can add more links later like /analytics, /reports, etc. -->
+          <a class="btn btn-outline-primary mb-2" [routerLink]="['/gp/appointments']">
+            Manage Appointments
+          </a>
         </div>
       </div>
     </div>
+
   </div>
+
 </div>

@@ -11,17 +11,13 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // ---- API CALLS ----
   login(username: string, password: string) {
     const headers = new HttpHeaders({
       Authorization: 'Basic ' + btoa(`${username}:${password}`)
     });
-
-    // assumes backend returns { success: true, token: "..." }
     return this.http.get<any>(`${this.baseUrl}/auth/login`, { headers });
   }
 
-  // ---- TOKEN HANDLING ----
   storeToken(token: string) {
     localStorage.setItem(this.tokenKey, token);
   }
@@ -34,7 +30,6 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  // ---- ROLE HELPERS ----
   private decode(): any | null {
     const token = this.getToken();
     if (!token) return null;
@@ -43,6 +38,16 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  getUsername(): string | null {
+    const decoded = this.decode();
+    return decoded?.user || null;
+  }
+
+  getPatientId(): string | null {
+    const decoded = this.decode();
+    return decoded?.patient_id || null;
   }
 
   isGP(): boolean {
@@ -56,16 +61,15 @@ export class AuthService {
   }
 
   logoutApi() {
-  const token = this.getToken();
+    const token = this.getToken();
+    return this.http.get(`${this.baseUrl}/auth/logout`, {
+      headers: new HttpHeaders({
+        'x-access-token': token || ''
+      })
+    });
+  }
 
-  return this.http.get(`${this.baseUrl}/auth/logout`, {
-    headers: new HttpHeaders({
-      'x-access-token': token || ''
-    })
-  });
-}
-
-logout() {
-  localStorage.removeItem(this.tokenKey);
-}
+  logout() {
+    localStorage.removeItem(this.tokenKey);
+  }
 }

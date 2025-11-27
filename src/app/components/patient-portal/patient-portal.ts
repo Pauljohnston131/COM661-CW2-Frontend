@@ -1,9 +1,9 @@
 // src/app/components/patient-portal/patient-portal.ts
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-patient-portal',
@@ -17,57 +17,73 @@ export class PatientPortalComponent {
   patient: any = null;
 
   showAllAppointments = false;
+  showAllPrescriptions = false;
+  showAllCareplans = false;
+
 
   requestDate = '';
-  requestSeverity = 1;
   requestSymptoms = '';
-  symptomScore = 5;
   submitted = false;
 
   prescriptions: any[] = [];
   careplans: any[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private api: Api
+    private api: Api,
+    private auth: AuthService
   ) {}
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.loadPatient(id);
+    const pid = this.auth.getPatientId();
+    if (!pid) {
+      console.error("No patient_id found in token.");
+      return;
+    }
+    this.loadPatient(pid);
   }
 
   private loadPatient(id: string) {
-    this.api.getPatient(id).subscribe(res => {
-      const p = res.data;
-      this.patient = p;
-      this.prescriptions = p.prescriptions || [];
-      this.careplans = p.careplans || [];
+    this.api.getPatient(id).subscribe({
+      next: (res) => {
+        const p = res.data;
+        this.patient = p;
+
+        // All embedded data comes from GET /patients/:id
+        this.patient.appointments = p.appointments || [];
+        this.prescriptions = p.prescriptions || [];
+        this.careplans = p.careplans || [];
+      },
+      error: (err) => {
+        console.error('Failed to load patient:', err);
+      }
     });
   }
 
   submitRequest() {
-    if (!this.requestDate || !this.requestSymptoms.trim()) return;
+  if (!this.requestDate || !this.requestSymptoms.trim()) return;
 
-    const payload = {
-      date: this.requestDate,
-      notes: this.requestSymptoms,
-      status: 'requested',
-      severity: this.requestSeverity,
-      score: this.symptomScore
-    };
+  const payload = {
+    date: this.requestDate,
+    notes: this.requestSymptoms
+  };
 
-    this.api.addAppointment(this.patient.id, payload).subscribe(() => {
+  const pid = this.patient._id || this.patient.id;
+
+  this.api.requestAppointment(pid, payload).subscribe({
+    next: () => {
       this.submitted = true;
 
-      // Refresh patient data so new appointment appears
-      this.loadPatient(this.patient.id);
+      // Refresh patient to show new requested appointment
+      this.loadPatient(pid);
 
       // Reset form
       this.requestDate = '';
-      this.requestSeverity = 1;
       this.requestSymptoms = '';
-      this.symptomScore = 5;
-    });
-  }
+    },
+    error: (err) => {
+      console.error('Failed to submit appointment request:', err);
+    }
+  });
 }
+}
+  

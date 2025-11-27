@@ -31,6 +31,16 @@ export class Api {
   }
 
   // --------------------------
+  // AUTH
+  // --------------------------
+  verifyToken(): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/auth/verify`,
+      { headers: this.headers }
+    );
+  }
+
+  // --------------------------
   // PATIENTS
   // --------------------------
   getPatients(page: number = 1, limit: number = 10): Observable<any> {
@@ -46,6 +56,41 @@ export class Api {
       { headers: this.headers }
     );
   }
+
+  addPatient(payload: any): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/patients`,
+      payload,
+      { headers: this.headers }
+    );
+  }
+
+  updatePatient(id: string, payload: any): Observable<any> {
+    return this.http.put(
+      `${this.baseUrl}/patients/${id}`,
+      payload,
+      { headers: this.headers }
+    );
+  }
+
+  deletePatient(id: string): Observable<any> {
+    return this.http.delete(
+      `${this.baseUrl}/patients/${id}`,
+      { headers: this.headers }
+    );
+  }
+
+  // --------------------------
+// PATIENT REQUEST APPOINTMENT
+// --------------------------
+requestAppointment(patientId: string, payload: any): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/patients/${patientId}/request`,
+    payload,
+    { headers: this.headers }
+  );
+}
+
 
   // --------------------------
   // APPOINTMENTS
@@ -74,11 +119,45 @@ export class Api {
   }
 
   // --------------------------
+// GP: Pending appointment requests
+// --------------------------
+getPendingRequests(): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/patients/requests/pending`,
+    { headers: this.headers }
+  );
+}
+
+
+  // --------------------------
   // PRESCRIPTIONS
   // --------------------------
   getPrescriptions(patientId: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/patients/${patientId}/prescriptions`,
+      { headers: this.headers }
+    );
+  }
+
+  addPrescription(patientId: string, payload: any): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/patients/${patientId}/prescriptions`,
+      payload,
+      { headers: this.headers }
+    );
+  }
+
+  updatePrescription(patientId: string, prescriptionId: string, payload: any): Observable<any> {
+    return this.http.put(
+      `${this.baseUrl}/patients/${patientId}/prescriptions/${prescriptionId}`,
+      payload,
+      { headers: this.headers }
+    );
+  }
+
+  deletePrescription(patientId: string, prescriptionId: string): Observable<any> {
+    return this.http.delete(
+      `${this.baseUrl}/patients/${patientId}/prescriptions/${prescriptionId}`,
       { headers: this.headers }
     );
   }
@@ -89,6 +168,74 @@ export class Api {
   getCareplans(patientId: string): Observable<any> {
     return this.http.get(
       `${this.baseUrl}/patients/${patientId}/careplans`,
+      { headers: this.headers }
+    );
+  }
+
+  addCareplan(patientId: string, payload: any): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/patients/${patientId}/careplans`,
+      payload,
+      { headers: this.headers }
+    );
+  }
+
+  updateCareplan(patientId: string, careplanId: string, payload: any): Observable<any> {
+    return this.http.put(
+      `${this.baseUrl}/patients/${patientId}/careplans/${careplanId}`,
+      payload,
+      { headers: this.headers }
+    );
+  }
+
+  deleteCareplan(patientId: string, careplanId: string): Observable<any> {
+    return this.http.delete(
+      `${this.baseUrl}/patients/${patientId}/careplans/${careplanId}`,
+      { headers: this.headers }
+    );
+  }
+
+  // --------------------------
+  // SEARCH & ANALYTICS
+  // --------------------------
+  searchPatients(q: string, gender: string = '', skip = 0, limit = 10): Observable<any> {
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (gender) params.set('gender', gender);
+    params.set('skip', String(skip));
+    params.set('limit', String(limit));
+
+    return this.http.get(
+      `${this.baseUrl}/search?${params.toString()}`,
+      { headers: this.headers }
+    );
+  }
+
+  getOverviewStats(gender: string = '', limit = 5): Observable<any> {
+    const params = new URLSearchParams();
+    if (gender) params.set('gender', gender);
+    params.set('limit', String(limit));
+
+    return this.http.get(
+      `${this.baseUrl}/stats/overview?${params.toString()}`,
+      { headers: this.headers }
+    );
+  }
+
+  // Could add more stats endpoints similarly if needed
+  // getAppointmentsStats(), getPrescriptionsStats(), etc.
+
+  // --------------------------
+  // GEO
+  // --------------------------
+  getNearbyPatients(lon: number, lat: number, max_distance: number = 5000): Observable<any> {
+    const params = new URLSearchParams();
+    params.set('lon', String(lon));
+    params.set('lat', String(lat));
+    params.set('max_distance', String(max_distance));
+
+    return this.http.get(
+      `${this.baseUrl}/geo/nearby?${params.toString()}`,
       { headers: this.headers }
     );
   }

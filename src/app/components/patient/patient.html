@@ -1,5 +1,6 @@
 <!-- src/app/components/patient/patient.html -->
-<div class="container mt-5 pt-4">
+<div class="container mt-5 pt-5">
+
   @for (patient of patient_list; track patient.id) {
 
     <!-- PATIENT HEADER -->
@@ -148,51 +149,126 @@
         </div>
 
         <!-- PRESCRIPTIONS -->
-        <div class="card shadow-sm mb-3">
-          <div class="card-body">
-            <h4>Prescriptions</h4>
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h4>Prescriptions</h4>
 
-            @if (prescriptions.length === 0) {
-              <p>No prescriptions recorded.</p>
-            } @else {
-              <ul class="list-group">
-                @for (rx of prescriptions; track rx._id) {
-                  <li class="list-group-item">
-                    <strong>Medication:</strong> {{ rx.medication }} <br>
-                    <strong>Dosage:</strong> {{ rx.dosage }} <br>
-                    <strong>Status:</strong> {{ rx.status }}
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-        </div>
+    @if (prescriptions.length === 0) {
+      <p>No prescriptions recorded.</p>
+    } @else {
 
+      <ul class="list-group mb-3">
+        @for (rx of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 5)); track rx._id) {
+          <li class="list-group-item">
+            <strong>Medication:</strong> {{ rx.name }} <br>
+            <strong>Start:</strong> {{ rx.start }} <br>
+            <strong>Stop:</strong> {{ rx.stop }} <br>
+            <strong>Status:</strong> {{ rx.status }} <br>
+
+            <button class="btn btn-sm btn-outline-danger mt-2"
+                    (click)="deletePrescription(rx)">
+              Delete
+            </button>
+          </li>
+        }
+      </ul>
+
+      @if (prescriptions.length > 5) {
+        <button class="btn btn-primary btn-sm mt-2"
+                (click)="showAllPrescriptions = !showAllPrescriptions">
+          {{ showAllPrescriptions ? 'Show Less' : 'Show More' }}
+        </button>
+      }
+    }
+
+    <!-- Add Prescription Form -->
+    <h5 class="mt-4">Add Prescription</h5>
+    <form [formGroup]="prescriptionForm" (ngSubmit)="addPrescription()">
+      <div class="form-group mb-2">
+        <label>Medication</label>
+        <input class="form-control" formControlName="medication">
       </div>
+      <div class="form-group mb-2">
+        <label>Dosage</label>
+        <input class="form-control" formControlName="dosage">
+      </div>
+      <div class="form-group mb-2">
+        <label>Status</label>
+        <select class="form-control" formControlName="status">
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <button class="btn btn-primary mt-2" type="submit"
+              [disabled]="prescriptionForm.invalid">
+        Add Prescription
+      </button>
+    </form>
 
-      <!-- RIGHT COLUMN -->
-      <div class="col-md-6">
+  </div>
+</div>
+<!-- CAREPLANS -->
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h4>Care Plans</h4>
 
-        <!-- CAREPLANS -->
-        <div class="card shadow-sm mb-3">
-          <div class="card-body">
-            <h4>Care Plans</h4>
+    @if (careplans.length === 0) {
+      <p>No careplans available.</p>
+    } @else {
 
-            @if (careplans.length === 0) {
-              <p>No careplans available.</p>
-            } @else {
-              <ul class="list-group">
-                @for (c of careplans; track c._id) {
-                  <li class="list-group-item">
-                    <strong>{{ c.name }}</strong> <br>
-                    <strong>Goal:</strong> {{ c.goal }} <br>
-                    <strong>Status:</strong> {{ c.status }}
-                  </li>
-                }
-              </ul>
-            }
-          </div>
-        </div>
+      <ul class="list-group mb-3">
+        @for (c of (showAllCareplans ? careplans : careplans.slice(0, 5)); track c._id) {
+          <li class="list-group-item">
+            <strong>Description:</strong> {{ c.description }} <br>
+            <strong>Start:</strong> {{ c.start }} <br>
+            <strong>Stop:</strong> {{ c.stop }} <br>
+
+            <button class="btn btn-sm btn-outline-danger mt-2"
+                    (click)="deleteCareplan(c)">
+              Delete
+            </button>
+          </li>
+        }
+      </ul>
+
+      @if (careplans.length > 5) {
+        <button class="btn btn-primary btn-sm mt-2"
+                (click)="showAllCareplans = !showAllCareplans">
+          {{ showAllCareplans ? 'Show Less' : 'Show More' }}
+        </button>
+      }
+    }
+
+    <!-- Add Careplan Form -->
+    <h5 class="mt-4">Add Care Plan</h5>
+    <form [formGroup]="careplanForm" (ngSubmit)="addCareplan()">
+      <div class="form-group mb-2">
+        <label>Name</label>
+        <input class="form-control" formControlName="name">
+      </div>
+      <div class="form-group mb-2">
+        <label>Goal</label>
+        <input class="form-control" formControlName="goal">
+      </div>
+      <div class="form-group mb-2">
+        <label>Status</label>
+        <select class="form-control" formControlName="status">
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="paused">Paused</option>
+        </select>
+      </div>
+      <button class="btn btn-primary mt-2" type="submit"
+              [disabled]="careplanForm.invalid">
+        Add Care Plan
+      </button>
+    </form>
+
+
+  </div>
+</div>
+
 
         <!-- GOOGLE MAP -->
         <div class="card shadow-sm mb-3">

@@ -27,11 +27,11 @@ export class PatientsComponent {
   }
 
   loadPage(page: number) {
-    this.api.getPatients(page).subscribe(res => {
+    this.api.getPatients(page).subscribe((res: any) => {
       this.patients = res.data.patients;
       this.filteredPatients = this.patients;
       this.page = res.data.page;
-      this.lastPage = Math.ceil(res.data.count / 10); // adjust if backend changes
+      this.lastPage = Math.ceil(res.data.count / 10);
     });
   }
 

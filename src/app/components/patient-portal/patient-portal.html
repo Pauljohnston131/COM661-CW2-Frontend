@@ -1,4 +1,5 @@
-<div class="container mt-5 pt-4" *ngIf="patient">
+<div class="container mt-5 pt-5">
+
 
   <h2>{{ patient.name }}</h2>
   <p>
@@ -7,7 +8,7 @@
     <strong>Town:</strong> {{ patient.town }} <br>
   </p>
 
-  <!-- APPOINTMENT HISTORY -->
+  <!-- APPOINTMENTS -->
   <div class="card shadow-sm mb-3">
     <div class="card-body">
       <h4>Your Appointments</h4>
@@ -36,49 +37,67 @@
     </div>
   </div>
 
-  <!-- PRESCRIPTION HISTORY -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <h4>Your Prescriptions</h4>
+  <!-- PRESCRIPTIONS -->
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h4>Your Prescriptions</h4>
 
-      @if (prescriptions.length === 0) {
-        <p>You have no prescriptions recorded.</p>
-      } @else {
-        <ul class="list-group">
-          @for (p of prescriptions; track p._id) {
-            <li class="list-group-item">
-              <strong>Medication:</strong> {{ p.medication }} <br>
-              <strong>Dosage:</strong> {{ p.dosage }} <br>
-              <strong>Status:</strong> {{ p.status }}
-            </li>
-          }
-        </ul>
+    @if (prescriptions.length === 0) {
+      <p>You have no prescriptions recorded.</p>
+    } @else {
+
+      <ul class="list-group">
+        @for (p of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 5)); track p._id) {
+          <li class="list-group-item">
+            <strong>Medication:</strong> {{ p.name }} <br>
+            <strong>Start:</strong> {{ p.start }} <br>
+            <strong>Stop:</strong> {{ p.stop }} <br>
+            <strong>Status:</strong> {{ p.status }}
+          </li>
+        }
+      </ul>
+
+      @if (prescriptions.length > 5) {
+        <button class="btn btn-link mt-2 p-0"
+                (click)="showAllPrescriptions = !showAllPrescriptions">
+          {{ showAllPrescriptions ? 'Show Less' : 'Show More' }}
+        </button>
       }
-    </div>
+    }
   </div>
+</div>
 
-  <!-- CARE PLAN SUMMARY -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <h4>Your Care Plans</h4>
+<!-- CARE PLANS -->
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h4>Your Care Plans</h4>
 
-      @if (careplans.length === 0) {
-        <p>You are not currently assigned any care plans.</p>
-      } @else {
-        <ul class="list-group">
-          @for (c of careplans; track c._id) {
-            <li class="list-group-item">
-              <strong>{{ c.name }}</strong> <br>
-              <strong>Goal:</strong> {{ c.goal }} <br>
-              <strong>Status:</strong> {{ c.status }}
-            </li>
-          }
-        </ul>
+    @if (careplans.length === 0) {
+      <p>You are not currently assigned any care plans.</p>
+    } @else {
+
+      <ul class="list-group">
+        @for (c of (showAllCareplans ? careplans : careplans.slice(0, 5)); track c._id) {
+          <li class="list-group-item">
+            <strong>Description:</strong> {{ c.description }} <br>
+            <strong>Start:</strong> {{ c.start }} <br>
+            <strong>Stop:</strong> {{ c.stop }}
+          </li>
+        }
+      </ul>
+
+      @if (careplans.length > 5) {
+        <button class="btn btn-link mt-2 p-0"
+                (click)="showAllCareplans = !showAllCareplans">
+          {{ showAllCareplans ? 'Show Less' : 'Show More' }}
+        </button>
       }
-    </div>
+    }
   </div>
+</div>
 
-  <!-- APPOINTMENT REQUEST -->
+
+  <!-- REQUEST APPOINTMENT -->
   <div class="card shadow-sm mb-3">
     <div class="card-body">
       <h4>Request an Appointment</h4>
@@ -86,18 +105,6 @@
       <div class="form-group mb-3">
         <label>Select Appointment Date</label>
         <input type="date" class="form-control" [(ngModel)]="requestDate">
-      </div>
-
-      <div class="form-group mb-3">
-        <label>Severity Rating (1–5)</label>
-        <select class="form-control" [(ngModel)]="requestSeverity">
-          <option *ngFor="let s of [1,2,3,4,5]" [value]="s">{{ s }}</option>
-        </select>
-      </div>
-
-      <div class="form-group mb-3">
-        <label>Symptom Score: {{ symptomScore }}</label>
-        <input type="range" class="form-range" min="1" max="10" [(ngModel)]="symptomScore">
       </div>
 
       <div class="form-group mb-3">
