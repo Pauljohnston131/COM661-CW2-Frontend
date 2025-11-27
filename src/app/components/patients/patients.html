@@ -1,13 +1,22 @@
+<!-- src/app/components/patients/patients.html -->
 <div class="container mt-5 pt-5">
 
-
-  <h2 class="mb-3">Patients</h2>
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="mb-1">Patients</h2>
+      <p class="text-muted mb-0">Browse and search registered patients in this practice.</p>
+    </div>
+    <span class="badge bg-light text-dark">
+      Page {{ page }} / {{ lastPage }}
+    </span>
+  </div>
 
   <!-- SEARCH BAR -->
   <div class="input-group mb-4">
     <input type="text"
            class="form-control"
-           placeholder="Search by name or condition..."
+           placeholder="Search by name, condition, or town..."
            [(ngModel)]="searchQuery"
            (input)="filterPatients()">
     <span class="input-group-text">
@@ -15,31 +24,107 @@
     </span>
   </div>
 
-  <div class="row">
-    @for (patient of filteredPatients; track patient.id) {
-      <div class="col-md-6 mb-3">
-        <div class="card shadow-sm"
-             style="cursor:pointer"
-             [routerLink]="['/gp/patients', patient.id]">
-
-          <div class="card-body">
-            <h5 class="card-title">{{ patient.name }}</h5>
-            <p class="card-text">Age: {{ patient.age }}</p>
-            <p class="card-text">Condition: {{ patient.condition }}</p>
-          </div>
-
-        </div>
-      </div>
-    }
+  <!-- LOADING / ERROR STATES -->
+  <div *ngIf="loading" class="mb-3">
+    <div class="alert alert-info mb-0">
+      Loading patients...
+    </div>
   </div>
 
+  <div *ngIf="!loading && errorMsg" class="mb-3">
+    <div class="alert alert-danger mb-0">
+      {{ errorMsg }}
+    </div>
+  </div>
+
+  <!-- PATIENT CARDS -->
+  <div class="row">
+    <ng-container *ngIf="!loading && filteredPatients.length > 0; else noPatients">
+      <div class="col-md-6 mb-3"
+           *ngFor="let patient of filteredPatients">
+        <div class="card shadow-sm h-100"
+             style="cursor:pointer"
+             [routerLink]="['/gp/patients', getPatientId(patient)]">
+
+          <div class="card-body d-flex flex-column">
+
+            <!-- Top row: name + age/town -->
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div>
+                <h5 class="card-title mb-1">
+                  {{ patient.name }}
+                  <span *ngIf="isChronic(patient)"
+                        class="badge bg-warning text-dark ms-1">
+                    Chronic
+                  </span>
+                </h5>
+                <small class="text-muted">
+                  Age: {{ patient.age || 'N/A' }}
+                  <span *ngIf="patient.town"> · {{ patient.town }}</span>
+                </small>
+              </div>
+            </div>
+
+            <!-- Condition -->
+            <p class="card-text mt-2 mb-3 text-truncate" style="max-width: 100%;">
+              <strong>Condition:</strong>
+              <span class="text-muted">{{ patient.condition || 'Not recorded' }}</span>
+            </p>
+
+            <!-- Footer stats -->
+            <div class="mt-auto">
+              <span class="badge bg-light text-dark me-1"
+                    *ngIf="getAppointmentsCount(patient) > 0">
+                Appts: {{ getAppointmentsCount(patient) }}
+              </span>
+
+              <span class="badge bg-light text-dark me-1"
+                    *ngIf="getPrescriptionsCount(patient) > 0">
+                Rx: {{ getPrescriptionsCount(patient) }}
+              </span>
+
+              <span class="badge bg-light text-dark me-1"
+                    *ngIf="getCareplansCount(patient) > 0">
+                Careplans: {{ getCareplansCount(patient) }}
+              </span>
+
+              <span class="badge bg-secondary"
+                    *ngIf="getAppointmentsCount(patient) === 0
+                           && getPrescriptionsCount(patient) === 0
+                           && getCareplansCount(patient) === 0">
+                No recorded activity
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <ng-template #noPatients>
+    <div class="col-12">
+      <p class="text-muted">No patients found for this page or search query.</p>
+    </div>
+  </ng-template>
+
   <!-- Pagination controls -->
-  <div class="d-flex justify-content-between mt-3">
-    <button class="btn btn-primary" (click)="previousPage()">Previous</button>
-    <div class="align-self-center">
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <button class="btn btn-outline-primary"
+            (click)="previousPage()"
+            [disabled]="page <= 1">
+      ‹ Previous
+    </button>
+
+    <div class="small text-muted">
       Page {{ page }} of {{ lastPage }}
     </div>
-    <button class="btn btn-primary" (click)="nextPage()">Next</button>
+
+    <button class="btn btn-outline-primary"
+            (click)="nextPage()"
+            [disabled]="page >= lastPage">
+      Next ›
+    </button>
   </div>
 
 </div>

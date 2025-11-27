@@ -1,135 +1,128 @@
+<!-- src/app/components/home/home.html -->
 <div class="container mt-5 pt-5">
 
-  <!-- PAGE HEADER -->
+  <!-- HEADER -->
   <div class="row mb-4">
     <div class="col-12">
-      <h1 class="fw-bold mb-1">GP Portal Dashboard</h1>
-      <p class="text-muted">Real-time overview of patients, activity, and location analytics.</p>
+      <h1 class="fw-bold">GP Dashboard</h1>
+      <p class="text-muted">Overview of patient activity and priority tasks.</p>
     </div>
   </div>
 
-  <!-- PENDING APPOINTMENT ALERT -->
-  <div class="row mb-4" *ngIf="pendingRequests > 0">
+  <!-- PENDING REQUEST ALERT -->
+  <div class="row mb-3" *ngIf="pendingRequests > 0">
     <div class="col-12">
       <div class="alert alert-warning shadow-sm d-flex justify-content-between align-items-center"
            style="cursor:pointer"
            (click)="router.navigate(['/gp/patients'])">
-        <div>
-          <strong>{{ pendingRequests }}</strong> appointment request(s) awaiting GP review.
-        </div>
-        <span class="fw-bold">Review →</span>
+        <div><strong>{{ pendingRequests }}</strong> appointment request(s) waiting.</div>
+        <strong>Review →</strong>
       </div>
     </div>
   </div>
 
-  <!-- QUICK STATS ROW -->
+  <!-- QUICK STATS -->
   <div class="row g-3 mb-4">
-    <div class="col-xxl-3 col-md-6">
+
+    <div class="col-md-3">
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h6 class="text-secondary">Total Patients</h6>
-          <h2 class="fw-bold mb-0">{{ totalPatients }}</h2>
+          <h2 class="fw-bold">{{ totalPatients }}</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-xxl-3 col-md-6">
+    <div class="col-md-3">
       <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h6 class="text-secondary">Total Appointments</h6>
-          <h2 class="fw-bold mb-0">{{ totalAppointments }}</h2>
+          <h6 class="text-secondary">Appointments</h6>
+          <h2 class="fw-bold">{{ totalAppointments }}</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-xxl-3 col-md-6">
+    <div class="col-md-3">
       <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h6 class="text-secondary">Total Prescriptions</h6>
-          <h2 class="fw-bold mb-0">{{ totalPrescriptions }}</h2>
+          <h6 class="text-secondary">Prescriptions</h6>
+          <h2 class="fw-bold">{{ totalPrescriptions }}</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-xxl-3 col-md-6">
+    <div class="col-md-3">
       <div class="card shadow-sm h-100">
         <div class="card-body">
-          <h6 class="text-secondary">Total Care Plans</h6>
-          <h2 class="fw-bold mb-0">{{ totalCareplans }}</h2>
+          <h6 class="text-secondary">Care Plans</h6>
+          <h2 class="fw-bold">{{ totalCareplans }}</h2>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- ANALYTICS: CHART + MAP -->
+  <!-- MAP + RECENT APPOINTMENTS -->
   <div class="row g-3 mb-4">
 
-    <!-- PATIENTS PER TOWN CHART -->
-    <div class="col-xl-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-body d-flex flex-column">
-          <h4 class="mb-3">Patients per Town</h4>
-          <div style="position: relative; height: 360px;">
-            <canvas #patientsByTownChart></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PATIENT LOCATIONS MAP -->
-    <div class="col-xl-6">
+    <!-- MAP -->
+    <div class="col-xl-7">
       <div class="card shadow-sm h-100">
         <div class="card-body p-0 d-flex flex-column">
+
           <div class="p-3 border-bottom bg-light">
             <h4 class="mb-0">Patient Locations</h4>
           </div>
+
           <div class="flex-grow-1 position-relative">
+
             <google-map
-              height="380px"
+              height="450px"
               width="100%"
               [options]="mapOptions">
-              @for (marker of mapMarkers; track marker.lat + ',' + marker.lng) {
-                <map-marker
-                  [position]="marker"
-                  title="Patient Location">
-                </map-marker>
+
+              <!-- Markers = simple LatLngLiteral objects -->
+              @for (m of mapMarkers; track m.lat + ',' + m.lng) {
+                <map-marker [position]="m"></map-marker>
               }
             </google-map>
 
             @if (mapMarkers.length === 0) {
-              <div class="d-flex align-items-center justify-content-center text-muted h-100 position-absolute top-0 start-0 w-100 bg-white bg-opacity-75">
-                <p class="mb-0">No location data available</p>
+              <div
+                class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center text-muted">
+                No location data available
               </div>
             }
           </div>
+
         </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- RECENT ACTIVITY + QUICK LINKS -->
-  <div class="row g-3 mb-5">
-
-    <div class="col-xl-6">
+    <!-- RECENT APPOINTMENTS -->
+    <div class="col-xl-5">
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h4 class="mb-3">Recent Appointments</h4>
 
           @if (recentAppointments.length === 0) {
-            <p class="text-muted">No recent appointments available.</p>
+            <p class="text-muted">No recent appointments.</p>
           } @else {
-            <div class="list-group list-group-flush">
+            <div class="list-group">
               @for (a of recentAppointments; track a._id) {
-                <a href="#" class="list-group-item list-group-item-action">
-                  <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1">{{ a.patientName }}</h6>
-                    <small>{{ a.date }}</small>
+                <div class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>{{ a.patient }}</strong>
+                    <small>{{ a.date | date:'dd MMM yyyy' }}</small>
                   </div>
                   <small class="text-muted">
-                    Doctor: {{ a.doctor }} • Status: <span class="badge bg-{{ a.status === 'completed' ? 'success' : 'warning' }}">{{ a.status }}</span>
+                    Doctor: {{ a.doctor }}
+                    •
+                    <span class="badge bg-{{ a.status === 'completed' ? 'success' : 'warning' }}">
+                      {{ a.status }}
+                    </span>
                   </small>
-                </a>
+                </div>
               }
             </div>
           }
@@ -137,18 +130,39 @@
       </div>
     </div>
 
-    <div class="col-xl-6">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <h4 class="mb-3">Quick Actions</h4>
-          <p class="text-muted">Jump quickly to common workflows.</p>
+  </div>
 
-          <a class="btn btn-primary me-2 mb-2" [routerLink]="['/gp/patients']">
-            View All Patients
-          </a>
-          <a class="btn btn-outline-primary mb-2" [routerLink]="['/gp/appointments']">
-            Manage Appointments
-          </a>
+  <!-- GP CHECKLIST -->
+  <div class="row g-3 mb-5">
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="mb-3">GP Work Checklist</h4>
+
+          <ng-container *ngIf="gpChecklist.length > 0; else noTasks">
+            <ul class="list-group">
+
+              @for (t of gpChecklist; track t.patient + t.type) {
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div>
+                    <strong>{{ t.type }}</strong> — {{ t.patient }}<br>
+                    <small class="text-muted">{{ t.action }}</small>
+                  </div>
+                  <button class="btn btn-sm btn-primary"
+                          [routerLink]="t.link">
+                    View
+                  </button>
+                </li>
+              }
+
+            </ul>
+          </ng-container>
+
+          <ng-template #noTasks>
+            <p class="text-muted">No pending tasks for review.</p>
+          </ng-template>
+
         </div>
       </div>
     </div>

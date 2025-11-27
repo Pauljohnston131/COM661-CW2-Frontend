@@ -1,4 +1,4 @@
-// src/app/components/home/home.component.ts
+// src/app/components/home/home.ts
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -10,13 +10,24 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
 import Chart from 'chart.js/auto';
+
+interface PatientListItem {
+  _id?: string;
+  id?: string;
+  name: string;
+  town?: string;
+  location?: {
+    coordinates: [number, number];
+  };
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, GoogleMapsModule],
+  imports: [CommonModule, RouterModule, GoogleMapsModule, FormsModule],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
 })
@@ -29,22 +40,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
   totalAppointments = 0;
   totalPrescriptions = 0;
   totalCareplans = 0;
-  pendingRequests = 0;
 
-  // === RECENT APPOINTMENTS (required by your HTML!) ===
-  recentAppointments: any[] = [];   // ← THIS WAS MISSING!
+  // === PENDING + CHECKLIST ===
+  pendingRequests = 0;
+  gpChecklist: any[] = [];
+
+  // === PATIENTS ===
+  allPatients: any[] = [];
+  recentAppointments: any[] = [];
 
   // === MAP ===
   mapMarkers: google.maps.LatLngLiteral[] = [];
   mapOptions: google.maps.MapOptions = {
-    center: { lat: 53.35, lng: -8.0 },
-    zoom: 7,
+    center: { lat: 54.95, lng: -7.75 }, // Letterkenny Practice Coordinates
+    zoom: 12,
     mapTypeId: 'roadmap',
   };
-
-  // === CHART ===
-  private patientsByTown: { [town: string]: number } = {};
-  private chart?: Chart;
 
   constructor(
     private api: Api,
@@ -53,128 +64,147 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadDashboard();
   }
 
-  ngAfterViewInit(): void {
-    if (Object.keys(this.patientsByTown).length > 0) {
-      this.createChart();
-    }
-  }
+  ngAfterViewInit(): void {}
 
-  private loadData(): void {
-    // 1. Pending requests
-    this.api.getPendingRequests().subscribe((res: any) => {
+  // -------------------------------------------------------------
+  // LOAD DASHBOARD (LIST → HYDRATE EACH PATIENT)
+  // -------------------------------------------------------------
+  private loadDashboard(): void {
+    // 1. Load pending requests (fast)
+    this.api.getPendingRequests().subscribe(res => {
       this.pendingRequests = res.data?.pending || 0;
     });
 
-    // 2. Load patients for stats + map + chart
-    this.api.getPatients(1, 200).subscribe((res: any) => {
-      const patients = res.data?.patients || [];
-      this.totalPatients = res.data?.count || patients.length;
+    // 2. Load main patient list
+    this.api.getPatients(1, 500).subscribe((res: any) => {
+      const list: PatientListItem[] = res.data.patients || [];
+      this.totalPatients = res.data.count || list.length;
 
-      // Reset everything
-      this.mapMarkers = [];
-      this.patientsByTown = {};
-      this.totalAppointments = this.totalPrescriptions = this.totalCareplans = 0;
-      this.recentAppointments = [];   // ← reset recent appointments
-
-      let hasRealLocation = false;
-
-      patients.forEach((p: any) => {
-        // Stats
-        this.totalAppointments += p.appointment_count || 0;
-        this.totalPrescriptions += p.prescription_count || 0;
-        this.totalCareplans += p.careplan_count || 0;
-
-        // Town chart
-        const town = (p.town || 'Unknown').trim();
-        this.patientsByTown[town] = (this.patientsByTown[town] || 0) + 1;
-
-        // Real location (MongoDB GeoJSON)
-        if (
-          p.location?.coordinates &&
-          Array.isArray(p.location.coordinates) &&
-          p.location.coordinates.length === 2
-        ) {
-          const [lng, lat] = p.location.coordinates;
-          this.mapMarkers.push({ lat, lng });
-          hasRealLocation = true;
-        }
-
-        // Collect recent appointments (you can limit to last 5)
-        if (p.appointments && Array.isArray(p.appointments)) {
-          this.recentAppointments.push(
-            ...p.appointments.map((appt: any) => ({
-              _id: appt._id,
-              date: new Date(appt.date).toLocaleDateString(),
-              patientName: p.name,
-              doctor: appt.doctor || 'GP',
-              status: appt.status || 'scheduled',
-            }))
-          );
-        }
-      });
-
-      // Sort recent appointments by date (newest first) and keep only 5
-      this.recentAppointments
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .splice(5);
-
-      // Demo markers if no real locations
-      if (!hasRealLocation) {
-        this.mapMarkers = [
-          { lat: 53.3498, lng: -6.2603 }, // Dublin
-          { lat: 51.8985, lng: -8.4756 }, // Cork
-          { lat: 52.6647, lng: -8.6231 }, // Limerick
-          { lat: 53.2734, lng: -7.7783 }, // Mullingar
-          { lat: 54.2766, lng: -8.4756 }, // Sligo
-        ];
-      }
-
-      // Final map settings
-      this.mapOptions = {
-        center: this.mapMarkers.length === 1 ? this.mapMarkers[0] : { lat: 53.35, lng: -8.0 },
-        zoom: this.mapMarkers.length === 1 ? 12 : 7.5,
-      };
-
-      this.cdr.detectChanges();
-      this.createChart();
+      // hydrate each patient record
+      this.hydratePatients(list);
     });
   }
 
-  private createChart(): void {
-    if (!this.chartCanvas) return;
+  // -------------------------------------------------------------
+  // LOAD FULL PATIENT DATA (appointments, careplans, etc.)
+  // -------------------------------------------------------------
+  private hydratePatients(list: PatientListItem[]): void {
+    this.allPatients = [];
+    this.recentAppointments = [];
+    this.mapMarkers = [];
+    this.totalAppointments = 0;
+    this.totalPrescriptions = 0;
+    this.totalCareplans = 0;
 
-    const ctx = this.chartCanvas.nativeElement;
-    const labels = Object.keys(this.patientsByTown);
-    const data = Object.values(this.patientsByTown);
+    let loaded = 0;
 
-    if (labels.length === 0) return;
+    list.forEach((p: PatientListItem) => {
+      const id: string = (p._id ?? p.id)!;
 
-    if (this.chart) this.chart.destroy();
+      this.api.getPatient(id).subscribe((full: any) => {
+        const patient = full.data;
+        this.allPatients.push(patient);
 
-    this.chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Patients',
-          data,
-          backgroundColor: 'rgba(59, 130, 246, 0.7)',
-          borderColor: '#3b82f6',
-          borderWidth: 1,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Patients by Town' },
-        },
-        scales: { y: { beginAtZero: true } },
-      },
+        // ---- STATS ----
+        this.totalAppointments += patient.appointments?.length || 0;
+        this.totalPrescriptions += patient.prescriptions?.length || 0;
+        this.totalCareplans += patient.careplans?.length || 0;
+
+        // ---- MAP ----
+        if (patient.location?.coordinates) {
+          const [lng, lat] = patient.location.coordinates;
+          this.mapMarkers.push({ lat, lng });
+        }
+
+        // ---- RECENT APPOINTMENTS ----
+        if (Array.isArray(patient.appointments)) {
+          patient.appointments.forEach((a: any) => {
+            this.recentAppointments.push({
+              _id: a._id,
+              patient: patient.name,
+              date: new Date(a.date).toISOString(),
+              doctor: a.doctor || 'GP',
+              status: a.status || 'scheduled',
+            });
+          });
+        }
+
+        // ---- CHECKLIST ITEMS ----
+        this.addChecklistItems(patient);
+
+        // Wait until all are loaded
+        loaded++;
+        if (loaded === list.length) {
+          this.finishDashboard();
+        }
+      });
     });
+  }
+
+  // -------------------------------------------------------------
+  // BUILD CHECKLIST
+  // -------------------------------------------------------------
+  private addChecklistItems(patient: any): void {
+    // Appointment Requests
+    (patient.appointments || []).forEach((a: any) => {
+      if (a.status === 'requested') {
+        this.gpChecklist.push({
+          type: 'Appointment Request',
+          patient: patient.name,
+          date: a.date,
+          action: 'Review & approve',
+          link: `/gp/patients/${patient._id}`,
+        });
+      }
+    });
+
+    // Careplans needing review (example rule)
+    (patient.careplans || []).forEach((c: any) => {
+      if (c.status === 'active' && c.goal?.length < 10) {
+        this.gpChecklist.push({
+          type: 'Careplan Review',
+          patient: patient.name,
+          date: new Date().toISOString(),
+          action: 'Update goals',
+          link: `/gp/patients/${patient._id}`,
+        });
+      }
+    });
+  }
+
+  // -------------------------------------------------------------
+  // FINAL SORTING & PROCESSING
+  // -------------------------------------------------------------
+  private finishDashboard(): void {
+    // sort recent appointments
+    this.recentAppointments.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    this.recentAppointments = this.recentAppointments.slice(0, 5);
+
+    // sort checklist newest → oldest
+    this.gpChecklist.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    // adjust map if only 1 patient
+    if (this.mapMarkers.length === 1) {
+      this.mapOptions = {
+        center: this.mapMarkers[0],
+        zoom: 13,
+      };
+    }
+
+    this.cdr.detectChanges();
+  }
+
+  // -------------------------------------------------------------
+  // NAVIGATION
+  // -------------------------------------------------------------
+  goToPatient(id: string) {
+    this.router.navigate(['/gp/patients', id]);
   }
 }

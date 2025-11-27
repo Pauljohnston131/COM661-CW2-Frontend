@@ -1,0 +1,11 @@
+.card {
+  border-radius: 0.6rem;
+}
+
+.list-group-item {
+  cursor: pointer;
+}
+
+.badge {
+  text-transform: capitalize;
+}
