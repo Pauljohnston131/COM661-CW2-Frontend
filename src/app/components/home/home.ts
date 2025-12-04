@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // === MAP ===
   mapMarkers: google.maps.LatLngLiteral[] = [];
   mapOptions: google.maps.MapOptions = {
-    center: { lat: 54.95, lng: -7.75 }, // Letterkenny Practice Coordinates
+    center: { lat: 54.95, lng: -7.75 },
     zoom: 12,
     mapTypeId: 'roadmap',
   };
@@ -70,26 +70,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {}
 
   // -------------------------------------------------------------
-  // LOAD DASHBOARD (LIST → HYDRATE EACH PATIENT)
+  // LOAD DASHBOARD
   // -------------------------------------------------------------
   private loadDashboard(): void {
-    // 1. Load pending requests (fast)
     this.api.getPendingRequests().subscribe(res => {
       this.pendingRequests = res.data?.pending || 0;
     });
 
-    // 2. Load main patient list
     this.api.getPatients(1, 500).subscribe((res: any) => {
       const list: PatientListItem[] = res.data.patients || [];
       this.totalPatients = res.data.count || list.length;
 
-      // hydrate each patient record
       this.hydratePatients(list);
     });
   }
 
   // -------------------------------------------------------------
-  // LOAD FULL PATIENT DATA (appointments, careplans, etc.)
+  // HYDRATE PATIENTS
   // -------------------------------------------------------------
   private hydratePatients(list: PatientListItem[]): void {
     this.allPatients = [];
@@ -98,6 +95,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.totalAppointments = 0;
     this.totalPrescriptions = 0;
     this.totalCareplans = 0;
+    this.gpChecklist = [];
 
     let loaded = 0;
 
@@ -108,18 +106,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
         const patient = full.data;
         this.allPatients.push(patient);
 
-        // ---- STATS ----
         this.totalAppointments += patient.appointments?.length || 0;
         this.totalPrescriptions += patient.prescriptions?.length || 0;
         this.totalCareplans += patient.careplans?.length || 0;
 
-        // ---- MAP ----
         if (patient.location?.coordinates) {
           const [lng, lat] = patient.location.coordinates;
           this.mapMarkers.push({ lat, lng });
         }
 
-        // ---- RECENT APPOINTMENTS ----
         if (Array.isArray(patient.appointments)) {
           patient.appointments.forEach((a: any) => {
             this.recentAppointments.push({
@@ -132,10 +127,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
           });
         }
 
-        // ---- CHECKLIST ITEMS ----
         this.addChecklistItems(patient);
 
-        // Wait until all are loaded
         loaded++;
         if (loaded === list.length) {
           this.finishDashboard();
@@ -145,7 +138,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   // -------------------------------------------------------------
-  // BUILD CHECKLIST
+  // CHECKLIST GENERATION
   // -------------------------------------------------------------
   private addChecklistItems(patient: any): void {
     // Appointment Requests
@@ -156,12 +149,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
           patient: patient.name,
           date: a.date,
           action: 'Review & approve',
-          link: `/gp/patients/${patient._id}`,
+          link: ['/gp/patients', patient._id],
+          key: `${patient._id}_appt_${a._id}`
         });
       }
     });
 
-    // Careplans needing review (example rule)
+    // Careplans
     (patient.careplans || []).forEach((c: any) => {
       if (c.status === 'active' && c.goal?.length < 10) {
         this.gpChecklist.push({
@@ -169,28 +163,26 @@ export class HomeComponent implements OnInit, AfterViewInit {
           patient: patient.name,
           date: new Date().toISOString(),
           action: 'Update goals',
-          link: `/gp/patients/${patient._id}`,
+          link: ['/gp/patients', patient._id],
+          key: `${patient._id}_careplan_${c._id}`
         });
       }
     });
   }
 
   // -------------------------------------------------------------
-  // FINAL SORTING & PROCESSING
+  // FINAL DASHBOARD PROCESSING
   // -------------------------------------------------------------
   private finishDashboard(): void {
-    // sort recent appointments
     this.recentAppointments.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     this.recentAppointments = this.recentAppointments.slice(0, 5);
 
-    // sort checklist newest → oldest
     this.gpChecklist.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    // adjust map if only 1 patient
     if (this.mapMarkers.length === 1) {
       this.mapOptions = {
         center: this.mapMarkers[0],
@@ -204,6 +196,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // -------------------------------------------------------------
   // NAVIGATION
   // -------------------------------------------------------------
+  goToFirstPending() {
+    const first = this.gpChecklist.find(i => i.type === 'Appointment Request');
+    if (first) {
+      this.router.navigate(first.link);
+    } else {
+      this.router.navigate(['/gp/patients']);
+    }
+  }
+
   goToPatient(id: string) {
     this.router.navigate(['/gp/patients', id]);
   }

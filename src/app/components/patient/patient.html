@@ -331,18 +331,19 @@
     <div class="col-md-6">
 
       <!-- MAP -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h4>Patient Location</h4>
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h4>Patient Location</h4>
 
-          <google-map height="300px" width="100%" [options]="map_options">
-            @for (m of map_markers; track m) {
-              <!-- Use standard markers to avoid Map ID / Advanced Marker warning -->
-              <map-marker [position]="m.position" [title]="m.title"></map-marker>
-            }
-          </google-map>
-        </div>
-      </div>
+    <google-map height="300px" width="100%" [options]="map_options">
+      @for (m of map_markers; track m.position.lat + ',' + m.position.lng) {
+        <!-- Use standard markers to avoid Map ID / Advanced Marker warning -->
+        <map-marker [position]="m.position" [title]="m.title"></map-marker>
+      }
+    </google-map>
+  </div>
+</div>
+
 
       <!-- CLINICAL SUMMARY -->
       <div class="card shadow-sm">

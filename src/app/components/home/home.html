@@ -14,7 +14,7 @@
     <div class="col-12">
       <div class="alert alert-warning shadow-sm d-flex justify-content-between align-items-center"
            style="cursor:pointer"
-           (click)="router.navigate(['/gp/patients'])">
+           (click)="goToFirstPending()">
         <div><strong>{{ pendingRequests }}</strong> appointment request(s) waiting.</div>
         <strong>Review →</strong>
       </div>
@@ -23,7 +23,6 @@
 
   <!-- QUICK STATS -->
   <div class="row g-3 mb-4">
-
     <div class="col-md-3">
       <div class="card shadow-sm h-100">
         <div class="card-body">
@@ -59,7 +58,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- MAP + RECENT APPOINTMENTS -->
@@ -75,13 +73,7 @@
           </div>
 
           <div class="flex-grow-1 position-relative">
-
-            <google-map
-              height="450px"
-              width="100%"
-              [options]="mapOptions">
-
-              <!-- Markers = simple LatLngLiteral objects -->
+            <google-map height="450px" width="100%" [options]="mapOptions">
               @for (m of mapMarkers; track m.lat + ',' + m.lng) {
                 <map-marker [position]="m"></map-marker>
               }
@@ -134,7 +126,6 @@
 
   <!-- GP CHECKLIST -->
   <div class="row g-3 mb-5">
-
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-body">
@@ -143,12 +134,13 @@
           <ng-container *ngIf="gpChecklist.length > 0; else noTasks">
             <ul class="list-group">
 
-              @for (t of gpChecklist; track t.patient + t.type) {
+              @for (t of gpChecklist; track t.key) {
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                   <div>
                     <strong>{{ t.type }}</strong> — {{ t.patient }}<br>
                     <small class="text-muted">{{ t.action }}</small>
                   </div>
+
                   <button class="btn btn-sm btn-primary"
                           [routerLink]="t.link">
                     View
@@ -166,7 +158,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
 </div>
