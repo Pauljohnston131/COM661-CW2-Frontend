@@ -1,0 +1,26 @@
+.calendar-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.4rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.fc .fc-daygrid-dot-event {
+  background-color: #0d6efd; /* Dot colour */
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+  margin: auto;
+}
+
+.fc .fc-daygrid-event-harness:hover {
+  background: rgba(13, 110, 253, 0.1);
+}

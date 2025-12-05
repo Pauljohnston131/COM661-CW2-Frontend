@@ -1,0 +1,123 @@
+<!-- src/app/components/add-patient/add-patient.component.html -->
+<div class="add-patient-page">
+  <div class="page-header">
+    <h2><i class="bi bi-person-plus"></i> Add New Patient</h2>
+    <p class="text-muted">Enter patient details to create a new record.</p>
+    <button class="btn btn-secondary" [routerLink]="['/gp/home']">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </button>
+  </div>
+
+  <div class="add-patient-form-container">
+    <div class="form-card">
+      <form (ngSubmit)="submitNewPatient(patientForm)" #patientForm="ngForm">
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-4">
+              <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                id="name"
+                class="form-control" 
+                [(ngModel)]="newPatient.name" 
+                name="name" 
+                required 
+                placeholder="e.g. John Smith"
+                #nameField="ngModel">
+              <div class="invalid-feedback" *ngIf="nameField.invalid && nameField.touched">
+                Please enter a valid name.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-4">
+              <label for="age" class="form-label">Age <span class="text-danger">*</span></label>
+              <input 
+                type="number" 
+                id="age"
+                class="form-control" 
+                [(ngModel)]="newPatient.age" 
+                name="age" 
+                required 
+                min="0" 
+                max="120"
+                placeholder="e.g. 45"
+                #ageField="ngModel">
+              <div class="invalid-feedback" *ngIf="ageField.invalid && ageField.touched">
+                Age must be between 0 and 120.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-4">
+              <label for="gender" class="form-label">Gender</label>
+              <select id="gender" class="form-select" [(ngModel)]="newPatient.gender" name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-4">
+              <label for="condition" class="form-label">Main Condition <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                id="condition"
+                class="form-control" 
+                [(ngModel)]="newPatient.condition" 
+                name="condition" 
+                required 
+                placeholder="e.g. Hypertension"
+                #conditionField="ngModel">
+              <div class="invalid-feedback" *ngIf="conditionField.invalid && conditionField.touched">
+                Please enter the primary condition.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="image_url" class="form-label">Profile Image URL (Optional)</label>
+          <input 
+            type="url" 
+            id="image_url"
+            class="form-control" 
+            [(ngModel)]="newPatient.image_url" 
+            name="image_url" 
+            placeholder="https://example.com/image.jpg">
+          <small class="text-muted">Leave blank for default avatar</small>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary" 
+            [routerLink]="['/gp/home']">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary px-4" 
+            [disabled]="!patientForm.form.valid || isSubmitting">
+            <span *ngIf="!isSubmitting"><i class="bi bi-check-lg"></i> Add Patient</span>
+            <span *ngIf="isSubmitting"><span class="spinner-border spinner-border-sm me-2"></span>Adding...</span>
+          </button>
+        </div>
+
+        <div *ngIf="addPatientError" class="alert alert-danger mt-3">
+          {{ addPatientError }}
+        </div>
+
+        <div *ngIf="addPatientSuccess" class="alert alert-success mt-3">
+          <i class="bi bi-check-circle"></i> Patient added successfully! 
+          <br><small>Redirecting to dashboard in 2 seconds...</small>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

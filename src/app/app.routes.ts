@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { HomeComponent } from './components/home/home';        // ← FIXED HERE
+import { HomeComponent } from './components/home/home';
 import { PatientsComponent } from './components/patients/patients';
 import { Patient } from './components/patient/patient';
 
@@ -10,17 +10,18 @@ import { LoginComponent } from './auth/login/login';
 import { AuthGuard } from './guards/auth.guard';
 import { GpGuard } from './guards/gp.guard';
 import { PatientGuard } from './guards/patient.guard';
+import { AddPatientComponent } from './components/add-patient/add-patient';
 
 export const routes: Routes = [
 
-  // GP DASHBOARD (Home)
+  // GP DASHBOARD
   {
     path: '',
     canActivate: [AuthGuard, GpGuard],
-    component: HomeComponent                                 // ← also update here
+    component: HomeComponent
   },
 
-  // LOGIN (Public)
+  // LOGIN
   { path: 'login', component: LoginComponent },
 
   // GP PORTAL
@@ -29,7 +30,8 @@ export const routes: Routes = [
     canActivate: [AuthGuard, GpGuard],
     children: [
       { path: 'patients', component: PatientsComponent },
-      { path: 'patients/:id', component: Patient }
+      { path: 'patients/:id', component: Patient },
+      { path: 'add-patient', component: AddPatientComponent }   // ← MOVED HERE
     ]
   },
 
@@ -40,6 +42,6 @@ export const routes: Routes = [
     component: PatientPortalComponent
   },
 
-  // Fallback
+  // FALLBACK — MUST ALWAYS BE LAST
   { path: '**', redirectTo: '' }
 ];

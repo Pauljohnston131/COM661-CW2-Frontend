@@ -3,58 +3,57 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  ElementRef,
+  OnDestroy,
   OnInit,
-  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { GoogleMapsModule } from '@angular/google-maps';
-import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
-import Chart from 'chart.js/auto';
-
-interface PatientListItem {
-  _id?: string;
-  id?: string;
-  name: string;
-  town?: string;
-  location?: {
-    coordinates: [number, number];
-  };
-}
+import { EventInput } from '@fullcalendar/core';
+import { HomeCalendarComponent } from './calendar/home-calendar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, GoogleMapsModule, FormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    GoogleMapsModule,
+    HomeCalendarComponent
+  ],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
 })
-export class HomeComponent implements OnInit, AfterViewInit {
-  @ViewChild('patientsByTownChart', { static: false })
-  chartCanvas!: ElementRef<HTMLCanvasElement>;
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  // === DASHBOARD STATS ===
+  today = new Date();
+
+  // Dashboard Stats
   totalPatients = 0;
   totalAppointments = 0;
   totalPrescriptions = 0;
   totalCareplans = 0;
 
-  // === PENDING + CHECKLIST ===
+  // Pending & Checklist
   pendingRequests = 0;
   gpChecklist: any[] = [];
 
-  // === PATIENTS ===
+  // Patient Data
   allPatients: any[] = [];
   recentAppointments: any[] = [];
 
-  // === MAP ===
+  // Calendar events
+  events: EventInput[] = [];
+
+  // Map
+  mapCenter: google.maps.LatLngLiteral = { lat: 54.95, lng: -7.75 };
+  mapZoom = 12;
   mapMarkers: google.maps.LatLngLiteral[] = [];
   mapOptions: google.maps.MapOptions = {
-    center: { lat: 54.95, lng: -7.75 },
-    zoom: 12,
-    mapTypeId: 'roadmap',
+    mapTypeId: 'terrain',
+    fullscreenControl: false,
+    mapTypeControl: false,
   };
 
   constructor(
@@ -68,111 +67,74 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {}
+  ngOnDestroy(): void {}
 
-  // -------------------------------------------------------------
-  // LOAD DASHBOARD
-  // -------------------------------------------------------------
+  // === DASHBOARD DATA LOADING ===
   private loadDashboard(): void {
-    this.api.getPendingRequests().subscribe(res => {
+    this.api.getPendingRequests().subscribe((res) => {
       this.pendingRequests = res.data?.pending || 0;
     });
 
-    this.api.getPatients(1, 500).subscribe((res: any) => {
-      const list: PatientListItem[] = res.data.patients || [];
-      this.totalPatients = res.data.count || list.length;
-
-      this.hydratePatients(list);
+    this.api.getPatientSummary().subscribe((res) => {
+      const list = res.data?.patients || [];
+      this.processSummary(list);
     });
   }
 
-  // -------------------------------------------------------------
-  // HYDRATE PATIENTS
-  // -------------------------------------------------------------
-  private hydratePatients(list: PatientListItem[]): void {
-    this.allPatients = [];
-    this.recentAppointments = [];
+  private processSummary(list: any[]): void {
+    this.allPatients = list;
     this.mapMarkers = [];
+    this.recentAppointments = [];
+    this.gpChecklist = [];
+
+    this.totalPatients = list.length;
     this.totalAppointments = 0;
     this.totalPrescriptions = 0;
     this.totalCareplans = 0;
-    this.gpChecklist = [];
 
-    let loaded = 0;
+    list.forEach((p) => {
+      this.totalAppointments += p.appointments?.length || 0;
+      this.totalCareplans += p.careplans?.length || 0;
+      this.totalPrescriptions += p.prescriptions_count || 0;
 
-    list.forEach((p: PatientListItem) => {
-      const id: string = (p._id ?? p.id)!;
+      // Add map marker
+      if (p.location?.coordinates) {
+        const [lng, lat] = p.location.coordinates;
+        this.mapMarkers.push({ lat, lng });
+      }
 
-      this.api.getPatient(id).subscribe((full: any) => {
-        const patient = full.data;
-        this.allPatients.push(patient);
-
-        this.totalAppointments += patient.appointments?.length || 0;
-        this.totalPrescriptions += patient.prescriptions?.length || 0;
-        this.totalCareplans += patient.careplans?.length || 0;
-
-        if (patient.location?.coordinates) {
-          const [lng, lat] = patient.location.coordinates;
-          this.mapMarkers.push({ lat, lng });
-        }
-
-        if (Array.isArray(patient.appointments)) {
-          patient.appointments.forEach((a: any) => {
-            this.recentAppointments.push({
-              _id: a._id,
-              patient: patient.name,
-              date: new Date(a.date).toISOString(),
-              doctor: a.doctor || 'GP',
-              status: a.status || 'scheduled',
-            });
-          });
-        }
-
-        this.addChecklistItems(patient);
-
-        loaded++;
-        if (loaded === list.length) {
-          this.finishDashboard();
-        }
+      // Recent appointments
+      p.appointments?.forEach((a: any) => {
+        if (!a.date) return;
+        this.recentAppointments.push({
+          _id: a.id,
+          patient: p.name,
+          date: new Date(a.date).toISOString(),
+          doctor: a.doctor || 'GP',
+          status: a.status || 'scheduled',
+        });
       });
+
+      this.addChecklistItems(p);
     });
+
+    this.finishDashboard();
   }
 
-  // -------------------------------------------------------------
-  // CHECKLIST GENERATION
-  // -------------------------------------------------------------
   private addChecklistItems(patient: any): void {
-    // Appointment Requests
     (patient.appointments || []).forEach((a: any) => {
       if (a.status === 'requested') {
         this.gpChecklist.push({
           type: 'Appointment Request',
           patient: patient.name,
-          date: a.date,
-          action: 'Review & approve',
-          link: ['/gp/patients', patient._id],
-          key: `${patient._id}_appt_${a._id}`
-        });
-      }
-    });
-
-    // Careplans
-    (patient.careplans || []).forEach((c: any) => {
-      if (c.status === 'active' && c.goal?.length < 10) {
-        this.gpChecklist.push({
-          type: 'Careplan Review',
-          patient: patient.name,
-          date: new Date().toISOString(),
-          action: 'Update goals',
-          link: ['/gp/patients', patient._id],
-          key: `${patient._id}_careplan_${c._id}`
+          date: a.date || new Date().toISOString(),
+          action: 'Review request',
+          link: ['/gp/patients', patient.id],
         });
       }
     });
   }
 
-  // -------------------------------------------------------------
-  // FINAL DASHBOARD PROCESSING
-  // -------------------------------------------------------------
   private finishDashboard(): void {
     this.recentAppointments.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -184,28 +146,34 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
 
     if (this.mapMarkers.length === 1) {
-      this.mapOptions = {
-        center: this.mapMarkers[0],
-        zoom: 13,
-      };
+      this.mapCenter = this.mapMarkers[0];
+      this.mapZoom = 14;
     }
+
+    // Build calendar events (FullCalendar)
+    this.events = this.recentAppointments.map(a => ({
+      title: a.patient,
+      date: a.date,
+      backgroundColor: this.statusColor(a.status),
+      borderColor: this.statusColor(a.status)
+    }));
 
     this.cdr.detectChanges();
   }
 
-  // -------------------------------------------------------------
-  // NAVIGATION
-  // -------------------------------------------------------------
-  goToFirstPending() {
-    const first = this.gpChecklist.find(i => i.type === 'Appointment Request');
-    if (first) {
-      this.router.navigate(first.link);
-    } else {
-      this.router.navigate(['/gp/patients']);
+  private statusColor(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'completed': return '#198754';
+      case 'scheduled': return '#0d6efd';
+      case 'requested': return '#ffc107';
+      case 'cancelled': return '#6c757d';
+      default: return '#0d6efd';
     }
   }
 
-  goToPatient(id: string) {
-    this.router.navigate(['/gp/patients', id]);
+  goToFirstPending() {
+    const first = this.gpChecklist.find((i) => i.type === 'Appointment Request');
+    if (first) this.router.navigate(first.link);
+    else this.router.navigate(['/gp/patients']);
   }
 }

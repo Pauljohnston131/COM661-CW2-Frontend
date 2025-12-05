@@ -80,17 +80,24 @@ export class Api {
     );
   }
 
-  // --------------------------
-// PATIENT REQUEST APPOINTMENT
-// --------------------------
-requestAppointment(patientId: string, payload: any): Observable<any> {
-  return this.http.post(
-    `${this.baseUrl}/patients/${patientId}/request`,
-    payload,
-    { headers: this.headers }
-  );
-}
+  // NEW — full summary for dashboard
+  getPatientSummary(): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/patients/summary`,
+      { headers: this.headers }
+    );
+  }
 
+  // --------------------------
+  // PATIENT REQUEST APPOINTMENT
+  // --------------------------
+  requestAppointment(patientId: string, payload: any): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/patients/${patientId}/request`,
+      payload,
+      { headers: this.headers }
+    );
+  }
 
   // --------------------------
   // APPOINTMENTS
@@ -119,15 +126,14 @@ requestAppointment(patientId: string, payload: any): Observable<any> {
   }
 
   // --------------------------
-// GP: Pending appointment requests
-// --------------------------
-getPendingRequests(): Observable<any> {
-  return this.http.get(
-    `${this.baseUrl}/patients/requests/pending`,
-    { headers: this.headers }
-  );
-}
-
+  // GP: Pending appointment requests
+  // --------------------------
+  getPendingRequests(): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/patients/requests/pending`,
+      { headers: this.headers }
+    );
+  }
 
   // --------------------------
   // PRESCRIPTIONS
@@ -221,9 +227,6 @@ getPendingRequests(): Observable<any> {
       { headers: this.headers }
     );
   }
-
-  // Could add more stats endpoints similarly if needed
-  // getAppointmentsStats(), getPrescriptionsStats(), etc.
 
   // --------------------------
   // GEO
