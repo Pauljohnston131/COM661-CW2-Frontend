@@ -1,130 +1,269 @@
 <!-- src/app/components/patients/patients.html -->
-<div class="container mt-5 pt-5">
+<div class="patients-container">
 
   <!-- HEADER -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="patients-header d-flex justify-content-between align-items-center mb-5">
     <div>
-      <h2 class="mb-1">Patients</h2>
-      <p class="text-muted mb-0">Browse and search registered patients in this practice.</p>
+      <h2 class="patients-title mb-2">
+        <i class="bi bi-people-fill me-2"></i>
+        Patients
+      </h2>
+      <p class="text-muted mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Browse and manage registered patients in this practice
+      </p>
     </div>
-    <span class="badge bg-light text-dark">
-      Page {{ page }} / {{ lastPage }}
-    </span>
-  </div>
-
-  <!-- SEARCH BAR -->
-  <div class="input-group mb-4">
-    <input type="text"
-           class="form-control"
-           placeholder="Search by name, condition, or town..."
-           [(ngModel)]="searchQuery"
-           (input)="filterPatients()">
-    <span class="input-group-text">
-      <i class="bi bi-search"></i>
-    </span>
-  </div>
-
-  <!-- LOADING / ERROR STATES -->
-  <div *ngIf="loading" class="mb-3">
-    <div class="alert alert-info mb-0">
-      Loading patients...
+    
+    <div class="d-flex align-items-center gap-3">
+      <div class="patient-count-badge d-flex align-items-center">
+        <span class="count-number">{{ filteredPatients.length }}</span>
+        <span class="count-label">patients</span>
+      </div>
+      <span class="badge page-badge d-flex align-items-center">
+        <i class="bi bi-file-earmark-text me-1"></i>
+        Page {{ page }} / {{ lastPage }}
+      </span>
     </div>
   </div>
 
-  <div *ngIf="!loading && errorMsg" class="mb-3">
-    <div class="alert alert-danger mb-0">
-      {{ errorMsg }}
+  <!-- SEARCH & FILTER BAR -->
+  <div class="search-filter-section glass-card mb-4 p-3">
+    <div class="row g-3">
+      <div class="col-md-8">
+        <div class="input-group search-group">
+          <span class="input-group-text search-icon">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text"
+                 class="form-control search-input"
+                 placeholder="Search patients by name, condition, or location..."
+                 [(ngModel)]="searchQuery"
+                 (input)="filterPatients()"
+                 aria-label="Search patients">
+          <button *ngIf="searchQuery" 
+                  class="btn btn-clear" 
+                  (click)="clearSearch()"
+                  type="button"
+                  aria-label="Clear search">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="filter-group">
+          <select class="form-select filter-select" 
+        [(ngModel)]="filterOption" 
+        (change)="applyFilterOption()">
+            <option value="all">All Patients</option>
+            <option value="chronic">Chronic Conditions</option>
+            <option value="active">Active Patients</option>
+            <option value="recent">Recently Added</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Active filters display -->
+    <div *ngIf="searchQuery || filterOption !== 'all'" class="active-filters mt-3">
+      <small class="text-muted">
+        <i class="bi bi-funnel me-1"></i>
+        Active filters:
+        <span *ngIf="searchQuery" class="filter-tag ms-2">
+          "{{ searchQuery }}" 
+          <i class="bi bi-x ms-1" (click)="clearSearch()"></i>
+        </span>
+        <span *ngIf="filterOption !== 'all'" class="filter-tag ms-2">
+          {{ filterOption | titlecase }}
+          <i class="bi bi-x ms-1" (click)="clearFilter()"></i>
+        </span>
+      </small>
     </div>
   </div>
 
-  <!-- PATIENT CARDS -->
-  <div class="row">
-    <ng-container *ngIf="!loading && filteredPatients.length > 0; else noPatients">
-      <div class="col-md-6 mb-3"
+  <!-- LOADING STATE -->
+  <div *ngIf="loading" class="loading-state glass-card p-5 text-center">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted mb-0">Loading patient records...</p>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div *ngIf="!loading && errorMsg" class="error-state glass-card p-4">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-exclamation-triangle-fill text-danger me-3 fs-4"></i>
+      <div>
+        <h5 class="mb-1">Unable to load patients</h5>
+        <p class="mb-0">{{ errorMsg }}</p>
+      </div>
+    </div>
+    <button class="btn btn-outline-primary btn-sm mt-3" (click)="retryLoading()">
+      <i class="bi bi-arrow-clockwise me-1"></i>
+      Try Again
+    </button>
+  </div>
+
+  <!-- PATIENT CARDS GRID -->
+  <div class="row g-4" *ngIf="!loading && !errorMsg">
+    <ng-container *ngIf="filteredPatients.length > 0; else noPatients">
+      <div class="col-xl-4 col-lg-6 col-md-6 mb-4"
            *ngFor="let patient of filteredPatients">
-        <div class="card shadow-sm h-100"
-             style="cursor:pointer"
-             [routerLink]="['/gp/patients', getPatientId(patient)]">
+        <div class="patient-card glass-card h-100"
+             [routerLink]="['/gp/patients', getPatientId(patient)]"
+             [class.chronic-patient]="isChronic(patient)"
+             role="button"
+             tabindex="0"
+             (keyup.enter)="navigateToPatient(patient)">
 
+          <!-- Card Header -->
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="patient-status">
+              <span class="status-indicator" [class.active]="isPatientActive(patient)"></span>
+              <span class="status-text">{{ isPatientActive(patient) ? 'Active' : 'Inactive' }}</span>
+            </div>
+            <span *ngIf="isChronic(patient)" class="badge chronic-badge">
+              <i class="bi bi-heart-pulse me-1"></i>
+              Chronic
+            </span>
+          </div>
+
+          <!-- Card Body -->
           <div class="card-body d-flex flex-column">
 
-            <!-- Top row: name + age/town -->
-            <div class="d-flex justify-content-between align-items-start mb-1">
-              <div>
-                <h5 class="card-title mb-1">
-                  {{ patient.name }}
-                  <span *ngIf="isChronic(patient)"
-                        class="badge bg-warning text-dark ms-1">
-                    Chronic
-                  </span>
-                </h5>
-                <small class="text-muted">
-                  Age: {{ patient.age || 'N/A' }}
-                  <span *ngIf="patient.town"> · {{ patient.town }}</span>
-                </small>
-              </div>
+            <!-- Patient Name & Basic Info -->
+            <div class="patient-info mb-3">
+              <h5 class="patient-name mb-2">
+                {{ patient.name }}
+                <span *ngIf="patient.age" class="patient-age">({{ patient.age }})</span>
+              </h5>
+              
             </div>
 
             <!-- Condition -->
-            <p class="card-text mt-2 mb-3 text-truncate" style="max-width: 100%;">
-              <strong>Condition:</strong>
-              <span class="text-muted">{{ patient.condition || 'Not recorded' }}</span>
-            </p>
-
-            <!-- Footer stats -->
-            <div class="mt-auto">
-              <span class="badge bg-light text-dark me-1"
-                    *ngIf="getAppointmentsCount(patient) > 0">
-                Appts: {{ getAppointmentsCount(patient) }}
-              </span>
-
-              <span class="badge bg-light text-dark me-1"
-                    *ngIf="getPrescriptionsCount(patient) > 0">
-                Rx: {{ getPrescriptionsCount(patient) }}
-              </span>
-
-              <span class="badge bg-light text-dark me-1"
-                    *ngIf="getCareplansCount(patient) > 0">
-                Careplans: {{ getCareplansCount(patient) }}
-              </span>
-
-              <span class="badge bg-secondary"
-                    *ngIf="getAppointmentsCount(patient) === 0
-                           && getPrescriptionsCount(patient) === 0
-                           && getCareplansCount(patient) === 0">
-                No recorded activity
-              </span>
+            <div class="patient-condition mb-4">
+              <h6 class="condition-title">
+                <i class="bi bi-clipboard2-pulse me-2"></i>
+                Primary Condition
+              </h6>
+              <p class="condition-value">{{ patient.condition || 'Not recorded' }}</p>
             </div>
 
+            <!-- Activity Stats -->
+            <div class="patient-activity mt-auto">
+              <div class="row g-2 text-center">
+                <div class="col-4">
+                  <div class="activity-item" [class.has-activity]="getAppointmentsCount(patient) > 0">
+                    <div class="activity-icon">
+                      <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="activity-count">{{ getAppointmentsCount(patient) }}</div>
+                    <div class="activity-label">Appointments</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="activity-item" [class.has-activity]="getPrescriptionsCount(patient) > 0">
+                    <div class="activity-icon">
+                      <i class="bi bi-prescription2"></i>
+                    </div>
+                    <div class="activity-count">{{ getPrescriptionsCount(patient) }}</div>
+                    <div class="activity-label">Prescriptions</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="activity-item" [class.has-activity]="getCareplansCount(patient) > 0">
+                    <div class="activity-icon">
+                      <i class="bi bi-clipboard2-check"></i>
+                    </div>
+                    <div class="activity-count">{{ getCareplansCount(patient) }}</div>
+                    <div class="activity-label">Care Plans</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- No Activity Message -->
+              <div *ngIf="getAppointmentsCount(patient) === 0
+                         && getPrescriptionsCount(patient) === 0
+                         && getCareplansCount(patient) === 0"
+                   class="no-activity-message text-center mt-3">
+                <i class="bi bi-info-circle me-1"></i>
+                No recorded activity
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer">
+            
           </div>
         </div>
       </div>
     </ng-container>
   </div>
 
+  <!-- NO PATIENTS STATE -->
   <ng-template #noPatients>
-    <div class="col-12">
-      <p class="text-muted">No patients found for this page or search query.</p>
+    <div class="no-patients-state glass-card p-5 text-center" *ngIf="!loading">
+      <i class="bi bi-people display-1 text-muted mb-3"></i>
+      <h4 class="mb-2">No patients found</h4>
+      <p class="text-muted mb-4">
+        {{ searchQuery || filterOption !== 'all' ? 
+           'Try adjusting your search or filter criteria.' : 
+           'No patients are currently registered in this practice.' }}
+      </p>
+      <button *ngIf="searchQuery || filterOption !== 'all'" 
+              class="btn btn-primary"
+              (click)="clearAllFilters()">
+        <i class="bi bi-arrow-counterclockwise me-2"></i>
+        Clear all filters
+      </button>
     </div>
   </ng-template>
 
-  <!-- Pagination controls -->
-  <div class="d-flex justify-content-between align-items-center mt-3">
-    <button class="btn btn-outline-primary"
-            (click)="previousPage()"
-            [disabled]="page <= 1">
-      ‹ Previous
-    </button>
+  <!-- PAGINATION -->
+  <div class="pagination-section mt-5" *ngIf="filteredPatients.length > 0 && !loading">
+    <div class="pagination-row d-flex justify-content-between align-items-center">
+      <button class="btn pager-btn pager-prev"
+              (click)="previousPage()"
+              [disabled]="page <= 1">
+        <i class="bi bi-chevron-left me-1"></i>
+        Previous
+      </button>
 
-    <div class="small text-muted">
-      Page {{ page }} of {{ lastPage }}
+      <div class="page-info">
+        <div class="page-display">
+          <span class="current-page">{{ page }}</span>
+          <span class="total-pages">of {{ lastPage }}</span>
+        </div>
+        <div class="page-stats text-muted">
+          Showing {{ getFirstItemNumber() }}-{{ getLastItemNumber() }} of {{ totalItems }} patients
+        </div>
+      </div>
+
+      <button class="btn pager-btn pager-next"
+              (click)="nextPage()"
+              [disabled]="page >= lastPage">
+        Next
+        <i class="bi bi-chevron-right ms-1"></i>
+      </button>
     </div>
-
-    <button class="btn btn-outline-primary"
-            (click)="nextPage()"
-            [disabled]="page >= lastPage">
-      Next ›
-    </button>
+    
+    <!-- Page Size Selector -->
+    <div class="page-size-selector mt-3 text-end">
+      <small class="text-muted me-2">Show:</small>
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-primary" 
+                [class.active]="pageSize === 6"
+                (click)="changePageSize(6)">6</button>
+        <button class="btn btn-outline-primary" 
+                [class.active]="pageSize === 12"
+                (click)="changePageSize(12)">12</button>
+        <button class="btn btn-outline-primary" 
+                [class.active]="pageSize === 24"
+                (click)="changePageSize(24)">24</button>
+      </div>
+    </div>
   </div>
 
 </div>

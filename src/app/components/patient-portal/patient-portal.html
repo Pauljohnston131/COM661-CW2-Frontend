@@ -1,181 +1,284 @@
-<div class="container mt-5 pt-5" *ngIf="patient">
+<div class="patient-portal-container" *ngIf="patient">
 
-  <!-- TOAST -->
+  <!-- HEADER -->
+  <div class="portal-header d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h2 class="portal-title mb-2">
+        <i class="bi bi-person-circle me-2"></i>
+        Patient Portal
+      </h2>
+      <div class="patient-info-badges">
+        <span class="badge patient-info-badge">
+          <i class="bi bi-person me-1"></i>
+          {{ patient.name }}
+        </span>
+        <span class="badge patient-info-badge">
+          <i class="bi bi-calendar me-1"></i>
+          Age: {{ patient.age }}
+        </span>
+        <span *ngIf="patient.condition" class="badge patient-info-badge">
+          <i class="bi bi-heart-pulse me-1"></i>
+          {{ patient.condition }}
+        </span>
+        <span *ngIf="patient.town" class="badge patient-info-badge">
+          <i class="bi bi-geo-alt me-1"></i>
+          {{ patient.town }}
+        </span>
+      </div>
+    </div>
+    
+    <div class="portal-status">
+      <span class="badge status-badge">
+        <i class="bi bi-check-circle me-1"></i>
+        Active Patient
+      </span>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
   <div *ngIf="toastMessage"
-       class="alert mt-2"
+       class="alert glass-card alert-toast mb-4"
        [ngClass]="toastType === 'success' ? 'alert-success' : 'alert-danger'">
+    <i class="bi" [ngClass]="toastType === 'success' ? 'bi-check-circle-fill me-2' : 'bi-exclamation-circle-fill me-2'"></i>
     {{ toastMessage }}
   </div>
 
   <!-- LOADING SPINNER -->
-  <div *ngIf="loading" class="d-flex justify-content-center my-3">
-    <div class="spinner-border" role="status">
+  <div *ngIf="loading" class="loading-state glass-card p-5 text-center mb-4">
+    <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
+    <p class="text-muted mb-0">Loading your information...</p>
   </div>
 
-  <!-- HEADER -->
-  <h2 class="mb-1">{{ patient.name }}</h2>
-  <p class="text-muted">
-    Age: <strong>{{ patient.age }}</strong> ·
-    Condition: <strong>{{ patient.condition }}</strong> ·
-    Town: <strong>{{ patient.town }}</strong>
-  </p>
-
   <!-- ========================= -->
-  <!-- PENDING APPOINTMENT REQUESTS -->
+  <!-- MAIN CONTENT GRID -->
   <!-- ========================= -->
-  <div class="card shadow-sm mb-4" *ngIf="pendingRequests.length > 0">
-    <div class="card-body">
-      <h4 class="mb-3">Pending Requests</h4>
+  <div class="portal-grid" *ngIf="!loading">
+    
+    <!-- LEFT COLUMN: APPOINTMENT REQUEST -->
+    <div class="portal-left-column">
+      <!-- REQUEST APPOINTMENT CARD -->
+      <div class="glass-card mb-4 p-4">
+        <h4 class="card-title mb-3 d-flex align-items-center">
+          <i class="bi bi-calendar-plus me-2 text-primary"></i>
+          Request an Appointment
+        </h4>
 
-      <ul class="list-group">
-        @for (a of pendingRequests; track a._id) {
-          <li class="list-group-item">
-            <strong>{{ fmt(a.date) }}</strong><br>
-            Status:
-            <span class="badge" [ngClass]="badge(a.status)">
-              {{ a.status }}
+        <div class="form-group mb-3">
+          <label class="form-label">Select Appointment Date</label>
+          <input type="date" 
+                 class="form-control request-input" 
+                 [(ngModel)]="requestDate"
+                 [min]="getTodayDate()">
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="form-label">Describe Symptoms</label>
+          <textarea class="form-control request-textarea" 
+                    rows="4"
+                    [(ngModel)]="requestSymptoms"
+                    placeholder="Please briefly describe your symptoms or reason for the appointment..."></textarea>
+          <small class="text-muted">Provide as much detail as possible for the doctor to prepare.</small>
+        </div>
+
+        <button class="btn request-btn w-100" (click)="submitRequest()" [disabled]="!requestDate || !requestSymptoms.trim()">
+          <i class="bi bi-send me-2"></i>
+          Submit Appointment Request
+        </button>
+
+        <div *ngIf="submitted" class="alert alert-success glass-card mt-3">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          Appointment request successfully submitted. We'll contact you soon.
+        </div>
+      </div>
+
+      <!-- CAREPLANS CARD -->
+      <div class="glass-card p-4">
+        <h4 class="card-title mb-3 d-flex align-items-center">
+          <i class="bi bi-clipboard-check me-2 text-primary"></i>
+          Your Care Plans
+        </h4>
+
+        @if (careplans.length === 0) {
+          <div class="empty-state text-center py-4">
+            <i class="bi bi-clipboard display-4 text-muted mb-3"></i>
+            <p class="text-muted mb-0">No care plans currently assigned</p>
+          </div>
+        } @else {
+          <div class="careplan-list">
+            @for (c of (showAllCareplans ? careplans : careplans.slice(0, 3)); track c._id) {
+              <div class="careplan-item">
+                <div class="careplan-header d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="careplan-title mb-0">{{ c.description || 'Care Plan' }}</h6>
+                  <span class="badge careplan-status">Active</span>
+                </div>
+                <div class="careplan-dates text-muted">
+                  <small>
+                    <i class="bi bi-calendar me-1"></i>
+                    {{ fmt(c.start) }} - {{ fmt(c.stop) }}
+                  </small>
+                </div>
+                <div class="careplan-description mt-2">
+                  <small class="text-muted">Follow-up required: Every 2 weeks</small>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (careplans.length > 3) {
+            <button class="btn btn-link w-100 mt-3 view-more-btn"
+                    (click)="showAllCareplans = !showAllCareplans">
+              <i class="bi" [ngClass]="showAllCareplans ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              {{ showAllCareplans ? 'Show Less' : `View All (${careplans.length})` }}
+            </button>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: APPOINTMENTS & MEDICAL INFO -->
+    <div class="portal-right-column">
+      
+      <!-- PENDING APPOINTMENT REQUESTS (AT THE TOP) -->
+      <div class="glass-card mb-4 p-4" *ngIf="pendingRequests.length > 0">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="card-title mb-0 d-flex align-items-center">
+            <i class="bi bi-clock-history me-2 text-warning"></i>
+            Pending Requests
+          </h4>
+          <span class="badge pending-count">{{ pendingRequests.length }}</span>
+        </div>
+
+        <div class="pending-requests-list">
+          @for (a of pendingRequests; track a._id) {
+            <div class="pending-request-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="request-date">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    <strong>{{ fmt(a.date) }}</strong>
+                  </div>
+                  <div class="request-symptoms mt-2">
+                    <small class="text-muted">{{ a.notes || 'No symptoms described' }}</small>
+                  </div>
+                </div>
+                <span class="badge request-status" [ngClass]="badge(a.status)">
+                  {{ a.status }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+        <small class="text-muted d-block mt-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Your appointment requests are pending doctor approval.
+        </small>
+      </div>
+
+      <!-- APPOINTMENTS CARD -->
+<div class="glass-card mb-4 p-4">
+  <h4 class="card-title mb-3 d-flex align-items-center">
+    <i class="bi bi-calendar-week me-2 text-primary"></i>
+    Your Appointments
+  </h4>
+
+  @if (confirmedAppointments.length === 0) {
+    <div class="empty-state text-center py-4">
+      <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+      <p class="text-muted mb-0">You have no scheduled or upcoming appointments</p>
+    </div>
+  } @else {
+    <div class="appointments-list">
+      @for (a of (showAllAppointments ? confirmedAppointments : confirmedAppointments.slice(0, 3)); track a._id || a.id) {
+        <div class="appointment-item mb-3 pb-3 border-bottom">
+          <div class="appointment-header d-flex justify-content-between align-items-start">
+            <div>
+              <div class="appointment-date fw-bold">
+                <i class="bi bi-calendar-check me-2"></i>
+                {{ fmt(a.date) }}
+              </div>
+              <div class="appointment-doctor mt-1">
+                <small class="text-muted">
+                  <i class="bi bi-person-badge me-1"></i>
+                  Dr. {{ a.doctor || 'To be assigned' }}
+                </small>
+              </div>
+            </div>
+            <span class="badge appointment-status" [ngClass]="badge(a.status)">
+              {{ a.status || 'Scheduled' }}
             </span>
-            <br>
-            <small class="text-muted">Symptoms: {{ a.notes }}</small>
-          </li>
-        }
-      </ul>
-    </div>
-  </div>
-
-  <!-- ========================= -->
-  <!-- APPOINTMENTS -->
-  <!-- ========================= -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-
-      <h4>Your Appointments</h4>
-
-      @if (patient.appointments.length === 0) {
-
-        <p class="text-muted">You have no completed or upcoming appointments.</p>
-
-      } @else {
-
-        <ul class="list-group">
-          @for (a of (showAllAppointments ? patient.appointments : patient.appointments.slice(0, 5)); track a._id) {
-            <li class="list-group-item">
-              <strong>{{ fmt(a.date) }}</strong><br>
-              Doctor: {{ a.doctor }}<br>
-
-              <span class="badge mt-2" [ngClass]="badge(a.status)">
-                {{ a.status }}
-              </span>
-            </li>
+          </div>
+          @if (a.notes) {
+            <div class="appointment-notes mt-2">
+              <small class="text-muted">{{ a.notes }}</small>
+            </div>
           }
-        </ul>
-
-        @if (patient.appointments.length > 5) {
-          <button class="btn btn-link mt-2 p-0"
-                  (click)="showAllAppointments = !showAllAppointments">
-            {{ showAllAppointments ? 'Show Less' : 'Show More' }}
-          </button>
-        }
+        </div>
       }
     </div>
-  </div>
 
-  <!-- ========================= -->
-  <!-- PRESCRIPTIONS -->
-  <!-- ========================= -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-
-      <h4>Your Prescriptions</h4>
-
-      @if (prescriptions.length === 0) {
-        <p class="text-muted">You have no prescriptions recorded.</p>
-
-      } @else {
-        <ul class="list-group">
-          @for (p of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 5)); track p._id) {
-            <li class="list-group-item">
-              <strong>{{ p.name }}</strong><br>
-              Start: {{ fmt(p.start) }}<br>
-              Stop: {{ fmt(p.stop) }}<br>
-              Status:
-              <span class="badge bg-info">{{ p.status }}</span>
-            </li>
-          }
-        </ul>
-
-        @if (prescriptions.length > 5) {
-          <button class="btn btn-link mt-2 p-0"
-                  (click)="showAllPrescriptions = !showAllPrescriptions">
-            {{ showAllPrescriptions ? 'Show Less' : 'Show More' }}
-          </button>
-        }
-      }
-    </div>
-  </div>
-
-  <!-- ========================= -->
-  <!-- CAREPLANS -->
-  <!-- ========================= -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-
-      <h4>Your Care Plans</h4>
-
-      @if (careplans.length === 0) {
-        <p class="text-muted">No care plans currently assigned.</p>
-
-      } @else {
-        <ul class="list-group">
-          @for (c of (showAllCareplans ? careplans : careplans.slice(0, 5)); track c._id) {
-            <li class="list-group-item">
-              <strong>{{ c.description }}</strong><br>
-              Start: {{ fmt(c.start) }}<br>
-              Stop: {{ fmt(c.stop) }}
-            </li>
-          }
-        </ul>
-
-        @if (careplans.length > 5) {
-          <button class="btn btn-link mt-2 p-0"
-                  (click)="showAllCareplans = !showAllCareplans">
-            {{ showAllCareplans ? 'Show Less' : 'Show More' }}
-          </button>
-        }
-      }
-    </div>
-  </div>
-
-  <!-- ========================= -->
-  <!-- REQUEST APPOINTMENT -->
-  <!-- ========================= -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-
-      <h4>Request an Appointment</h4>
-
-      <div class="form-group mb-3">
-        <label>Select Appointment Date</label>
-        <input type="date" class="form-control" [(ngModel)]="requestDate">
-      </div>
-
-      <div class="form-group mb-3">
-        <label>Describe Symptoms</label>
-        <textarea class="form-control" rows="3"
-                  [(ngModel)]="requestSymptoms"
-                  placeholder="Briefly describe your symptoms"></textarea>
-      </div>
-
-      <button class="btn btn-primary" (click)="submitRequest()">
-        Submit Request
+    @if (confirmedAppointments.length > 3) {
+      <button class="btn btn-link w-100 mt-3 view-more-btn"
+              (click)="showAllAppointments = !showAllAppointments">
+        <i class="bi" [ngClass]="showAllAppointments ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        {{ showAllAppointments ? 'Show Less' : 'View All (' + confirmedAppointments.length + ')' }}
       </button>
+    }
+  }
+</div>
 
-      <p class="text-success mt-2" *ngIf="submitted">
-        Appointment request successfully submitted.
-      </p>
+      <!-- PRESCRIPTIONS CARD -->
+      <div class="glass-card p-4">
+        <h4 class="card-title mb-3 d-flex align-items-center">
+          <i class="bi bi-prescription2 me-2 text-primary"></i>
+          Your Prescriptions
+        </h4>
 
+        @if (prescriptions.length === 0) {
+          <div class="empty-state text-center py-4">
+            <i class="bi bi-capsule display-4 text-muted mb-3"></i>
+            <p class="text-muted mb-0">You have no prescriptions recorded</p>
+          </div>
+        } @else {
+          <div class="prescriptions-list">
+            @for (p of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 3)); track p._id) {
+              <div class="prescription-item">
+                <div class="prescription-header d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 class="prescription-name mb-1">{{ p.name }}</h6>
+                    <div class="prescription-dates text-muted">
+                      <small>
+                        <i class="bi bi-calendar-range me-1"></i>
+                        {{ fmt(p.start) }} - {{ fmt(p.stop) }}
+                      </small>
+                    </div>
+                  </div>
+                  <span class="badge prescription-status" [ngClass]="getPrescriptionStatusClass(p)">
+                    {{ p.status }}
+                  </span>
+                </div>
+                @if (p.instructions) {
+                  <div class="prescription-instructions mt-2">
+                    <small class="text-muted">
+                      <i class="bi bi-info-circle me-1"></i>
+                      {{ p.instructions }}
+                    </small>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (prescriptions.length > 3) {
+            <button class="btn btn-link w-100 mt-3 view-more-btn"
+                    (click)="showAllPrescriptions = !showAllPrescriptions">
+              <i class="bi" [ngClass]="showAllPrescriptions ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              {{ showAllPrescriptions ? 'Show Less' : `View All (${prescriptions.length})` }}
+            </button>
+          }
+        }
+      </div>
     </div>
   </div>
 

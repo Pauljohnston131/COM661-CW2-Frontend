@@ -12,30 +12,33 @@
 
     <div class="d-flex gap-3 align-items-center flex-wrap">
 
-      <div class="quick-actions">
-        <button class="btn btn-outline-primary btn-action-sm" [routerLink]="['/gp/patients']">
-          <i class="bi bi-person-lines-fill"></i> View Patients
-        </button>
+      <!-- Unified action buttons -->
+      <div class="quick-actions d-flex flex-row align-items-center">
 
-        <button class="btn btn-outline-success btn-action-sm" [routerLink]="['/gp/add-patient']">
-          <i class="bi bi-person-plus"></i> Add Patient
-        </button>
+  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
+    <i class="bi bi-person-lines-fill"></i> View Patients
+  </button>
 
-        <button class="btn btn-outline-warning btn-action-sm" [routerLink]="['/gp/patients']">
-          <i class="bi bi-pencil-square"></i> Update Patient
-        </button>
+  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/add-patient']">
+    <i class="bi bi-person-plus"></i> Add Patient
+  </button>
 
-        <button class="btn btn-outline-danger btn-action-sm" [routerLink]="['/gp/patients']">
-          <i class="bi bi-person-x"></i> Delete Patient
-        </button>
-      </div>
+  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
+    <i class="bi bi-pencil-square"></i> Update Patient
+  </button>
 
-      <button class="btn btn-warning btn-action shadow-sm d-flex align-items-center gap-2"
+  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
+    <i class="bi bi-person-x"></i> Delete Patient
+  </button>
+
+</div>
+
+
+      <!-- Review Requests Button -->
+      <button class="btn review-btn shadow-sm d-flex align-items-center gap-2"
               (click)="goToFirstPending()"
               [disabled]="pendingRequests === 0">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 8l-6 6h12z"/>
-        </svg>
+        
         Review pending requests
         <span class="badge bg-dark ms-2">{{ pendingRequests }}</span>
       </button>
@@ -46,7 +49,7 @@
   <!-- Stats Grid -->
   <div class="stats-grid">
 
-    <div class="stat-tile hover-lift">
+    <div class="stat-tile glass-card">
       <div class="stat-icon text-primary"><i class="bi bi-people-fill"></i></div>
       <div>
         <div class="stat-value">{{ totalPatients }}</div>
@@ -54,7 +57,7 @@
       </div>
     </div>
 
-    <div class="stat-tile hover-lift">
+    <div class="stat-tile glass-card">
       <div class="stat-icon text-success"><i class="bi bi-calendar-check"></i></div>
       <div>
         <div class="stat-value">{{ totalAppointments }}</div>
@@ -62,7 +65,7 @@
       </div>
     </div>
 
-    <div class="stat-tile hover-lift">
+    <div class="stat-tile glass-card">
       <div class="stat-icon text-info"><i class="bi bi-prescription2"></i></div>
       <div>
         <div class="stat-value">{{ totalPrescriptions }}</div>
@@ -70,7 +73,7 @@
       </div>
     </div>
 
-    <div class="stat-tile hover-lift">
+    <div class="stat-tile glass-card">
       <div class="stat-icon text-purple"><i class="bi bi-heart-pulse-fill"></i></div>
       <div>
         <div class="stat-value">{{ totalCareplans }}</div>
@@ -90,10 +93,10 @@
         <span class="badge bg-purple text-white">{{ gpChecklist.length }}</span>
       </div>
 
-      <div class="checklist-container">
+      <div class="checklist-container glass-card">
         <ng-container *ngIf="gpChecklist.length; else noTasks">
           <div class="checklist-list">
-            <div class="checklist-card hover-lift"
+            <div class="checklist-card"
                  *ngFor="let item of gpChecklist | slice:0:8"
                  (click)="router.navigate(item.link)">
               <div class="d-flex justify-content-between align-items-start">
@@ -123,7 +126,7 @@
     <div class="activity-section">
       <div class="section-header"><h5>Recent Activity</h5></div>
 
-      <div class="activity-list">
+      <div class="activity-list glass-card">
         <div *ngFor="let a of recentAppointments" class="activity-item">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -152,7 +155,9 @@
 
     <!-- RIGHT — Calendar -->
     <div class="calendar-section">
-      <app-home-calendar [events]="events"></app-home-calendar>
+      <div class="calendar-card glass-card">
+        <app-home-calendar [events]="events"></app-home-calendar>
+      </div>
     </div>
 
   </div>
@@ -164,7 +169,7 @@
       <small class="text-muted">{{ mapMarkers.length }} plotted</small>
     </div>
 
-    <div class="map-container-small">
+    <div class="map-container-small glass-card">
       <google-map height="100%" width="100%"
                   [center]="mapCenter"
                   [zoom]="mapZoom"

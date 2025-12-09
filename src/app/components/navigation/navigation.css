@@ -1,0 +1,34 @@
+nav.navbar {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Active link highlight */
+.nav-link.active-bg {
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(10px);
+  font-weight: 600 !important;
+}
+
+/* Smooth hover transitions */
+.nav-link.transition {
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.nav-link.transition:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  border-radius: 8px;
+}
+
+/* Custom cyan badge for patients */
+.bg-cyan {
+  background-color: #a0e7e5 !important;
+  color: #1a1f36 !important;
+}
+
+/* Brand icon glow */
+.brand-icon {
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+}

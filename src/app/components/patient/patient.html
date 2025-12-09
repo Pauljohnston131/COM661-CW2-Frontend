@@ -1,106 +1,155 @@
-<!-- src/app/components/patient/patient.html -->
-<div class="container mt-5 pt-5" *ngIf="patient">
+<div class="patient-detail-container" *ngIf="patient">
 
   <!-- TOAST -->
   <div *ngIf="toastMessage"
-       class="alert"
+       class="alert glass-card alert-toast"
        [ngClass]="toastType === 'success' ? 'alert-success' : 'alert-danger'"
        role="alert">
+    <i class="bi" [ngClass]="toastType === 'success' ? 'bi-check-circle-fill me-2' : 'bi-exclamation-circle-fill me-2'"></i>
     {{ toastMessage }}
   </div>
 
   <!-- LOADING SPINNER -->
-  <div *ngIf="loading" class="d-flex justify-content-center my-3">
-    <div class="spinner-border" role="status">
+  <div *ngIf="loading" class="loading-state glass-card p-5 text-center">
+    <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
+    <p class="text-muted mb-0">Loading patient details...</p>
   </div>
 
   <!-- HEADER -->
-  <div class="row mb-4">
-    <div class="col-md-8">
-      <h2 class="mb-1">{{ patient.name }}</h2>
-      <p class="text-muted mb-0">
-        Age: <strong>{{ patient.age }}</strong> ·
-        Condition: <strong>{{ patient.condition }}</strong> ·
-        Town: <strong>{{ patient.town }}</strong>
-      </p>
+  <div class="patient-header mb-5" *ngIf="!loading">
+    <div class="patient-info-header">
+      <h2 class="patient-name-title mb-2">
+        <i class="bi bi-person-circle me-2"></i>
+        {{ patient.name }}
+      </h2>
+      <div class="patient-info-badges">
+        <span class="badge patient-info-badge">
+          <i class="bi bi-calendar me-1"></i>
+          Age: {{ patient.age }}
+        </span>
+        <span *ngIf="patient.condition" class="badge patient-info-badge">
+          <i class="bi bi-heart-pulse me-1"></i>
+          {{ patient.condition }}
+        </span>
+        <span *ngIf="patient.town" class="badge patient-info-badge">
+          <i class="bi bi-geo-alt me-1"></i>
+          {{ patient.town }}
+        </span>
+      </div>
     </div>
 
     <!-- SUMMARY PANEL -->
-    <div class="col-md-4 text-end">
-      <div class="card shadow-sm">
-        <div class="card-body small">
-          <strong>Summary</strong>
-          <div class="mt-2">
-            <div>Appointments: {{ appointments.length }}</div>
-            <div>Prescriptions: {{ prescriptions.length }}</div>
-            <div>Careplans: {{ careplans.length }}</div>
+    <div class="patient-summary">
+      <div class="summary-card glass-card">
+        <div class="summary-header">
+          <i class="bi bi-clipboard-data me-2"></i>
+          <strong>Medical Summary</strong>
+        </div>
+        <div class="summary-stats">
+          <div class="stat-item">
+            <div class="stat-value">{{ appointments.length }}</div>
+            <div class="stat-label">Appointments</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ prescriptions.length }}</div>
+            <div class="stat-label">Prescriptions</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ careplans.length }}</div>
+            <div class="stat-label">Care Plans</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN ROW -->
-  <div class="row">
+  <!-- MAIN CONTENT -->
+  <div class="patient-content" *ngIf="!loading">
+    
+    <div class="row g-4">
 
-    <!-- LEFT COLUMN -->
-    <div class="col-md-6">
+      <!-- LEFT COLUMN -->
+      <div class="col-lg-8">
 
-      <!-- APPOINTMENTS -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4 class="mb-0">Appointments</h4>
-            <span *ngIf="editingAppointmentId" class="badge bg-warning text-dark">
-              Editing appointment
+        <!-- APPOINTMENTS -->
+        <div class="glass-card p-4 mb-4">
+          <div class="section-header d-flex justify-content-between align-items-center mb-4">
+            <h4 class="section-title mb-0">
+              <i class="bi bi-calendar-week me-2"></i>
+              Appointments
+            </h4>
+            <span *ngIf="editingAppointmentId" class="badge edit-badge">
+              <i class="bi bi-pencil me-1"></i>
+              Editing
             </span>
           </div>
 
           @if (appointments.length === 0) {
-            <p class="text-muted">No appointments recorded.</p>
+            <div class="empty-state text-center py-4">
+              <i class="bi bi-calendar display-4 text-muted mb-3"></i>
+              <p class="text-muted mb-0">No appointments recorded</p>
+            </div>
           } @else {
 
-            <ul class="list-group">
-              @for (a of (showAllAppointments ? appointments : appointments.slice(0, 5)); track a._id) {
-                <li class="list-group-item">
-                  <strong>{{ fmt(a.date) }}</strong> <br>
-                  Doctor: {{ a.doctor }} <br>
-                  <small class="text-muted">{{ a.notes }}</small><br>
+            <div class="appointments-list">
+              @for (a of (showAllAppointments ? appointments : appointments.slice(0, 3)); track a._id) {
+                <div class="appointment-item glass-card">
+                  <div class="appointment-header d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <div class="appointment-date">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        <strong>{{ fmt(a.date) }}</strong>
+                      </div>
+                      <div class="appointment-doctor mt-2">
+                        <span class="badge doctor-badge">
+                          <i class="bi bi-person-badge me-1"></i>
+                          Dr. {{ a.doctor || 'Not assigned' }}
+                        </span>
+                      </div>
+                    </div>
+                    <span class="badge appointment-status" [ngClass]="badge(a.status)">
+                      {{ a.status }}
+                    </span>
+                  </div>
+                  
+                  @if (a.notes) {
+                    <div class="appointment-notes mt-3">
+                      <p class="mb-0 text-muted">{{ a.notes }}</p>
+                    </div>
+                  }
 
-                  <span class="badge mt-2" [ngClass]="badge(a.status)">
-                    {{ a.status }}
-                  </span>
-
-                  <div class="mt-2">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
+                  <div class="appointment-actions mt-3">
+                    <button class="btn action-btn edit-btn"
                             (click)="startEditAppointment(a)">
+                      <i class="bi bi-pencil me-1"></i>
                       Edit
                     </button>
-
-                    <button class="btn btn-sm btn-outline-success me-2"
+                    <button class="btn action-btn complete-btn"
                             (click)="updateAppointmentStatus(a, 'completed')">
-                      Mark Completed
+                      <i class="bi bi-check-circle me-1"></i>
+                      Complete
                     </button>
-
-                    <button class="btn btn-sm btn-outline-warning me-2"
+                    <button class="btn action-btn cancel-btn"
                             (click)="updateAppointmentStatus(a, 'cancelled')">
+                      <i class="bi bi-x-circle me-1"></i>
                       Cancel
                     </button>
-
-                    <button class="btn btn-sm btn-outline-danger"
+                    <button class="btn action-btn delete-btn"
                             (click)="deleteAppointment(a)">
+                      <i class="bi bi-trash me-1"></i>
                       Delete
                     </button>
                   </div>
-                </li>
+                </div>
               }
-            </ul>
+            </div>
 
-            @if (appointments.length > 5) {
-              <button class="btn btn-primary btn-sm mt-3"
+            @if (appointments.length > 3) {
+              <button class="btn view-more-btn w-100 mt-3"
                       (click)="showAllAppointments = !showAllAppointments">
+                <i class="bi" [ngClass]="showAllAppointments ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 {{ showAllAppointments ? 'Show Less' : 'Show More' }}
               </button>
             }
@@ -108,91 +157,117 @@
 
           <hr class="my-4">
 
-          <!-- ADD / EDIT APPOINTMENT -->
-          <h5>{{ editingAppointmentId ? 'Update Appointment' : 'Add Appointment' }}</h5>
-          <form [formGroup]="appointmentForm" (ngSubmit)="saveAppointment()">
+          <!-- ADD / EDIT APPOINTMENT FORM -->
+          <div class="appointment-form">
+            <h5 class="form-title">
+              <i class="bi" [ngClass]="editingAppointmentId ? 'bi-pencil' : 'bi-plus-circle'"></i>
+              {{ editingAppointmentId ? 'Update Appointment' : 'Add New Appointment' }}
+            </h5>
+            
+            <form [formGroup]="appointmentForm" (ngSubmit)="saveAppointment()" class="mt-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Doctor Name</label>
+                  <input class="form-control form-input" formControlName="doctor" placeholder="Dr. Smith">
+                </div>
 
-            <div class="mb-2">
-              <label>Doctor</label>
-              <input class="form-control" formControlName="doctor">
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Date</label>
+                  <input type="date" formControlName="date" class="form-control form-input">
+                </div>
 
-            <div class="mb-2">
-              <label>Date</label>
-              <input type="date" formControlName="date" class="form-control">
-            </div>
+                <div class="col-12">
+                  <label class="form-label">Notes</label>
+                  <textarea class="form-control form-textarea" formControlName="notes" 
+                            placeholder="Appointment notes..."></textarea>
+                </div>
 
-            <div class="mb-2">
-              <label>Notes</label>
-              <textarea class="form-control" formControlName="notes"></textarea>
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select class="form-control form-select" formControlName="status">
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
 
-            <div class="mb-2">
-              <label>Status</label>
-              <select class="form-control" formControlName="status">
-                <option value="scheduled">Scheduled</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
+                <div class="col-12 mt-3">
+                  <button class="btn primary-btn me-2"
+                          [disabled]="appointmentForm.invalid">
+                    <i class="bi" [ngClass]="editingAppointmentId ? 'bi-save' : 'bi-plus-circle'"></i>
+                    {{ editingAppointmentId ? 'Save Changes' : 'Add Appointment' }}
+                  </button>
 
-            <button class="btn btn-primary mt-2"
-                    [disabled]="appointmentForm.invalid">
-              {{ editingAppointmentId ? 'Save Changes' : 'Add Appointment' }}
-            </button>
-
-            <button *ngIf="editingAppointmentId"
-                    type="button"
-                    class="btn btn-outline-secondary mt-2 ms-2"
-                    (click)="cancelEditAppointment()">
-              Cancel Edit
-            </button>
-
-          </form>
-
+                  <button *ngIf="editingAppointmentId"
+                          type="button"
+                          class="btn secondary-btn"
+                          (click)="cancelEditAppointment()">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel Edit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
 
-      <!-- PRESCRIPTIONS -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4 class="mb-0">Prescriptions</h4>
-            <span *ngIf="editingPrescriptionId" class="badge bg-warning text-dark">
-              Editing prescription
+        <!-- PRESCRIPTIONS -->
+        <div class="glass-card p-4 mb-4">
+          <div class="section-header d-flex justify-content-between align-items-center mb-4">
+            <h4 class="section-title mb-0">
+              <i class="bi bi-prescription2 me-2"></i>
+              Prescriptions
+            </h4>
+            <span *ngIf="editingPrescriptionId" class="badge edit-badge">
+              <i class="bi bi-pencil me-1"></i>
+              Editing
             </span>
           </div>
 
           @if (prescriptions.length === 0) {
-            <p class="text-muted">No prescriptions recorded.</p>
+            <div class="empty-state text-center py-4">
+              <i class="bi bi-capsule display-4 text-muted mb-3"></i>
+              <p class="text-muted mb-0">No prescriptions recorded</p>
+            </div>
           } @else {
-            <ul class="list-group">
-              @for (rx of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 5)); track rx._id) {
-                <li class="list-group-item">
-                  <strong>{{ rx.name }}</strong><br>
-                  Start: {{ fmt(rx.start) }}<br>
-                  Stop: {{ fmt(rx.stop) }}<br>
-                  Status:
-                  <span class="badge bg-info">{{ rx.status }}</span>
-
-                  <div class="mt-2">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
+            <div class="prescriptions-list">
+              @for (rx of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 3)); track rx._id) {
+                <div class="prescription-item glass-card">
+                  <div class="prescription-header d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h6 class="prescription-name">{{ rx.name }}</h6>
+                      <div class="prescription-dates text-muted">
+                        <small>
+                          <i class="bi bi-calendar-range me-1"></i>
+                          {{ fmt(rx.start) }} - {{ fmt(rx.stop) }}
+                        </small>
+                      </div>
+                    </div>
+                    <span class="badge prescription-status" [ngClass]="badge(rx.status)">
+                      {{ rx.status }}
+                    </span>
+                  </div>
+                  
+                  <div class="prescription-actions mt-3">
+                    <button class="btn action-btn edit-btn"
                             (click)="startEditPrescription(rx)">
+                      <i class="bi bi-pencil me-1"></i>
                       Edit
                     </button>
-
-                    <button class="btn btn-sm btn-outline-danger"
+                    <button class="btn action-btn delete-btn"
                             (click)="deletePrescription(rx)">
+                      <i class="bi bi-trash me-1"></i>
                       Delete
                     </button>
                   </div>
-                </li>
+                </div>
               }
-            </ul>
+            </div>
 
-            @if (prescriptions.length > 5) {
-              <button class="btn btn-primary btn-sm mt-2"
+            @if (prescriptions.length > 3) {
+              <button class="btn view-more-btn w-100 mt-3"
                       (click)="showAllPrescriptions = !showAllPrescriptions">
+                <i class="bi" [ngClass]="showAllPrescriptions ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 {{ showAllPrescriptions ? 'Show Less' : 'Show More' }}
               </button>
             }
@@ -200,88 +275,112 @@
 
           <hr class="my-4">
 
-          <!-- ADD / EDIT PRESCRIPTION -->
-          <h5>{{ editingPrescriptionId ? 'Update Prescription' : 'Add Prescription' }}</h5>
-          <form [formGroup]="prescriptionForm" (ngSubmit)="savePrescription()">
+          <!-- ADD / EDIT PRESCRIPTION FORM -->
+          <div class="prescription-form">
+            <h5 class="form-title">
+              <i class="bi" [ngClass]="editingPrescriptionId ? 'bi-pencil' : 'bi-plus-circle'"></i>
+              {{ editingPrescriptionId ? 'Update Prescription' : 'Add New Prescription' }}
+            </h5>
+            
+            <form [formGroup]="prescriptionForm" (ngSubmit)="savePrescription()" class="mt-3">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Medication Name</label>
+                  <input class="form-control form-input" formControlName="name" placeholder="e.g., Amoxicillin 500mg">
+                </div>
 
-            <div class="mb-2">
-              <label>Medication Name</label>
-              <input class="form-control" formControlName="name">
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Start Date</label>
+                  <input type="date" class="form-control form-input" formControlName="start">
+                </div>
 
-            <div class="mb-2">
-              <label>Start Date</label>
-              <input type="date" class="form-control" formControlName="start">
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Stop Date (optional)</label>
+                  <input type="date" class="form-control form-input" formControlName="stop">
+                </div>
 
-            <div class="mb-2">
-              <label>Stop Date (optional)</label>
-              <input type="date" class="form-control" formControlName="stop">
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select class="form-control form-select" formControlName="status">
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
 
-            <div class="mb-2">
-              <label>Status</label>
-              <select class="form-control" formControlName="status">
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
+                <div class="col-12 mt-3">
+                  <button class="btn primary-btn me-2"
+                          [disabled]="prescriptionForm.invalid">
+                    <i class="bi" [ngClass]="editingPrescriptionId ? 'bi-save' : 'bi-plus-circle'"></i>
+                    {{ editingPrescriptionId ? 'Save Changes' : 'Add Prescription' }}
+                  </button>
 
-            <button class="btn btn-primary mt-2"
-                    [disabled]="prescriptionForm.invalid">
-              {{ editingPrescriptionId ? 'Save Changes' : 'Add Prescription' }}
-            </button>
-
-            <button *ngIf="editingPrescriptionId"
-                    type="button"
-                    class="btn btn-outline-secondary mt-2 ms-2"
-                    (click)="cancelEditPrescription()">
-              Cancel Edit
-            </button>
-
-          </form>
+                  <button *ngIf="editingPrescriptionId"
+                          type="button"
+                          class="btn secondary-btn"
+                          (click)="cancelEditPrescription()">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel Edit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
 
-      <!-- CAREPLANS -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4 class="mb-0">Care Plans</h4>
-            <span *ngIf="editingCareplanId" class="badge bg-warning text-dark">
-              Editing careplan
+        <!-- CAREPLANS -->
+        <div class="glass-card p-4">
+          <div class="section-header d-flex justify-content-between align-items-center mb-4">
+            <h4 class="section-title mb-0">
+              <i class="bi bi-clipboard-check me-2"></i>
+              Care Plans
+            </h4>
+            <span *ngIf="editingCareplanId" class="badge edit-badge">
+              <i class="bi bi-pencil me-1"></i>
+              Editing
             </span>
           </div>
 
           @if (careplans.length === 0) {
-            <p class="text-muted">No careplans recorded.</p>
+            <div class="empty-state text-center py-4">
+              <i class="bi bi-clipboard display-4 text-muted mb-3"></i>
+              <p class="text-muted mb-0">No careplans recorded</p>
+            </div>
           } @else {
-            <ul class="list-group">
-              @for (c of (showAllCareplans ? careplans : careplans.slice(0, 5)); track c._id) {
-                <li class="list-group-item">
-                  <strong>{{ c.description }}</strong><br>
-                  Start: {{ fmt(c.start) }}<br>
-                  Stop: {{ fmt(c.stop) }}
-
-                  <div class="mt-2">
-                    <button class="btn btn-sm btn-outline-secondary me-2"
+            <div class="careplans-list">
+              @for (c of (showAllCareplans ? careplans : careplans.slice(0, 3)); track c._id) {
+                <div class="careplan-item glass-card">
+                  <div class="careplan-header d-flex justify-content-between align-items-start mb-3">
+                    <h6 class="careplan-name mb-0">{{ c.description || 'Care Plan' }}</h6>
+                    <span class="badge careplan-status">Active</span>
+                  </div>
+                  <div class="careplan-dates text-muted">
+                    <small>
+                      <i class="bi bi-calendar-range me-1"></i>
+                      {{ fmt(c.start) }} - {{ fmt(c.stop) }}
+                    </small>
+                  </div>
+                  
+                  <div class="careplan-actions mt-3">
+                    <button class="btn action-btn edit-btn"
                             (click)="startEditCareplan(c)">
+                      <i class="bi bi-pencil me-1"></i>
                       Edit
                     </button>
-
-                    <button class="btn btn-sm btn-outline-danger"
+                    <button class="btn action-btn delete-btn"
                             (click)="deleteCareplan(c)">
+                      <i class="bi bi-trash me-1"></i>
                       Delete
                     </button>
                   </div>
-                </li>
+                </div>
               }
-            </ul>
+            </div>
 
-            @if (careplans.length > 5) {
-              <button class="btn btn-primary btn-sm mt-2"
+            @if (careplans.length > 3) {
+              <button class="btn view-more-btn w-100 mt-3"
                       (click)="showAllCareplans = !showAllCareplans">
+                <i class="bi" [ngClass]="showAllCareplans ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 {{ showAllCareplans ? 'Show Less' : 'Show More' }}
               </button>
             }
@@ -289,72 +388,108 @@
 
           <hr class="my-4">
 
-          <!-- ADD / EDIT CAREPLAN -->
-          <h5>{{ editingCareplanId ? 'Update Careplan' : 'Add Careplan' }}</h5>
-          <form [formGroup]="careplanForm" (ngSubmit)="saveCareplan()">
+          <!-- ADD / EDIT CAREPLAN FORM -->
+          <div class="careplan-form">
+            <h5 class="form-title">
+              <i class="bi" [ngClass]="editingCareplanId ? 'bi-pencil' : 'bi-plus-circle'"></i>
+              {{ editingCareplanId ? 'Update Careplan' : 'Add New Careplan' }}
+            </h5>
+            
+            <form [formGroup]="careplanForm" (ngSubmit)="saveCareplan()" class="mt-3">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <input class="form-control form-input" formControlName="description" 
+                         placeholder="e.g., Diabetes management plan">
+                </div>
 
-            <div class="mb-2">
-              <label>Description</label>
-              <input class="form-control" formControlName="description">
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Start Date</label>
+                  <input type="date" class="form-control form-input" formControlName="start">
+                </div>
 
-            <div class="mb-2">
-              <label>Start Date</label>
-              <input type="date" class="form-control" formControlName="start">
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label">Stop Date (optional)</label>
+                  <input type="date" class="form-control form-input" formControlName="stop">
+                </div>
 
-            <div class="mb-2">
-              <label>Stop Date (optional)</label>
-              <input type="date" class="form-control" formControlName="stop">
-            </div>
+                <div class="col-12 mt-3">
+                  <button class="btn primary-btn me-2"
+                          [disabled]="careplanForm.invalid">
+                    <i class="bi" [ngClass]="editingCareplanId ? 'bi-save' : 'bi-plus-circle'"></i>
+                    {{ editingCareplanId ? 'Save Changes' : 'Add Careplan' }}
+                  </button>
 
-            <button class="btn btn-primary mt-2"
-                    [disabled]="careplanForm.invalid">
-              {{ editingCareplanId ? 'Save Changes' : 'Add Careplan' }}
-            </button>
-
-            <button *ngIf="editingCareplanId"
-                    type="button"
-                    class="btn btn-outline-secondary mt-2 ms-2"
-                    (click)="cancelEditCareplan()">
-              Cancel Edit
-            </button>
-
-          </form>
-
+                  <button *ngIf="editingCareplanId"
+                          type="button"
+                          class="btn secondary-btn"
+                          (click)="cancelEditCareplan()">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel Edit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
-    </div>
+      <!-- RIGHT COLUMN -->
+      <div class="col-lg-4">
+        
+        <!-- MAP -->
+        <div class="glass-card p-4 mb-4">
+          <h4 class="section-title mb-3">
+            <i class="bi bi-geo-alt me-2"></i>
+            Patient Location
+          </h4>
+          
+          <div class="map-container">
+            <google-map height="250px" width="100%" [options]="map_options">
+              @for (m of map_markers; track m.position.lat + ',' + m.position.lng) {
+                <map-marker [position]="m.position" [title]="m.title"></map-marker>
+              }
+            </google-map>
+          </div>
+          
+          <div class="mt-3">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Location: {{ patient.town || 'Not specified' }}
+            </small>
+          </div>
+        </div>
 
-    <!-- RIGHT COLUMN -->
-    <div class="col-md-6">
-
-      <!-- MAP -->
-<div class="card shadow-sm mb-4">
-  <div class="card-body">
-    <h4>Patient Location</h4>
-
-    <google-map height="300px" width="100%" [options]="map_options">
-      @for (m of map_markers; track m.position.lat + ',' + m.position.lng) {
-        <!-- Use standard markers to avoid Map ID / Advanced Marker warning -->
-        <map-marker [position]="m.position" [title]="m.title"></map-marker>
-      }
-    </google-map>
-  </div>
-</div>
-
-
-      <!-- CLINICAL SUMMARY -->
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h4>Clinical Summary</h4>
-          <p>
-            {{ patient.condition }} is currently being managed.
-            {{ appointments.length }} appointments,
-            {{ prescriptions.length }} prescriptions,
-            and {{ careplans.length }} careplans have been recorded.
-          </p>
+        <!-- CLINICAL SUMMARY -->
+        <div class="glass-card p-4">
+          <h4 class="section-title mb-3">
+            <i class="bi bi-clipboard2-pulse me-2"></i>
+            Clinical Summary
+          </h4>
+          
+          <div class="clinical-summary">
+            <p class="text-muted">
+              Patient presents with <strong>{{ patient.condition || 'no recorded condition' }}</strong>. 
+              Treatment includes {{ prescriptions.length }} prescription(s) 
+              and {{ careplans.length }} care plan(s).
+            </p>
+            
+            <!-- Simplified stats without complex filtering -->
+            <div class="summary-stats-small mt-4">
+              <div class="stat-small">
+                <div class="stat-small-value">{{ appointments.length }}</div>
+                <div class="stat-small-label">Total Appts</div>
+              </div>
+              <div class="stat-small">
+                <div class="stat-small-value">{{ prescriptions.length }}</div>
+                <div class="stat-small-label">Prescriptions</div>
+              </div>
+              <div class="stat-small">
+                <div class="stat-small-value">{{ careplans.length }}</div>
+                <div class="stat-small-label">Care Plans</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

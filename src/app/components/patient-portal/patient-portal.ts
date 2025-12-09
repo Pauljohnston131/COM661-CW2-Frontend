@@ -1,4 +1,5 @@
-// src/app/components/patient-portal/patient-portal.ts
+// src/app/components/patient-portal/patient-portal.component.ts
+
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,9 +30,11 @@ export class PatientPortalComponent {
   requestSymptoms = '';
   submitted = false;
 
+  // Data arrays
   prescriptions: any[] = [];
   careplans: any[] = [];
-  pendingRequests: any[] = [];   // NEW
+  pendingRequests: any[] = [];
+  confirmedAppointments: any[] = [];  // Fixed: pre-computed, reliable
 
   constructor(
     private api: Api,
@@ -48,22 +51,19 @@ export class PatientPortalComponent {
   }
 
   // -------------------------------------------------
-  // LOADING + TOAST HELPERS
+  // TOAST & LOADING HELPERS
   // -------------------------------------------------
   private showToast(msg: string, type: 'success' | 'error' = 'success') {
     this.toastMessage = msg;
     this.toastType = type;
-
-    setTimeout(() => {
-      this.toastMessage = '';
-    }, 3500);
+    setTimeout(() => this.toastMessage = '', 4000);
   }
 
   private startLoading() { this.loading = true; }
   private stopLoading() { this.loading = false; }
 
   // -------------------------------------------------
-  // LOAD PATIENT
+  // LOAD PATIENT DATA
   // -------------------------------------------------
   private loadPatient(id: string) {
     this.startLoading();
@@ -73,17 +73,27 @@ export class PatientPortalComponent {
         const p = res.data;
         this.patient = p;
 
-        this.patient.appointments = p.appointments || [];
+        // Ensure arrays exist
+        const appointments = p.appointments || [];
         this.prescriptions = p.prescriptions || [];
         this.careplans = p.careplans || [];
 
-        // Extract pending appointment requests (no doctor assigned yet)
-        this.pendingRequests = this.patient.appointments.filter(
-          (a: any) => a.status === 'requested'
+        // Separate pending requests from confirmed/scheduled appointments
+        this.pendingRequests = appointments.filter((a: any) => 
+          a.status === 'requested'
         );
+
+        this.confirmedAppointments = appointments.filter((a: any) =>
+          a.status && a.status !== 'requested'
+        );
+
+        // Optional: sort confirmed appointments (newest first)
+        this.confirmedAppointments.sort((a: any, b: any) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
       },
       error: () => {
-        this.showToast("Failed to load your profile.", "error");
+        this.showToast("Failed to load your profile. Please try again.", "error");
       },
       complete: () => this.stopLoading()
     });
@@ -98,8 +108,8 @@ export class PatientPortalComponent {
       return;
     }
 
-    if (!this.requestSymptoms.trim() || this.requestSymptoms.length < 6) {
-      this.showToast("Please provide more details about your symptoms.", "error");
+    if (!this.requestSymptoms.trim() || this.requestSymptoms.trim().length < 6) {
+      this.showToast("Please describe your symptoms in more detail.", "error");
       return;
     }
 
@@ -115,27 +125,29 @@ export class PatientPortalComponent {
 
     this.api.requestAppointment(pid, payload).subscribe({
       next: () => {
-        this.showToast("Appointment request sent!", "success");
+        this.showToast("Appointment request sent successfully!", "success");
         this.submitted = true;
 
+        // Reload fresh data
         this.loadPatient(pid);
 
+        // Reset form
         this.requestDate = '';
         this.requestSymptoms = '';
       },
       error: () => {
-        this.showToast("Failed to submit request. Please try again.", "error");
+        this.showToast("Failed to send request. Please try again.", "error");
       },
       complete: () => this.stopLoading()
     });
   }
 
   // -------------------------------------------------
-  // FORMATTER
+  // HELPER: Date formatting
   // -------------------------------------------------
-  fmt(date: string): string {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-UK', {
+  fmt(date: string | Date): string {
+    if (!date) return '—';
+    return new Date(date).toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short',
       year: 'numeric'
@@ -143,15 +155,39 @@ export class PatientPortalComponent {
   }
 
   // -------------------------------------------------
-  // BADGE COLORS
+  // BADGE STYLING
   // -------------------------------------------------
   badge(status: string): string {
-    switch (status) {
-      case 'requested': return 'bg-warning text-dark';
-      case 'scheduled': return 'bg-primary';
-      case 'completed': return 'bg-success';
-      case 'cancelled': return 'bg-danger';
-      default: return 'bg-secondary';
+    switch (status?.toLowerCase()) {
+      case 'requested':  return 'bg-warning text-dark';
+      case 'scheduled':  return 'bg-primary';
+      case 'confirmed':  return 'bg-info';
+      case 'completed':  return 'bg-success';
+      case 'cancelled':  return 'bg-danger';
+      default:           return 'bg-secondary';
     }
+  }
+
+  getPrescriptionStatusClass(p: any): string {
+    const s = p.status?.toLowerCase();
+    if (!s) return 'bg-secondary';
+
+    if (['active', 'ongoing'].includes(s)) return 'bg-success';
+    if (['completed', 'finished'].includes(s)) return 'bg-primary';
+    if (['stopped', 'cancelled'].includes(s)) return 'bg-danger';
+    if (['pending', 'requested'].includes(s)) return 'bg-warning text-dark';
+    if (s === 'expired') return 'bg-secondary';
+    return 'bg-info';
+  }
+
+  // -------------------------------------------------
+  // FORM HELPERS
+  // -------------------------------------------------
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }
