@@ -1,6 +1,5 @@
 <div class="patient-portal-container" *ngIf="patient">
 
-  <!-- HEADER -->
   <div class="portal-header d-flex justify-content-between align-items-center mb-5">
     <div>
       <h2 class="portal-title mb-2">
@@ -35,7 +34,6 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
   <div *ngIf="toastMessage"
        class="alert glass-card alert-toast mb-4"
        [ngClass]="toastType === 'success' ? 'alert-success' : 'alert-danger'">
@@ -43,7 +41,6 @@
     {{ toastMessage }}
   </div>
 
-  <!-- LOADING SPINNER -->
   <div *ngIf="loading" class="loading-state glass-card p-5 text-center mb-4">
     <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
@@ -51,14 +48,12 @@
     <p class="text-muted mb-0">Loading your information...</p>
   </div>
 
-  <!-- ========================= -->
-  <!-- MAIN CONTENT GRID -->
-  <!-- ========================= -->
+
   <div class="portal-grid" *ngIf="!loading">
     
-    <!-- LEFT COLUMN: APPOINTMENT REQUEST -->
+  
     <div class="portal-left-column">
-      <!-- REQUEST APPOINTMENT CARD -->
+     
       <div class="glass-card mb-4 p-4">
         <h4 class="card-title mb-3 d-flex align-items-center">
           <i class="bi bi-calendar-plus me-2 text-primary"></i>
@@ -93,7 +88,7 @@
         </div>
       </div>
 
-      <!-- CAREPLANS CARD -->
+     
       <div class="glass-card p-4">
         <h4 class="card-title mb-3 d-flex align-items-center">
           <i class="bi bi-clipboard-check me-2 text-primary"></i>
@@ -137,10 +132,10 @@
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: APPOINTMENTS & MEDICAL INFO -->
+    
     <div class="portal-right-column">
       
-      <!-- PENDING APPOINTMENT REQUESTS (AT THE TOP) -->
+      
       <div class="glass-card mb-4 p-4" *ngIf="pendingRequests.length > 0">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="card-title mb-0 d-flex align-items-center">
@@ -176,7 +171,7 @@
         </small>
       </div>
 
-      <!-- APPOINTMENTS CARD -->
+
 <div class="glass-card mb-4 p-4">
   <h4 class="card-title mb-3 d-flex align-items-center">
     <i class="bi bi-calendar-week me-2 text-primary"></i>
@@ -228,7 +223,7 @@
   }
 </div>
 
-      <!-- PRESCRIPTIONS CARD -->
+     
       <div class="glass-card p-4">
         <h4 class="card-title mb-3 d-flex align-items-center">
           <i class="bi bi-prescription2 me-2 text-primary"></i>

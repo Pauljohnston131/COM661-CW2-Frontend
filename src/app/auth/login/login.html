@@ -2,7 +2,6 @@
 
   <div class="login-card glass-card">
     
-    <!-- LOGO/HEADER -->
     <div class="login-header text-center mb-5">
       <div class="login-logo mb-3">
         <i class="bi bi-heart-pulse"></i>
@@ -13,7 +12,6 @@
       </p>
     </div>
 
-    <!-- LOGIN FORM -->
     <form (ngSubmit)="onSubmit()" class="login-form">
       <div class="form-group mb-4">
         <label class="form-label d-flex align-items-center">
@@ -48,7 +46,6 @@
         Sign In
       </button>
 
-      <!-- ERROR MESSAGE -->
       <div *ngIf="error" class="alert error-alert glass-card mt-4">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
         {{ error }}
@@ -56,7 +53,6 @@
 
     </form>
 
-    <!-- FOOTER -->
     <div class="login-footer text-center mt-5">
       <small class="text-muted">
         <i class="bi bi-shield-check me-1"></i>

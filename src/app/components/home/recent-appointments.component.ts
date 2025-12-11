@@ -1,4 +1,3 @@
-// src/app/components/home/recent-appointments.component.ts
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 

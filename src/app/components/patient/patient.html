@@ -1,6 +1,5 @@
 <div class="patient-detail-container" *ngIf="patient">
 
-  <!-- TOAST -->
   <div *ngIf="toastMessage"
        class="alert glass-card alert-toast"
        [ngClass]="toastType === 'success' ? 'alert-success' : 'alert-danger'"
@@ -9,7 +8,6 @@
     {{ toastMessage }}
   </div>
 
-  <!-- LOADING SPINNER -->
   <div *ngIf="loading" class="loading-state glass-card p-5 text-center">
     <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
@@ -17,7 +15,6 @@
     <p class="text-muted mb-0">Loading patient details...</p>
   </div>
 
-  <!-- HEADER -->
   <div class="patient-header mb-5" *ngIf="!loading">
     <div class="patient-info-header">
       <h2 class="patient-name-title mb-2">
@@ -40,7 +37,6 @@
       </div>
     </div>
 
-    <!-- SUMMARY PANEL -->
     <div class="patient-summary">
       <div class="summary-card glass-card">
         <div class="summary-header">
@@ -65,15 +61,12 @@
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
   <div class="patient-content" *ngIf="!loading">
     
     <div class="row g-4">
 
-      <!-- LEFT COLUMN -->
       <div class="col-lg-8">
 
-        <!-- APPOINTMENTS -->
         <div class="glass-card p-4 mb-4">
           <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <h4 class="section-title mb-0">
@@ -95,7 +88,9 @@
 
             <div class="appointments-list">
               @for (a of (showAllAppointments ? appointments : appointments.slice(0, 3)); track a._id) {
-                <div class="appointment-item glass-card">
+                <div class="appointment-item glass-card"
+                    [appHighlightUrgent]="a.status === 'requested'">
+
                   <div class="appointment-header d-flex justify-content-between align-items-start mb-3">
                     <div>
                       <div class="appointment-date">
@@ -157,7 +152,6 @@
 
           <hr class="my-4">
 
-          <!-- ADD / EDIT APPOINTMENT FORM -->
           <div class="appointment-form">
             <h5 class="form-title">
               <i class="bi" [ngClass]="editingAppointmentId ? 'bi-pencil' : 'bi-plus-circle'"></i>
@@ -211,7 +205,6 @@
           </div>
         </div>
 
-        <!-- PRESCRIPTIONS -->
         <div class="glass-card p-4 mb-4">
           <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <h4 class="section-title mb-0">
@@ -275,7 +268,6 @@
 
           <hr class="my-4">
 
-          <!-- ADD / EDIT PRESCRIPTION FORM -->
           <div class="prescription-form">
             <h5 class="form-title">
               <i class="bi" [ngClass]="editingPrescriptionId ? 'bi-pencil' : 'bi-plus-circle'"></i>
@@ -328,7 +320,6 @@
           </div>
         </div>
 
-        <!-- CAREPLANS -->
         <div class="glass-card p-4">
           <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <h4 class="section-title mb-0">
@@ -388,7 +379,7 @@
 
           <hr class="my-4">
 
-          <!-- ADD / EDIT CAREPLAN FORM -->
+        
           <div class="careplan-form">
             <h5 class="form-title">
               <i class="bi" [ngClass]="editingCareplanId ? 'bi-pencil' : 'bi-plus-circle'"></i>
@@ -434,10 +425,10 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN -->
+      
       <div class="col-lg-4">
         
-        <!-- MAP -->
+       
         <div class="glass-card p-4 mb-4">
           <h4 class="section-title mb-3">
             <i class="bi bi-geo-alt me-2"></i>
@@ -446,9 +437,10 @@
           
           <div class="map-container">
             <google-map height="250px" width="100%" [options]="map_options">
-              @for (m of map_markers; track m.position.lat + ',' + m.position.lng) {
-                <map-marker [position]="m.position" [title]="m.title"></map-marker>
-              }
+              @for (m of map_markers; track m.lat + ',' + m.lng) {
+  <map-marker [position]="m"></map-marker>
+}
+
             </google-map>
           </div>
           
@@ -460,7 +452,7 @@
           </div>
         </div>
 
-        <!-- CLINICAL SUMMARY -->
+       
         <div class="glass-card p-4">
           <h4 class="section-title mb-3">
             <i class="bi bi-clipboard2-pulse me-2"></i>
@@ -474,7 +466,7 @@
               and {{ careplans.length }} care plan(s).
             </p>
             
-            <!-- Simplified stats without complex filtering -->
+            
             <div class="summary-stats-small mt-4">
               <div class="stat-small">
                 <div class="stat-small-value">{{ appointments.length }}</div>

@@ -1,5 +1,3 @@
-// src/app/components/home/calendar/home-calendar.component.ts
-
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -29,17 +27,15 @@ export class HomeCalendarComponent {
       right: 'prev,next'
     },
 
-    // Disable time display
+  
     displayEventTime: false,
 
-    // Simple dot indicators
+   
     eventDisplay: 'block',
 
-    // Prevent selecting, dragging, resizing
     selectable: false,
     editable: false,
 
-    // Style tweaks
     fixedWeekCount: false,
     height: 'auto',
   };

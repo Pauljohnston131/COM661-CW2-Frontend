@@ -43,10 +43,10 @@ export class StatCardComponent {
   resolveIcon(iconKey: string): string {
     switch (iconKey) {
       case 'patients': return '👥';
-      case 'appointments': return '📅';
-      case 'prescriptions': return '💊';
-      case 'careplans': return '📝';
-      default: return '📊';
+      case 'appointments': return '';
+      case 'prescriptions': return '';
+      case 'careplans': return '';
+      default: return '';
     }
   }
 }

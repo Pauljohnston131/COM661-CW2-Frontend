@@ -1,0 +1,3728 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>com661-cw2-frontend documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">com661-cw2-frontend documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  PatientComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/components/patient/patient.ts</code>
+</p>
+
+
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>PatientComponent</p>
+<p>Displays a single patient profile including:</p>
+<ul>
+<li>Appointments</li>
+<li>Prescriptions</li>
+<li>Careplans</li>
+<li>Patient location on Google Maps</li>
+</ul>
+<p>Supports full CRUD operations for all related entities.</p>
+
+    </p>
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-patient</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">standalone</td>
+                <td class="col-md-9"><code>true</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">imports</td>
+                <td class="col-md-9">
+                            <code>CommonModule</code>
+                            <code>GoogleMapsModule</code>
+                            <code>ReactiveFormsModule</code>
+                                <code><a href="../directives/HighlightUrgentDirective.html" target="_self" >HighlightUrgentDirective</a></code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./patient.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./patient.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#appointmentForm" >appointmentForm</a>
+                            </li>
+                            <li>
+                                <a href="#appointments" >appointments</a>
+                            </li>
+                            <li>
+                                <a href="#careplanForm" >careplanForm</a>
+                            </li>
+                            <li>
+                                <a href="#careplans" >careplans</a>
+                            </li>
+                            <li>
+                                <a href="#editingAppointmentId" >editingAppointmentId</a>
+                            </li>
+                            <li>
+                                <a href="#editingCareplanId" >editingCareplanId</a>
+                            </li>
+                            <li>
+                                <a href="#editingPrescriptionId" >editingPrescriptionId</a>
+                            </li>
+                            <li>
+                                <a href="#loading" >loading</a>
+                            </li>
+                            <li>
+                                <a href="#map_markers" >map_markers</a>
+                            </li>
+                            <li>
+                                <a href="#map_options" >map_options</a>
+                            </li>
+                            <li>
+                                <a href="#patient" >patient</a>
+                            </li>
+                            <li>
+                                <a href="#patient_lat" >patient_lat</a>
+                            </li>
+                            <li>
+                                <a href="#patient_lng" >patient_lng</a>
+                            </li>
+                            <li>
+                                <a href="#prescriptionForm" >prescriptionForm</a>
+                            </li>
+                            <li>
+                                <a href="#prescriptions" >prescriptions</a>
+                            </li>
+                            <li>
+                                <a href="#showAllAppointments" >showAllAppointments</a>
+                            </li>
+                            <li>
+                                <a href="#showAllCareplans" >showAllCareplans</a>
+                            </li>
+                            <li>
+                                <a href="#showAllPrescriptions" >showAllPrescriptions</a>
+                            </li>
+                            <li>
+                                <a href="#toastMessage" >toastMessage</a>
+                            </li>
+                            <li>
+                                <a href="#toastType" >toastType</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#badge" >badge</a>
+                            </li>
+                            <li>
+                                <a href="#cancelEditAppointment" >cancelEditAppointment</a>
+                            </li>
+                            <li>
+                                <a href="#cancelEditCareplan" >cancelEditCareplan</a>
+                            </li>
+                            <li>
+                                <a href="#cancelEditPrescription" >cancelEditPrescription</a>
+                            </li>
+                            <li>
+                                <a href="#deleteAppointment" >deleteAppointment</a>
+                            </li>
+                            <li>
+                                <a href="#deleteCareplan" >deleteCareplan</a>
+                            </li>
+                            <li>
+                                <a href="#deletePrescription" >deletePrescription</a>
+                            </li>
+                            <li>
+                                <a href="#fmt" >fmt</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#loadPatient" >loadPatient</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#saveAppointment" >saveAppointment</a>
+                            </li>
+                            <li>
+                                <a href="#saveCareplan" >saveCareplan</a>
+                            </li>
+                            <li>
+                                <a href="#savePrescription" >savePrescription</a>
+                            </li>
+                            <li>
+                                <a href="#showToast" >showToast</a>
+                            </li>
+                            <li>
+                                <a href="#startEditAppointment" >startEditAppointment</a>
+                            </li>
+                            <li>
+                                <a href="#startEditCareplan" >startEditCareplan</a>
+                            </li>
+                            <li>
+                                <a href="#startEditPrescription" >startEditPrescription</a>
+                            </li>
+                            <li>
+                                <a href="#updateAppointmentStatus" >updateAppointmentStatus</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(api: <a href="../injectables/Api.html" target="_self">Api</a>, route: ActivatedRoute, fb: FormBuilder)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="96" class="link-to-prism">src/app/components/patient/patient.ts:96</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div class="io-description"><p>Creates instance of PatientComponent</p>
+</div>
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                                    <td>Description</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>api</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/Api.html" target="_self" >Api</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <p>API service</p>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>route</td>
+                                                  
+                                                        <td>
+                                                                    <code>ActivatedRoute</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <p>Activated route for patient ID</p>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>fb</td>
+                                                  
+                                                        <td>
+                                                                    <code>FormBuilder</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <p>Angular form builder</p>
+
+                                                        </td>
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="badge"></a>
+                    <span class="name">
+                        <span ><b>badge</b></span>
+                        <a href="#badge"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>badge(status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="423"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:423</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns Bootstrap badge class for appointment status.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>status</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cancelEditAppointment"></a>
+                    <span class="name">
+                        <span ><b>cancelEditAppointment</b></span>
+                        <a href="#cancelEditAppointment"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cancelEditAppointment()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="200"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:200</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Cancels appointment editing.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cancelEditCareplan"></a>
+                    <span class="name">
+                        <span ><b>cancelEditCareplan</b></span>
+                        <a href="#cancelEditCareplan"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cancelEditCareplan()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="353"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:353</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Cancels careplan editing.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cancelEditPrescription"></a>
+                    <span class="name">
+                        <span ><b>cancelEditPrescription</b></span>
+                        <a href="#cancelEditPrescription"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cancelEditPrescription()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="286"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:286</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Cancels prescription edit.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteAppointment"></a>
+                    <span class="name">
+                        <span ><b>deleteAppointment</b></span>
+                        <a href="#deleteAppointment"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>deleteAppointment(a: <a href="../interfaces/Appointment.html" target="_self">Appointment</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="267"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:267</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deletes an appointment.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>a</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Appointment.html" target="_self" >Appointment</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteCareplan"></a>
+                    <span class="name">
+                        <span ><b>deleteCareplan</b></span>
+                        <a href="#deleteCareplan"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>deleteCareplan(c: <a href="../interfaces/Careplan.html" target="_self">Careplan</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="400"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:400</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deletes a careplan.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>c</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Careplan.html" target="_self" >Careplan</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deletePrescription"></a>
+                    <span class="name">
+                        <span ><b>deletePrescription</b></span>
+                        <a href="#deletePrescription"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>deletePrescription(rx: <a href="../interfaces/Prescription.html" target="_self">Prescription</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="334"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:334</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deletes a prescription.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>rx</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Prescription.html" target="_self" >Prescription</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="fmt"></a>
+                    <span class="name">
+                        <span ><b>fmt</b></span>
+                        <a href="#fmt"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>fmt(date?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="411"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:411</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Formats a date for display.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>date</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadPatient"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>loadPatient</b></span>
+                        <a href="#loadPatient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>loadPatient(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="145"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:145</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Loads patient data and related collections.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Patient ID</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="115"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:115</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Component lifecycle hook.
+Loads patient and initialises all forms.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveAppointment"></a>
+                    <span class="name">
+                        <span ><b>saveAppointment</b></span>
+                        <a href="#saveAppointment"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>saveAppointment()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="213"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:213</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Creates or updates an appointment.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveCareplan"></a>
+                    <span class="name">
+                        <span ><b>saveCareplan</b></span>
+                        <a href="#saveCareplan"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>saveCareplan()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="365"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:365</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Creates or updates a careplan.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="savePrescription"></a>
+                    <span class="name">
+                        <span ><b>savePrescription</b></span>
+                        <a href="#savePrescription"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>savePrescription()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="299"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:299</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Creates or updates prescription.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showToast"></a>
+                    <span class="name">
+                        <span ><b>showToast</b></span>
+                        <a href="#showToast"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>showToast(msg: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, type: "success" | "error")</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:183</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Displays a toast notification.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Default value</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>msg</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    <p>Toast message</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>type</td>
+                                            <td>
+                                                        <code>&quot;success&quot; | &quot;error&quot;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>&#x27;success&#x27;</code>
+                                            </td>
+
+                                            <td>
+                                                    <p>Notification type</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="startEditAppointment"></a>
+                    <span class="name">
+                        <span ><b>startEditAppointment</b></span>
+                        <a href="#startEditAppointment"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>startEditAppointment(a: <a href="../interfaces/Appointment.html" target="_self">Appointment</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="192"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:192</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Puts appointment into edit mode.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>a</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Appointment.html" target="_self" >Appointment</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="startEditCareplan"></a>
+                    <span class="name">
+                        <span ><b>startEditCareplan</b></span>
+                        <a href="#startEditCareplan"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>startEditCareplan(c: <a href="../interfaces/Careplan.html" target="_self">Careplan</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="345"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:345</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Begins editing a careplan.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>c</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Careplan.html" target="_self" >Careplan</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="startEditPrescription"></a>
+                    <span class="name">
+                        <span ><b>startEditPrescription</b></span>
+                        <a href="#startEditPrescription"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>startEditPrescription(rx: <a href="../interfaces/Prescription.html" target="_self">Prescription</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="278"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:278</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Starts prescription edit.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>rx</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Prescription.html" target="_self" >Prescription</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateAppointmentStatus"></a>
+                    <span class="name">
+                        <span ><b>updateAppointmentStatus</b></span>
+                        <a href="#updateAppointmentStatus"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>updateAppointmentStatus(a: <a href="../interfaces/Appointment.html" target="_self">Appointment</a>, status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="247"
+                                    class="link-to-prism">src/app/components/patient/patient.ts:247</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Updates appointment status.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>a</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Appointment.html" target="_self" >Appointment</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>status</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="appointmentForm"></a>
+                    <span class="name">
+                        <span ><b>appointmentForm</b></span>
+                        <a href="#appointmentForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/app/components/patient/patient.ts:90</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Appointment reactive form</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="appointments"></a>
+                    <span class="name">
+                        <span ><b>appointments</b></span>
+                        <a href="#appointments"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Appointment.html" target="_self" >Appointment[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/app/components/patient/patient.ts:57</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Appointment list</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="careplanForm"></a>
+                    <span class="name">
+                        <span ><b>careplanForm</b></span>
+                        <a href="#careplanForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="96" class="link-to-prism">src/app/components/patient/patient.ts:96</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Careplan reactive form</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="careplans"></a>
+                    <span class="name">
+                        <span ><b>careplans</b></span>
+                        <a href="#careplans"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Careplan.html" target="_self" >Careplan[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/app/components/patient/patient.ts:63</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Careplan list</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="editingAppointmentId"></a>
+                    <span class="name">
+                        <span ><b>editingAppointmentId</b></span>
+                        <a href="#editingAppointmentId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/app/components/patient/patient.ts:45</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Tracks appointment being edited</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="editingCareplanId"></a>
+                    <span class="name">
+                        <span ><b>editingCareplanId</b></span>
+                        <a href="#editingCareplanId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/app/components/patient/patient.ts:51</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Tracks careplan being edited</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="editingPrescriptionId"></a>
+                    <span class="name">
+                        <span ><b>editingPrescriptionId</b></span>
+                        <a href="#editingPrescriptionId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/app/components/patient/patient.ts:48</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Tracks prescription being edited</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loading"></a>
+                    <span class="name">
+                        <span ><b>loading</b></span>
+                        <a href="#loading"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/app/components/patient/patient.ts:42</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Global loading indicator</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="map_markers"></a>
+                    <span class="name">
+                        <span ><b>map_markers</b></span>
+                        <a href="#map_markers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>google.maps.LatLngLiteral[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/app/components/patient/patient.ts:78</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Google map markers</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="map_options"></a>
+                    <span class="name">
+                        <span ><b>map_options</b></span>
+                        <a href="#map_options"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>google.maps.MapOptions</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    zoom: 12,
+    center: { lat: 54.948, lng: -7.75 }
+  }</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/app/components/patient/patient.ts:72</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Google map configuration</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="patient"></a>
+                    <span class="name">
+                        <span ><b>patient</b></span>
+                        <a href="#patient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Patient.html" target="_self" >Patient | null</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/app/components/patient/patient.ts:54</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Selected patient record</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="patient_lat"></a>
+                    <span class="name">
+                        <span ><b>patient_lat</b></span>
+                        <a href="#patient_lat"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/app/components/patient/patient.ts:66</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Patient latitude</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="patient_lng"></a>
+                    <span class="name">
+                        <span ><b>patient_lng</b></span>
+                        <a href="#patient_lng"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/app/components/patient/patient.ts:69</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Patient longitude</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="prescriptionForm"></a>
+                    <span class="name">
+                        <span ><b>prescriptionForm</b></span>
+                        <a href="#prescriptionForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="93" class="link-to-prism">src/app/components/patient/patient.ts:93</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Prescription reactive form</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="prescriptions"></a>
+                    <span class="name">
+                        <span ><b>prescriptions</b></span>
+                        <a href="#prescriptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Prescription.html" target="_self" >Prescription[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/app/components/patient/patient.ts:60</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Prescription list</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showAllAppointments"></a>
+                    <span class="name">
+                        <span ><b>showAllAppointments</b></span>
+                        <a href="#showAllAppointments"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="81" class="link-to-prism">src/app/components/patient/patient.ts:81</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Toggle appointment visibility</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showAllCareplans"></a>
+                    <span class="name">
+                        <span ><b>showAllCareplans</b></span>
+                        <a href="#showAllCareplans"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/app/components/patient/patient.ts:87</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Toggle careplan visibility</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showAllPrescriptions"></a>
+                    <span class="name">
+                        <span ><b>showAllPrescriptions</b></span>
+                        <a href="#showAllPrescriptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/app/components/patient/patient.ts:84</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Toggle prescription visibility</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toastMessage"></a>
+                    <span class="name">
+                        <span ><b>toastMessage</b></span>
+                        <a href="#toastMessage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/components/patient/patient.ts:36</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Toast notification message</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toastType"></a>
+                    <span class="name">
+                        <span ><b>toastType</b></span>
+                        <a href="#toastType"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>&quot;success&quot; | &quot;error&quot;</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;success&#x27;</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/app/components/patient/patient.ts:39</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Toast message type</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
+import { ActivatedRoute } from &#x27;@angular/router&#x27;;
+import { CommonModule } from &#x27;@angular/common&#x27;;
+import { GoogleMapsModule } from &#x27;@angular/google-maps&#x27;;
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from &#x27;@angular/forms&#x27;;
+import { HighlightUrgentDirective } from &#x27;../../directives/highlight-urgent.directive&#x27;;
+
+import { Api } from &#x27;../../services/api&#x27;;
+
+import { Patient } from &#x27;../../models/patient.model&#x27;;
+import { Appointment } from &#x27;../../models/appointment.model&#x27;;
+import { Prescription } from &#x27;../../models/prescription.model&#x27;;
+import { Careplan } from &#x27;../../models/careplan.model&#x27;;
+
+/**
+ * PatientComponent
+ *
+ * Displays a single patient profile including:
+ * - Appointments
+ * - Prescriptions
+ * - Careplans
+ * - Patient location on Google Maps
+ *
+ * Supports full CRUD operations for all related entities.
+ */
+@Component({
+  selector: &#x27;app-patient&#x27;,
+  standalone: true,
+  imports: [CommonModule, GoogleMapsModule, ReactiveFormsModule, HighlightUrgentDirective],
+  templateUrl: &#x27;./patient.html&#x27;,
+  styleUrls: [&#x27;./patient.css&#x27;]
+})
+export class PatientComponent implements OnInit {
+
+  /** Toast notification message */
+  toastMessage: string | null &#x3D; null;
+
+  /** Toast message type */
+  toastType: &#x27;success&#x27; | &#x27;error&#x27; &#x3D; &#x27;success&#x27;;
+
+  /** Global loading indicator */
+  loading &#x3D; false;
+
+  /** Tracks appointment being edited */
+  editingAppointmentId: string | null &#x3D; null;
+
+  /** Tracks prescription being edited */
+  editingPrescriptionId: string | null &#x3D; null;
+
+  /** Tracks careplan being edited */
+  editingCareplanId: string | null &#x3D; null;
+
+  /** Selected patient record */
+  patient: Patient | null &#x3D; null;
+
+  /** Appointment list */
+  appointments: Appointment[] &#x3D; [];
+
+  /** Prescription list */
+  prescriptions: Prescription[] &#x3D; [];
+
+  /** Careplan list */
+  careplans: Careplan[] &#x3D; [];
+
+  /** Patient latitude */
+  patient_lat &#x3D; 0;
+
+  /** Patient longitude */
+  patient_lng &#x3D; 0;
+
+  /** Google map configuration */
+  map_options: google.maps.MapOptions &#x3D; {
+    zoom: 12,
+    center: { lat: 54.948, lng: -7.75 }
+  };
+
+  /** Google map markers */
+  map_markers: google.maps.LatLngLiteral[] &#x3D; [];
+
+  /** Toggle appointment visibility */
+  showAllAppointments &#x3D; false;
+
+  /** Toggle prescription visibility */
+  showAllPrescriptions &#x3D; false;
+
+  /** Toggle careplan visibility */
+  showAllCareplans &#x3D; false;
+
+  /** Appointment reactive form */
+  appointmentForm!: FormGroup;
+
+  /** Prescription reactive form */
+  prescriptionForm!: FormGroup;
+
+  /** Careplan reactive form */
+  careplanForm!: FormGroup;
+
+  /**
+   * Creates instance of PatientComponent
+   *
+   * @param api API service
+   * @param route Activated route for patient ID
+   * @param fb Angular form builder
+   */
+  constructor(
+    private api: Api,
+    private route: ActivatedRoute,
+    private fb: FormBuilder
+  ) {}
+
+  /**
+   * Component lifecycle hook.
+   * Loads patient and initialises all forms.
+   */
+  ngOnInit() {
+    const id &#x3D; this.route.snapshot.paramMap.get(&#x27;id&#x27;)!;
+    this.loadPatient(id);
+
+    this.appointmentForm &#x3D; this.fb.group({
+      doctor: [&#x27;&#x27;, Validators.required],
+      date: [&#x27;&#x27;, Validators.required],
+      notes: [&#x27;&#x27;],
+      status: [&#x27;scheduled&#x27;, Validators.required]
+    });
+
+    this.prescriptionForm &#x3D; this.fb.group({
+      name: [&#x27;&#x27;, Validators.required],
+      start: [&#x27;&#x27;, Validators.required],
+      stop: [&#x27;&#x27;],
+      status: [&#x27;active&#x27;, Validators.required]
+    });
+
+    this.careplanForm &#x3D; this.fb.group({
+      description: [&#x27;&#x27;, Validators.required],
+      start: [&#x27;&#x27;, Validators.required],
+      stop: [&#x27;&#x27;]
+    });
+  }
+
+  /**
+   * Loads patient data and related collections.
+   *
+   * @param id Patient ID
+   */
+  private loadPatient(id: string) {
+    this.loading &#x3D; true;
+
+    this.api.getPatient(id).subscribe({
+      next: (res) &#x3D;&gt; {
+        this.patient &#x3D; res.data as Patient;
+
+        this.appointments &#x3D; (this.patient.appointments || []).sort((a, b) &#x3D;&gt; {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+
+        this.prescriptions &#x3D; this.patient.prescriptions || [];
+        this.careplans &#x3D; this.patient.careplans || [];
+
+        const coords &#x3D; this.patient.location?.coordinates;
+        if (coords) {
+          this.patient_lng &#x3D; coords[0];
+          this.patient_lat &#x3D; coords[1];
+
+          this.map_options &#x3D; {
+            center: { lat: this.patient_lat, lng: this.patient_lng },
+            zoom: 13
+          };
+
+          this.map_markers &#x3D; [{ lat: this.patient_lat, lng: this.patient_lng }];
+        }
+      },
+      error: () &#x3D;&gt; this.showToast(&#x27;Failed to load patient&#x27;, &#x27;error&#x27;),
+      complete: () &#x3D;&gt; this.loading &#x3D; false
+    });
+  }
+
+  /**
+   * Displays a toast notification.
+   *
+   * @param msg Toast message
+   * @param type Notification type
+   */
+  showToast(msg: string, type: &#x27;success&#x27; | &#x27;error&#x27; &#x3D; &#x27;success&#x27;) {
+    this.toastMessage &#x3D; msg;
+    this.toastType &#x3D; type;
+    setTimeout(() &#x3D;&gt; this.toastMessage &#x3D; null, 2500);
+  }
+
+  /**
+   * Puts appointment into edit mode.
+   */
+  startEditAppointment(a: Appointment) {
+    this.editingAppointmentId &#x3D; a._id || null;
+    this.appointmentForm.patchValue(a);
+  }
+
+  /**
+   * Cancels appointment editing.
+   */
+  cancelEditAppointment() {
+    this.editingAppointmentId &#x3D; null;
+    this.appointmentForm.reset({
+      doctor: &#x27;&#x27;,
+      date: &#x27;&#x27;,
+      notes: &#x27;&#x27;,
+      status: &#x27;scheduled&#x27;
+    });
+  }
+
+  /**
+   * Creates or updates an appointment.
+   */
+  saveAppointment() {
+    if (!this.patient) return;
+    const pid &#x3D; this.patient._id ?? this.patient.id;
+
+    this.loading &#x3D; true;
+
+    if (this.editingAppointmentId) {
+      this.api.updateAppointment(pid!, this.editingAppointmentId, this.appointmentForm.value)
+        .subscribe({
+          next: () &#x3D;&gt; {
+            this.showToast(&#x27;Appointment updated!&#x27;, &#x27;success&#x27;);
+            this.loadPatient(pid!);
+            this.cancelEditAppointment();
+          },
+          error: () &#x3D;&gt; this.showToast(&#x27;Failed to update appointment&#x27;, &#x27;error&#x27;),
+          complete: () &#x3D;&gt; this.loading &#x3D; false
+        });
+      return;
+    }
+
+    this.api.addAppointment(pid!, this.appointmentForm.value).subscribe({
+      next: () &#x3D;&gt; {
+        this.showToast(&#x27;Appointment added!&#x27;, &#x27;success&#x27;);
+        this.loadPatient(pid!);
+        this.cancelEditAppointment();
+      },
+      error: () &#x3D;&gt; this.showToast(&#x27;Failed to add appointment&#x27;, &#x27;error&#x27;),
+      complete: () &#x3D;&gt; this.loading &#x3D; false
+    });
+  }
+
+  /**
+   * Updates appointment status.
+   */
+  updateAppointmentStatus(a: Appointment, status: string) {
+    if (!this.patient || !a._id) return;
+    const pid &#x3D; this.patient._id ?? this.patient.id;
+
+    this.loading &#x3D; true;
+
+    this.api.updateAppointment(pid!, a._id, { status })
+      .subscribe({
+        next: () &#x3D;&gt; {
+          this.showToast(&#x60;Appointment marked ${status}&#x60;, &#x27;success&#x27;);
+          this.loadPatient(pid!);
+        },
+        error: () &#x3D;&gt; this.showToast(&#x27;Failed to update status&#x27;, &#x27;error&#x27;),
+        complete: () &#x3D;&gt; this.loading &#x3D; false
+      });
+  }
+
+  /**
+   * Deletes an appointment.
+   */
+  deleteAppointment(a: Appointment) {
+    if (!confirm(&#x27;Delete this appointment?&#x27;)) return;
+
+    const pid &#x3D; this.patient?._id ?? this.patient?.id;
+    this.api.deleteAppointment(pid!, a._id!)
+      .subscribe(() &#x3D;&gt; this.loadPatient(pid!));
+  }
+
+  /**
+   * Starts prescription edit.
+   */
+  startEditPrescription(rx: Prescription) {
+    this.editingPrescriptionId &#x3D; rx._id || null;
+    this.prescriptionForm.patchValue(rx);
+  }
+
+  /**
+   * Cancels prescription edit.
+   */
+  cancelEditPrescription() {
+    this.editingPrescriptionId &#x3D; null;
+    this.prescriptionForm.reset({
+      name: &#x27;&#x27;,
+      start: &#x27;&#x27;,
+      stop: &#x27;&#x27;,
+      status: &#x27;active&#x27;
+    });
+  }
+
+  /**
+   * Creates or updates prescription.
+   */
+  savePrescription() {
+    if (!this.patient) return;
+    const pid &#x3D; this.patient._id ?? this.patient.id;
+
+    this.loading &#x3D; true;
+
+    if (this.editingPrescriptionId) {
+      this.api.updatePrescription(pid!, this.editingPrescriptionId, this.prescriptionForm.value)
+        .subscribe({
+          next: () &#x3D;&gt; {
+            this.showToast(&#x27;Prescription updated!&#x27;, &#x27;success&#x27;);
+            this.loadPatient(pid!);
+            this.cancelEditPrescription();
+          },
+          error: () &#x3D;&gt; this.showToast(&#x27;Failed to update prescription&#x27;, &#x27;error&#x27;),
+          complete: () &#x3D;&gt; this.loading &#x3D; false
+        });
+      return;
+    }
+
+    this.api.addPrescription(pid!, this.prescriptionForm.value)
+      .subscribe({
+        next: () &#x3D;&gt; {
+          this.showToast(&#x27;Prescription added!&#x27;, &#x27;success&#x27;);
+          this.loadPatient(pid!);
+          this.cancelEditPrescription();
+        },
+        error: () &#x3D;&gt; this.showToast(&#x27;Failed to add prescription&#x27;, &#x27;error&#x27;),
+        complete: () &#x3D;&gt; this.loading &#x3D; false
+      });
+  }
+
+  /**
+   * Deletes a prescription.
+   */
+  deletePrescription(rx: Prescription) {
+    if (!confirm(&#x27;Delete this prescription?&#x27;)) return;
+
+    const pid &#x3D; this.patient?._id ?? this.patient?.id;
+    this.api.deletePrescription(pid!, rx._id!)
+      .subscribe(() &#x3D;&gt; this.loadPatient(pid!));
+  }
+
+  /**
+   * Begins editing a careplan.
+   */
+  startEditCareplan(c: Careplan) {
+    this.editingCareplanId &#x3D; c._id || null;
+    this.careplanForm.patchValue(c);
+  }
+
+  /**
+   * Cancels careplan editing.
+   */
+  cancelEditCareplan() {
+    this.editingCareplanId &#x3D; null;
+    this.careplanForm.reset({
+      description: &#x27;&#x27;,
+      start: &#x27;&#x27;,
+      stop: &#x27;&#x27;
+    });
+  }
+
+  /**
+   * Creates or updates a careplan.
+   */
+  saveCareplan() {
+    if (!this.patient) return;
+    const pid &#x3D; this.patient._id ?? this.patient.id;
+
+    this.loading &#x3D; true;
+
+    if (this.editingCareplanId) {
+      this.api.updateCareplan(pid!, this.editingCareplanId, this.careplanForm.value)
+        .subscribe({
+          next: () &#x3D;&gt; {
+            this.showToast(&#x27;Careplan updated!&#x27;, &#x27;success&#x27;);
+            this.loadPatient(pid!);
+            this.cancelEditCareplan();
+          },
+          error: () &#x3D;&gt; this.showToast(&#x27;Failed to update careplan&#x27;, &#x27;error&#x27;),
+          complete: () &#x3D;&gt; this.loading &#x3D; false
+        });
+      return;
+    }
+
+    this.api.addCareplan(pid!, this.careplanForm.value)
+      .subscribe({
+        next: () &#x3D;&gt; {
+          this.showToast(&#x27;Careplan added!&#x27;, &#x27;success&#x27;);
+          this.loadPatient(pid!);
+          this.cancelEditCareplan();
+        },
+        error: () &#x3D;&gt; this.showToast(&#x27;Failed to add careplan&#x27;, &#x27;error&#x27;),
+        complete: () &#x3D;&gt; this.loading &#x3D; false
+      });
+  }
+
+  /**
+   * Deletes a careplan.
+   */
+  deleteCareplan(c: Careplan) {
+    if (!confirm(&#x27;Delete this careplan?&#x27;)) return;
+
+    const pid &#x3D; this.patient?._id ?? this.patient?.id;
+    this.api.deleteCareplan(pid!, c._id!)
+      .subscribe(() &#x3D;&gt; this.loadPatient(pid!));
+  }
+
+  /**
+   * Formats a date for display.
+   */
+  fmt(date?: string): string {
+    if (!date) return &#x27;—&#x27;;
+    return new Date(date).toLocaleDateString(&#x27;en-UK&#x27;, {
+      month: &#x27;short&#x27;,
+      day: &#x27;numeric&#x27;,
+      year: &#x27;numeric&#x27;
+    });
+  }
+
+  /**
+   * Returns Bootstrap badge class for appointment status.
+   */
+  badge(status: string): string {
+    switch (status) {
+      case &#x27;scheduled&#x27;: return &#x27;bg-primary&#x27;;
+      case &#x27;completed&#x27;: return &#x27;bg-success&#x27;;
+      case &#x27;cancelled&#x27;: return &#x27;bg-danger&#x27;;
+      default: return &#x27;bg-secondary&#x27;;
+    }
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;patient-detail-container&quot; *ngIf&#x3D;&quot;patient&quot;&gt;
+
+  &lt;div *ngIf&#x3D;&quot;toastMessage&quot;
+       class&#x3D;&quot;alert glass-card alert-toast&quot;
+       [ngClass]&#x3D;&quot;toastType &#x3D;&#x3D;&#x3D; &#x27;success&#x27; ? &#x27;alert-success&#x27; : &#x27;alert-danger&#x27;&quot;
+       role&#x3D;&quot;alert&quot;&gt;
+    &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;toastType &#x3D;&#x3D;&#x3D; &#x27;success&#x27; ? &#x27;bi-check-circle-fill me-2&#x27; : &#x27;bi-exclamation-circle-fill me-2&#x27;&quot;&gt;&lt;/i&gt;
+    {{ toastMessage }}
+  &lt;/div&gt;
+
+  &lt;div *ngIf&#x3D;&quot;loading&quot; class&#x3D;&quot;loading-state glass-card p-5 text-center&quot;&gt;
+    &lt;div class&#x3D;&quot;spinner-border text-primary mb-3&quot; role&#x3D;&quot;status&quot;&gt;
+      &lt;span class&#x3D;&quot;visually-hidden&quot;&gt;Loading...&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;p class&#x3D;&quot;text-muted mb-0&quot;&gt;Loading patient details...&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div class&#x3D;&quot;patient-header mb-5&quot; *ngIf&#x3D;&quot;!loading&quot;&gt;
+    &lt;div class&#x3D;&quot;patient-info-header&quot;&gt;
+      &lt;h2 class&#x3D;&quot;patient-name-title mb-2&quot;&gt;
+        &lt;i class&#x3D;&quot;bi bi-person-circle me-2&quot;&gt;&lt;/i&gt;
+        {{ patient.name }}
+      &lt;/h2&gt;
+      &lt;div class&#x3D;&quot;patient-info-badges&quot;&gt;
+        &lt;span class&#x3D;&quot;badge patient-info-badge&quot;&gt;
+          &lt;i class&#x3D;&quot;bi bi-calendar me-1&quot;&gt;&lt;/i&gt;
+          Age: {{ patient.age }}
+        &lt;/span&gt;
+        &lt;span *ngIf&#x3D;&quot;patient.condition&quot; class&#x3D;&quot;badge patient-info-badge&quot;&gt;
+          &lt;i class&#x3D;&quot;bi bi-heart-pulse me-1&quot;&gt;&lt;/i&gt;
+          {{ patient.condition }}
+        &lt;/span&gt;
+        &lt;span *ngIf&#x3D;&quot;patient.town&quot; class&#x3D;&quot;badge patient-info-badge&quot;&gt;
+          &lt;i class&#x3D;&quot;bi bi-geo-alt me-1&quot;&gt;&lt;/i&gt;
+          {{ patient.town }}
+        &lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class&#x3D;&quot;patient-summary&quot;&gt;
+      &lt;div class&#x3D;&quot;summary-card glass-card&quot;&gt;
+        &lt;div class&#x3D;&quot;summary-header&quot;&gt;
+          &lt;i class&#x3D;&quot;bi bi-clipboard-data me-2&quot;&gt;&lt;/i&gt;
+          &lt;strong&gt;Medical Summary&lt;/strong&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;summary-stats&quot;&gt;
+          &lt;div class&#x3D;&quot;stat-item&quot;&gt;
+            &lt;div class&#x3D;&quot;stat-value&quot;&gt;{{ appointments.length }}&lt;/div&gt;
+            &lt;div class&#x3D;&quot;stat-label&quot;&gt;Appointments&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class&#x3D;&quot;stat-item&quot;&gt;
+            &lt;div class&#x3D;&quot;stat-value&quot;&gt;{{ prescriptions.length }}&lt;/div&gt;
+            &lt;div class&#x3D;&quot;stat-label&quot;&gt;Prescriptions&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class&#x3D;&quot;stat-item&quot;&gt;
+            &lt;div class&#x3D;&quot;stat-value&quot;&gt;{{ careplans.length }}&lt;/div&gt;
+            &lt;div class&#x3D;&quot;stat-label&quot;&gt;Care Plans&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class&#x3D;&quot;patient-content&quot; *ngIf&#x3D;&quot;!loading&quot;&gt;
+    
+    &lt;div class&#x3D;&quot;row g-4&quot;&gt;
+
+      &lt;div class&#x3D;&quot;col-lg-8&quot;&gt;
+
+        &lt;div class&#x3D;&quot;glass-card p-4 mb-4&quot;&gt;
+          &lt;div class&#x3D;&quot;section-header d-flex justify-content-between align-items-center mb-4&quot;&gt;
+            &lt;h4 class&#x3D;&quot;section-title mb-0&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-calendar-week me-2&quot;&gt;&lt;/i&gt;
+              Appointments
+            &lt;/h4&gt;
+            &lt;span *ngIf&#x3D;&quot;editingAppointmentId&quot; class&#x3D;&quot;badge edit-badge&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-pencil me-1&quot;&gt;&lt;/i&gt;
+              Editing
+            &lt;/span&gt;
+          &lt;/div&gt;
+
+          @if (appointments.length &#x3D;&#x3D;&#x3D; 0) {
+            &lt;div class&#x3D;&quot;empty-state text-center py-4&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-calendar display-4 text-muted mb-3&quot;&gt;&lt;/i&gt;
+              &lt;p class&#x3D;&quot;text-muted mb-0&quot;&gt;No appointments recorded&lt;/p&gt;
+            &lt;/div&gt;
+          } @else {
+
+            &lt;div class&#x3D;&quot;appointments-list&quot;&gt;
+              @for (a of (showAllAppointments ? appointments : appointments.slice(0, 3)); track a._id) {
+                &lt;div class&#x3D;&quot;appointment-item glass-card&quot;
+                    [appHighlightUrgent]&#x3D;&quot;a.status &#x3D;&#x3D;&#x3D; &#x27;requested&#x27;&quot;&gt;
+
+                  &lt;div class&#x3D;&quot;appointment-header d-flex justify-content-between align-items-start mb-3&quot;&gt;
+                    &lt;div&gt;
+                      &lt;div class&#x3D;&quot;appointment-date&quot;&gt;
+                        &lt;i class&#x3D;&quot;bi bi-calendar-check me-2&quot;&gt;&lt;/i&gt;
+                        &lt;strong&gt;{{ fmt(a.date) }}&lt;/strong&gt;
+                      &lt;/div&gt;
+                      &lt;div class&#x3D;&quot;appointment-doctor mt-2&quot;&gt;
+                        &lt;span class&#x3D;&quot;badge doctor-badge&quot;&gt;
+                          &lt;i class&#x3D;&quot;bi bi-person-badge me-1&quot;&gt;&lt;/i&gt;
+                          Dr. {{ a.doctor || &#x27;Not assigned&#x27; }}
+                        &lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;span class&#x3D;&quot;badge appointment-status&quot; [ngClass]&#x3D;&quot;badge(a.status)&quot;&gt;
+                      {{ a.status }}
+                    &lt;/span&gt;
+                  &lt;/div&gt;
+                  
+                  @if (a.notes) {
+                    &lt;div class&#x3D;&quot;appointment-notes mt-3&quot;&gt;
+                      &lt;p class&#x3D;&quot;mb-0 text-muted&quot;&gt;{{ a.notes }}&lt;/p&gt;
+                    &lt;/div&gt;
+                  }
+
+                  &lt;div class&#x3D;&quot;appointment-actions mt-3&quot;&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn edit-btn&quot;
+                            (click)&#x3D;&quot;startEditAppointment(a)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-pencil me-1&quot;&gt;&lt;/i&gt;
+                      Edit
+                    &lt;/button&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn complete-btn&quot;
+                            (click)&#x3D;&quot;updateAppointmentStatus(a, &#x27;completed&#x27;)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-check-circle me-1&quot;&gt;&lt;/i&gt;
+                      Complete
+                    &lt;/button&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn cancel-btn&quot;
+                            (click)&#x3D;&quot;updateAppointmentStatus(a, &#x27;cancelled&#x27;)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-x-circle me-1&quot;&gt;&lt;/i&gt;
+                      Cancel
+                    &lt;/button&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn delete-btn&quot;
+                            (click)&#x3D;&quot;deleteAppointment(a)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-trash me-1&quot;&gt;&lt;/i&gt;
+                      Delete
+                    &lt;/button&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              }
+            &lt;/div&gt;
+
+            @if (appointments.length &gt; 3) {
+              &lt;button class&#x3D;&quot;btn view-more-btn w-100 mt-3&quot;
+                      (click)&#x3D;&quot;showAllAppointments &#x3D; !showAllAppointments&quot;&gt;
+                &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;showAllAppointments ? &#x27;bi-chevron-up&#x27; : &#x27;bi-chevron-down&#x27;&quot;&gt;&lt;/i&gt;
+                {{ showAllAppointments ? &#x27;Show Less&#x27; : &#x27;Show More&#x27; }}
+              &lt;/button&gt;
+            }
+          }
+
+          &lt;hr class&#x3D;&quot;my-4&quot;&gt;
+
+          &lt;div class&#x3D;&quot;appointment-form&quot;&gt;
+            &lt;h5 class&#x3D;&quot;form-title&quot;&gt;
+              &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;editingAppointmentId ? &#x27;bi-pencil&#x27; : &#x27;bi-plus-circle&#x27;&quot;&gt;&lt;/i&gt;
+              {{ editingAppointmentId ? &#x27;Update Appointment&#x27; : &#x27;Add New Appointment&#x27; }}
+            &lt;/h5&gt;
+            
+            &lt;form [formGroup]&#x3D;&quot;appointmentForm&quot; (ngSubmit)&#x3D;&quot;saveAppointment()&quot; class&#x3D;&quot;mt-3&quot;&gt;
+              &lt;div class&#x3D;&quot;row g-3&quot;&gt;
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Doctor Name&lt;/label&gt;
+                  &lt;input class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;doctor&quot; placeholder&#x3D;&quot;Dr. Smith&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Date&lt;/label&gt;
+                  &lt;input type&#x3D;&quot;date&quot; formControlName&#x3D;&quot;date&quot; class&#x3D;&quot;form-control form-input&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-12&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Notes&lt;/label&gt;
+                  &lt;textarea class&#x3D;&quot;form-control form-textarea&quot; formControlName&#x3D;&quot;notes&quot; 
+                            placeholder&#x3D;&quot;Appointment notes...&quot;&gt;&lt;/textarea&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Status&lt;/label&gt;
+                  &lt;select class&#x3D;&quot;form-control form-select&quot; formControlName&#x3D;&quot;status&quot;&gt;
+                    &lt;option value&#x3D;&quot;scheduled&quot;&gt;Scheduled&lt;/option&gt;
+                    &lt;option value&#x3D;&quot;completed&quot;&gt;Completed&lt;/option&gt;
+                    &lt;option value&#x3D;&quot;cancelled&quot;&gt;Cancelled&lt;/option&gt;
+                  &lt;/select&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-12 mt-3&quot;&gt;
+                  &lt;button class&#x3D;&quot;btn primary-btn me-2&quot;
+                          [disabled]&#x3D;&quot;appointmentForm.invalid&quot;&gt;
+                    &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;editingAppointmentId ? &#x27;bi-save&#x27; : &#x27;bi-plus-circle&#x27;&quot;&gt;&lt;/i&gt;
+                    {{ editingAppointmentId ? &#x27;Save Changes&#x27; : &#x27;Add Appointment&#x27; }}
+                  &lt;/button&gt;
+
+                  &lt;button *ngIf&#x3D;&quot;editingAppointmentId&quot;
+                          type&#x3D;&quot;button&quot;
+                          class&#x3D;&quot;btn secondary-btn&quot;
+                          (click)&#x3D;&quot;cancelEditAppointment()&quot;&gt;
+                    &lt;i class&#x3D;&quot;bi bi-x-circle me-1&quot;&gt;&lt;/i&gt;
+                    Cancel Edit
+                  &lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/form&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;glass-card p-4 mb-4&quot;&gt;
+          &lt;div class&#x3D;&quot;section-header d-flex justify-content-between align-items-center mb-4&quot;&gt;
+            &lt;h4 class&#x3D;&quot;section-title mb-0&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-prescription2 me-2&quot;&gt;&lt;/i&gt;
+              Prescriptions
+            &lt;/h4&gt;
+            &lt;span *ngIf&#x3D;&quot;editingPrescriptionId&quot; class&#x3D;&quot;badge edit-badge&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-pencil me-1&quot;&gt;&lt;/i&gt;
+              Editing
+            &lt;/span&gt;
+          &lt;/div&gt;
+
+          @if (prescriptions.length &#x3D;&#x3D;&#x3D; 0) {
+            &lt;div class&#x3D;&quot;empty-state text-center py-4&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-capsule display-4 text-muted mb-3&quot;&gt;&lt;/i&gt;
+              &lt;p class&#x3D;&quot;text-muted mb-0&quot;&gt;No prescriptions recorded&lt;/p&gt;
+            &lt;/div&gt;
+          } @else {
+            &lt;div class&#x3D;&quot;prescriptions-list&quot;&gt;
+              @for (rx of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 3)); track rx._id) {
+                &lt;div class&#x3D;&quot;prescription-item glass-card&quot;&gt;
+                  &lt;div class&#x3D;&quot;prescription-header d-flex justify-content-between align-items-start mb-3&quot;&gt;
+                    &lt;div&gt;
+                      &lt;h6 class&#x3D;&quot;prescription-name&quot;&gt;{{ rx.name }}&lt;/h6&gt;
+                      &lt;div class&#x3D;&quot;prescription-dates text-muted&quot;&gt;
+                        &lt;small&gt;
+                          &lt;i class&#x3D;&quot;bi bi-calendar-range me-1&quot;&gt;&lt;/i&gt;
+                          {{ fmt(rx.start) }} - {{ fmt(rx.stop) }}
+                        &lt;/small&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;span class&#x3D;&quot;badge prescription-status&quot; [ngClass]&#x3D;&quot;badge(rx.status)&quot;&gt;
+                      {{ rx.status }}
+                    &lt;/span&gt;
+                  &lt;/div&gt;
+                  
+                  &lt;div class&#x3D;&quot;prescription-actions mt-3&quot;&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn edit-btn&quot;
+                            (click)&#x3D;&quot;startEditPrescription(rx)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-pencil me-1&quot;&gt;&lt;/i&gt;
+                      Edit
+                    &lt;/button&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn delete-btn&quot;
+                            (click)&#x3D;&quot;deletePrescription(rx)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-trash me-1&quot;&gt;&lt;/i&gt;
+                      Delete
+                    &lt;/button&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              }
+            &lt;/div&gt;
+
+            @if (prescriptions.length &gt; 3) {
+              &lt;button class&#x3D;&quot;btn view-more-btn w-100 mt-3&quot;
+                      (click)&#x3D;&quot;showAllPrescriptions &#x3D; !showAllPrescriptions&quot;&gt;
+                &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;showAllPrescriptions ? &#x27;bi-chevron-up&#x27; : &#x27;bi-chevron-down&#x27;&quot;&gt;&lt;/i&gt;
+                {{ showAllPrescriptions ? &#x27;Show Less&#x27; : &#x27;Show More&#x27; }}
+              &lt;/button&gt;
+            }
+          }
+
+          &lt;hr class&#x3D;&quot;my-4&quot;&gt;
+
+          &lt;div class&#x3D;&quot;prescription-form&quot;&gt;
+            &lt;h5 class&#x3D;&quot;form-title&quot;&gt;
+              &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;editingPrescriptionId ? &#x27;bi-pencil&#x27; : &#x27;bi-plus-circle&#x27;&quot;&gt;&lt;/i&gt;
+              {{ editingPrescriptionId ? &#x27;Update Prescription&#x27; : &#x27;Add New Prescription&#x27; }}
+            &lt;/h5&gt;
+            
+            &lt;form [formGroup]&#x3D;&quot;prescriptionForm&quot; (ngSubmit)&#x3D;&quot;savePrescription()&quot; class&#x3D;&quot;mt-3&quot;&gt;
+              &lt;div class&#x3D;&quot;row g-3&quot;&gt;
+                &lt;div class&#x3D;&quot;col-12&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Medication Name&lt;/label&gt;
+                  &lt;input class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;name&quot; placeholder&#x3D;&quot;e.g., Amoxicillin 500mg&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Start Date&lt;/label&gt;
+                  &lt;input type&#x3D;&quot;date&quot; class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;start&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Stop Date (optional)&lt;/label&gt;
+                  &lt;input type&#x3D;&quot;date&quot; class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;stop&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Status&lt;/label&gt;
+                  &lt;select class&#x3D;&quot;form-control form-select&quot; formControlName&#x3D;&quot;status&quot;&gt;
+                    &lt;option value&#x3D;&quot;active&quot;&gt;Active&lt;/option&gt;
+                    &lt;option value&#x3D;&quot;completed&quot;&gt;Completed&lt;/option&gt;
+                    &lt;option value&#x3D;&quot;cancelled&quot;&gt;Cancelled&lt;/option&gt;
+                  &lt;/select&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-12 mt-3&quot;&gt;
+                  &lt;button class&#x3D;&quot;btn primary-btn me-2&quot;
+                          [disabled]&#x3D;&quot;prescriptionForm.invalid&quot;&gt;
+                    &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;editingPrescriptionId ? &#x27;bi-save&#x27; : &#x27;bi-plus-circle&#x27;&quot;&gt;&lt;/i&gt;
+                    {{ editingPrescriptionId ? &#x27;Save Changes&#x27; : &#x27;Add Prescription&#x27; }}
+                  &lt;/button&gt;
+
+                  &lt;button *ngIf&#x3D;&quot;editingPrescriptionId&quot;
+                          type&#x3D;&quot;button&quot;
+                          class&#x3D;&quot;btn secondary-btn&quot;
+                          (click)&#x3D;&quot;cancelEditPrescription()&quot;&gt;
+                    &lt;i class&#x3D;&quot;bi bi-x-circle me-1&quot;&gt;&lt;/i&gt;
+                    Cancel Edit
+                  &lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/form&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;glass-card p-4&quot;&gt;
+          &lt;div class&#x3D;&quot;section-header d-flex justify-content-between align-items-center mb-4&quot;&gt;
+            &lt;h4 class&#x3D;&quot;section-title mb-0&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-clipboard-check me-2&quot;&gt;&lt;/i&gt;
+              Care Plans
+            &lt;/h4&gt;
+            &lt;span *ngIf&#x3D;&quot;editingCareplanId&quot; class&#x3D;&quot;badge edit-badge&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-pencil me-1&quot;&gt;&lt;/i&gt;
+              Editing
+            &lt;/span&gt;
+          &lt;/div&gt;
+
+          @if (careplans.length &#x3D;&#x3D;&#x3D; 0) {
+            &lt;div class&#x3D;&quot;empty-state text-center py-4&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-clipboard display-4 text-muted mb-3&quot;&gt;&lt;/i&gt;
+              &lt;p class&#x3D;&quot;text-muted mb-0&quot;&gt;No careplans recorded&lt;/p&gt;
+            &lt;/div&gt;
+          } @else {
+            &lt;div class&#x3D;&quot;careplans-list&quot;&gt;
+              @for (c of (showAllCareplans ? careplans : careplans.slice(0, 3)); track c._id) {
+                &lt;div class&#x3D;&quot;careplan-item glass-card&quot;&gt;
+                  &lt;div class&#x3D;&quot;careplan-header d-flex justify-content-between align-items-start mb-3&quot;&gt;
+                    &lt;h6 class&#x3D;&quot;careplan-name mb-0&quot;&gt;{{ c.description || &#x27;Care Plan&#x27; }}&lt;/h6&gt;
+                    &lt;span class&#x3D;&quot;badge careplan-status&quot;&gt;Active&lt;/span&gt;
+                  &lt;/div&gt;
+                  &lt;div class&#x3D;&quot;careplan-dates text-muted&quot;&gt;
+                    &lt;small&gt;
+                      &lt;i class&#x3D;&quot;bi bi-calendar-range me-1&quot;&gt;&lt;/i&gt;
+                      {{ fmt(c.start) }} - {{ fmt(c.stop) }}
+                    &lt;/small&gt;
+                  &lt;/div&gt;
+                  
+                  &lt;div class&#x3D;&quot;careplan-actions mt-3&quot;&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn edit-btn&quot;
+                            (click)&#x3D;&quot;startEditCareplan(c)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-pencil me-1&quot;&gt;&lt;/i&gt;
+                      Edit
+                    &lt;/button&gt;
+                    &lt;button class&#x3D;&quot;btn action-btn delete-btn&quot;
+                            (click)&#x3D;&quot;deleteCareplan(c)&quot;&gt;
+                      &lt;i class&#x3D;&quot;bi bi-trash me-1&quot;&gt;&lt;/i&gt;
+                      Delete
+                    &lt;/button&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              }
+            &lt;/div&gt;
+
+            @if (careplans.length &gt; 3) {
+              &lt;button class&#x3D;&quot;btn view-more-btn w-100 mt-3&quot;
+                      (click)&#x3D;&quot;showAllCareplans &#x3D; !showAllCareplans&quot;&gt;
+                &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;showAllCareplans ? &#x27;bi-chevron-up&#x27; : &#x27;bi-chevron-down&#x27;&quot;&gt;&lt;/i&gt;
+                {{ showAllCareplans ? &#x27;Show Less&#x27; : &#x27;Show More&#x27; }}
+              &lt;/button&gt;
+            }
+          }
+
+          &lt;hr class&#x3D;&quot;my-4&quot;&gt;
+
+        
+          &lt;div class&#x3D;&quot;careplan-form&quot;&gt;
+            &lt;h5 class&#x3D;&quot;form-title&quot;&gt;
+              &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;editingCareplanId ? &#x27;bi-pencil&#x27; : &#x27;bi-plus-circle&#x27;&quot;&gt;&lt;/i&gt;
+              {{ editingCareplanId ? &#x27;Update Careplan&#x27; : &#x27;Add New Careplan&#x27; }}
+            &lt;/h5&gt;
+            
+            &lt;form [formGroup]&#x3D;&quot;careplanForm&quot; (ngSubmit)&#x3D;&quot;saveCareplan()&quot; class&#x3D;&quot;mt-3&quot;&gt;
+              &lt;div class&#x3D;&quot;row g-3&quot;&gt;
+                &lt;div class&#x3D;&quot;col-12&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Description&lt;/label&gt;
+                  &lt;input class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;description&quot; 
+                         placeholder&#x3D;&quot;e.g., Diabetes management plan&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Start Date&lt;/label&gt;
+                  &lt;input type&#x3D;&quot;date&quot; class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;start&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-md-6&quot;&gt;
+                  &lt;label class&#x3D;&quot;form-label&quot;&gt;Stop Date (optional)&lt;/label&gt;
+                  &lt;input type&#x3D;&quot;date&quot; class&#x3D;&quot;form-control form-input&quot; formControlName&#x3D;&quot;stop&quot;&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;col-12 mt-3&quot;&gt;
+                  &lt;button class&#x3D;&quot;btn primary-btn me-2&quot;
+                          [disabled]&#x3D;&quot;careplanForm.invalid&quot;&gt;
+                    &lt;i class&#x3D;&quot;bi&quot; [ngClass]&#x3D;&quot;editingCareplanId ? &#x27;bi-save&#x27; : &#x27;bi-plus-circle&#x27;&quot;&gt;&lt;/i&gt;
+                    {{ editingCareplanId ? &#x27;Save Changes&#x27; : &#x27;Add Careplan&#x27; }}
+                  &lt;/button&gt;
+
+                  &lt;button *ngIf&#x3D;&quot;editingCareplanId&quot;
+                          type&#x3D;&quot;button&quot;
+                          class&#x3D;&quot;btn secondary-btn&quot;
+                          (click)&#x3D;&quot;cancelEditCareplan()&quot;&gt;
+                    &lt;i class&#x3D;&quot;bi bi-x-circle me-1&quot;&gt;&lt;/i&gt;
+                    Cancel Edit
+                  &lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/form&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      
+      &lt;div class&#x3D;&quot;col-lg-4&quot;&gt;
+        
+       
+        &lt;div class&#x3D;&quot;glass-card p-4 mb-4&quot;&gt;
+          &lt;h4 class&#x3D;&quot;section-title mb-3&quot;&gt;
+            &lt;i class&#x3D;&quot;bi bi-geo-alt me-2&quot;&gt;&lt;/i&gt;
+            Patient Location
+          &lt;/h4&gt;
+          
+          &lt;div class&#x3D;&quot;map-container&quot;&gt;
+            &lt;google-map height&#x3D;&quot;250px&quot; width&#x3D;&quot;100%&quot; [options]&#x3D;&quot;map_options&quot;&gt;
+              @for (m of map_markers; track m.lat + &#x27;,&#x27; + m.lng) {
+  &lt;map-marker [position]&#x3D;&quot;m&quot;&gt;&lt;/map-marker&gt;
+}
+
+            &lt;/google-map&gt;
+          &lt;/div&gt;
+          
+          &lt;div class&#x3D;&quot;mt-3&quot;&gt;
+            &lt;small class&#x3D;&quot;text-muted&quot;&gt;
+              &lt;i class&#x3D;&quot;bi bi-info-circle me-1&quot;&gt;&lt;/i&gt;
+              Location: {{ patient.town || &#x27;Not specified&#x27; }}
+            &lt;/small&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+       
+        &lt;div class&#x3D;&quot;glass-card p-4&quot;&gt;
+          &lt;h4 class&#x3D;&quot;section-title mb-3&quot;&gt;
+            &lt;i class&#x3D;&quot;bi bi-clipboard2-pulse me-2&quot;&gt;&lt;/i&gt;
+            Clinical Summary
+          &lt;/h4&gt;
+          
+          &lt;div class&#x3D;&quot;clinical-summary&quot;&gt;
+            &lt;p class&#x3D;&quot;text-muted&quot;&gt;
+              Patient presents with &lt;strong&gt;{{ patient.condition || &#x27;no recorded condition&#x27; }}&lt;/strong&gt;. 
+              Treatment includes {{ prescriptions.length }} prescription(s) 
+              and {{ careplans.length }} care plan(s).
+            &lt;/p&gt;
+            
+            
+            &lt;div class&#x3D;&quot;summary-stats-small mt-4&quot;&gt;
+              &lt;div class&#x3D;&quot;stat-small&quot;&gt;
+                &lt;div class&#x3D;&quot;stat-small-value&quot;&gt;{{ appointments.length }}&lt;/div&gt;
+                &lt;div class&#x3D;&quot;stat-small-label&quot;&gt;Total Appts&lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class&#x3D;&quot;stat-small&quot;&gt;
+                &lt;div class&#x3D;&quot;stat-small-value&quot;&gt;{{ prescriptions.length }}&lt;/div&gt;
+                &lt;div class&#x3D;&quot;stat-small-label&quot;&gt;Prescriptions&lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class&#x3D;&quot;stat-small&quot;&gt;
+                &lt;div class&#x3D;&quot;stat-small-value&quot;&gt;{{ careplans.length }}&lt;/div&gt;
+                &lt;div class&#x3D;&quot;stat-small-label&quot;&gt;Care Plans&lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./patient.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.patient-detail-container {
+  padding: 6rem 1.5rem 3rem;
+  font-family: &#x27;Segoe UI&#x27;, system-ui, sans-serif;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
+}
+.alert-toast {
+  border-radius: 12px;
+  border: none;
+  animation: slideIn 0.3s ease;
+  margin-bottom: 2rem;
+}
+.loading-state {
+  border-radius: 18px;
+  margin: 2rem 0;
+}
+.patient-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.patient-info-header {
+  flex: 1;
+  min-width: 300px;
+}
+.patient-name-title {
+  color: #2D3765;
+  font-weight: 800;
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+}
+.patient-info-badges {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.patient-info-badge {
+  background: rgba(114, 207, 212, 0.15);
+  color: #2D3765;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(114, 207, 212, 0.3);
+}
+.patient-summary {
+  min-width: 250px;
+}
+.summary-card {
+  padding: 1.5rem;
+}
+.summary-header {
+  color: #2D3765;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+.summary-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+}
+.stat-item {
+  text-align: center;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #2D3765;
+  line-height: 1;
+}
+.stat-label {
+  color: #6c7a99;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+}
+.section-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.section-title {
+  color: #2D3765;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+.edit-badge {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: #000;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+}
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+.select-wrapper .form-select {
+  padding-right: 3rem !important;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.select-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: #2D3765;
+  pointer-events: none;
+}
+.appointment-item,
+.prescription-item,
+.careplan-item {
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(45, 55, 101, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+}
+.appointment-item:last-child,
+.prescription-item:last-child,
+.careplan-item:last-child {
+  margin-bottom: 0;
+}
+.form-title {
+  color: #2D3765;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.form-input,
+.form-textarea,
+.form-select {
+  border-radius: 12px;
+  border: 2px solid rgba(45, 55, 101, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: #2D3765;
+  transition: all 0.3s;
+  width: 100%;
+}
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: #72CFD4;
+  box-shadow: 0 0 0 0.25rem rgba(114, 207, 212, 0.25);
+  outline: none;
+  background: rgba(255, 255, 255, 0.95);
+}
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+.primary-btn {
+  background: linear-gradient(135deg, #2D3765, #3b4a68);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(45, 55, 101, 0.25);
+  background: linear-gradient(135deg, #23315a, #324167);
+}
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.secondary-btn {
+  background: rgba(45, 55, 101, 0.1);
+  color: #2D3765;
+  border: 1px solid rgba(45, 55, 101, 0.2);
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.secondary-btn:hover {
+  background: rgba(45, 55, 101, 0.15);
+}
+.action-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: none;
+}
+.edit-btn {
+  background: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+.complete-btn {
+  background: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+.cancel-btn {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+.delete-btn {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+.view-more-btn {
+  color: #72CFD4;
+  font-weight: 600;
+  border: 1px solid rgba(114, 207, 212, 0.3);
+  background: rgba(114, 207, 212, 0.05);
+  border-radius: 12px;
+  padding: 0.5rem;
+  transition: all 0.2s;
+}
+.view-more-btn:hover {
+  background: rgba(114, 207, 212, 0.15);
+  color: #2D3765;
+}
+.badge {
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+}
+.appointment-status,
+.prescription-status,
+.careplan-status {
+  font-weight: 600;
+}
+.doctor-badge {
+  background: rgba(114, 207, 212, 0.2);
+  color: #2D3765;
+  font-weight: 600;
+}
+.bg-warning.text-dark {
+  background: linear-gradient(135deg, #ffc107, #ff9800) !important;
+  color: #000 !important;
+}
+.bg-primary {
+  background: linear-gradient(135deg, #2D3765, #3b4a68) !important;
+  color: white !important;
+}
+.bg-success {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  color: white !important;
+}
+.bg-danger {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+}
+.bg-info {
+  background: linear-gradient(135deg, #72CFD4, #5bc0c5) !important;
+  color: #2D3765 !important;
+}
+.map-container {
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(45, 55, 101, 0.03);
+}
+.clinical-summary {
+  color: #495057;
+  line-height: 1.6;
+}
+.summary-stats-small {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.stat-small {
+  text-align: center;
+}
+.stat-small-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2D3765;
+  line-height: 1;
+}
+.stat-small-label {
+  color: #6c7a99;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+.empty-state {
+  border-radius: 12px;
+  background: rgba(45, 55, 101, 0.03);
+  padding: 2rem;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.glass-card {
+  animation: fadeInUp 0.4s ease-out;
+}
+@media (max-width: 992px) {
+  .patient-header {
+    flex-direction: column;
+  }
+  .patient-summary {
+    width: 100%;
+  }
+  .summary-stats {
+    justify-content: flex-start;
+    gap: 2rem;
+  }
+}
+@media (max-width: 768px) {
+  .patient-detail-container {
+    padding: 5rem 1rem 2rem;
+  }
+  .patient-name-title {
+    font-size: 1.8rem;
+  }
+  .summary-stats,
+  .summary-stats-small {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .stat-item,
+  .stat-small {
+    width: 100%;
+    max-width: 200px;
+  }
+  .appointment-actions,
+  .prescription-actions,
+  .careplan-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .action-btn {
+    margin-right: 0;
+    flex: 1;
+    min-width: 100px;
+  }
+}</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="patient-detail-container" *ngIf="patient">  <div *ngIf="toastMessage"       class="alert glass-card alert-toast"       [ngClass]="toastType === \'success\' ? \'alert-success\' : \'alert-danger\'"       role="alert">    <i class="bi" [ngClass]="toastType === \'success\' ? \'bi-check-circle-fill me-2\' : \'bi-exclamation-circle-fill me-2\'"></i>    {{ toastMessage }}  </div>  <div *ngIf="loading" class="loading-state glass-card p-5 text-center">    <div class="spinner-border text-primary mb-3" role="status">      <span class="visually-hidden">Loading...</span>    </div>    <p class="text-muted mb-0">Loading patient details...</p>  </div>  <div class="patient-header mb-5" *ngIf="!loading">    <div class="patient-info-header">      <h2 class="patient-name-title mb-2">        <i class="bi bi-person-circle me-2"></i>        {{ patient.name }}      </h2>      <div class="patient-info-badges">        <span class="badge patient-info-badge">          <i class="bi bi-calendar me-1"></i>          Age: {{ patient.age }}        </span>        <span *ngIf="patient.condition" class="badge patient-info-badge">          <i class="bi bi-heart-pulse me-1"></i>          {{ patient.condition }}        </span>        <span *ngIf="patient.town" class="badge patient-info-badge">          <i class="bi bi-geo-alt me-1"></i>          {{ patient.town }}        </span>      </div>    </div>    <div class="patient-summary">      <div class="summary-card glass-card">        <div class="summary-header">          <i class="bi bi-clipboard-data me-2"></i>          <strong>Medical Summary</strong>        </div>        <div class="summary-stats">          <div class="stat-item">            <div class="stat-value">{{ appointments.length }}</div>            <div class="stat-label">Appointments</div>          </div>          <div class="stat-item">            <div class="stat-value">{{ prescriptions.length }}</div>            <div class="stat-label">Prescriptions</div>          </div>          <div class="stat-item">            <div class="stat-value">{{ careplans.length }}</div>            <div class="stat-label">Care Plans</div>          </div>        </div>      </div>    </div>  </div>  <div class="patient-content" *ngIf="!loading">        <div class="row g-4">      <div class="col-lg-8">        <div class="glass-card p-4 mb-4">          <div class="section-header d-flex justify-content-between align-items-center mb-4">            <h4 class="section-title mb-0">              <i class="bi bi-calendar-week me-2"></i>              Appointments            </h4>            <span *ngIf="editingAppointmentId" class="badge edit-badge">              <i class="bi bi-pencil me-1"></i>              Editing            </span>          </div>          @if (appointments.length === 0) {            <div class="empty-state text-center py-4">              <i class="bi bi-calendar display-4 text-muted mb-3"></i>              <p class="text-muted mb-0">No appointments recorded</p>            </div>          } @else {            <div class="appointments-list">              @for (a of (showAllAppointments ? appointments : appointments.slice(0, 3)); track a._id) {                <div class="appointment-item glass-card"                    [appHighlightUrgent]="a.status === \'requested\'">                  <div class="appointment-header d-flex justify-content-between align-items-start mb-3">                    <div>                      <div class="appointment-date">                        <i class="bi bi-calendar-check me-2"></i>                        <strong>{{ fmt(a.date) }}</strong>                      </div>                      <div class="appointment-doctor mt-2">                        <span class="badge doctor-badge">                          <i class="bi bi-person-badge me-1"></i>                          Dr. {{ a.doctor || \'Not assigned\' }}                        </span>                      </div>                    </div>                    <span class="badge appointment-status" [ngClass]="badge(a.status)">                      {{ a.status }}                    </span>                  </div>                                    @if (a.notes) {                    <div class="appointment-notes mt-3">                      <p class="mb-0 text-muted">{{ a.notes }}</p>                    </div>                  }                  <div class="appointment-actions mt-3">                    <button class="btn action-btn edit-btn"                            (click)="startEditAppointment(a)">                      <i class="bi bi-pencil me-1"></i>                      Edit                    </button>                    <button class="btn action-btn complete-btn"                            (click)="updateAppointmentStatus(a, \'completed\')">                      <i class="bi bi-check-circle me-1"></i>                      Complete                    </button>                    <button class="btn action-btn cancel-btn"                            (click)="updateAppointmentStatus(a, \'cancelled\')">                      <i class="bi bi-x-circle me-1"></i>                      Cancel                    </button>                    <button class="btn action-btn delete-btn"                            (click)="deleteAppointment(a)">                      <i class="bi bi-trash me-1"></i>                      Delete                    </button>                  </div>                </div>              }            </div>            @if (appointments.length > 3) {              <button class="btn view-more-btn w-100 mt-3"                      (click)="showAllAppointments = !showAllAppointments">                <i class="bi" [ngClass]="showAllAppointments ? \'bi-chevron-up\' : \'bi-chevron-down\'"></i>                {{ showAllAppointments ? \'Show Less\' : \'Show More\' }}              </button>            }          }          <hr class="my-4">          <div class="appointment-form">            <h5 class="form-title">              <i class="bi" [ngClass]="editingAppointmentId ? \'bi-pencil\' : \'bi-plus-circle\'"></i>              {{ editingAppointmentId ? \'Update Appointment\' : \'Add New Appointment\' }}            </h5>                        <form [formGroup]="appointmentForm" (ngSubmit)="saveAppointment()" class="mt-3">              <div class="row g-3">                <div class="col-md-6">                  <label class="form-label">Doctor Name</label>                  <input class="form-control form-input" formControlName="doctor" placeholder="Dr. Smith">                </div>                <div class="col-md-6">                  <label class="form-label">Date</label>                  <input type="date" formControlName="date" class="form-control form-input">                </div>                <div class="col-12">                  <label class="form-label">Notes</label>                  <textarea class="form-control form-textarea" formControlName="notes"                             placeholder="Appointment notes..."></textarea>                </div>                <div class="col-md-6">                  <label class="form-label">Status</label>                  <select class="form-control form-select" formControlName="status">                    <option value="scheduled">Scheduled</option>                    <option value="completed">Completed</option>                    <option value="cancelled">Cancelled</option>                  </select>                </div>                <div class="col-12 mt-3">                  <button class="btn primary-btn me-2"                          [disabled]="appointmentForm.invalid">                    <i class="bi" [ngClass]="editingAppointmentId ? \'bi-save\' : \'bi-plus-circle\'"></i>                    {{ editingAppointmentId ? \'Save Changes\' : \'Add Appointment\' }}                  </button>                  <button *ngIf="editingAppointmentId"                          type="button"                          class="btn secondary-btn"                          (click)="cancelEditAppointment()">                    <i class="bi bi-x-circle me-1"></i>                    Cancel Edit                  </button>                </div>              </div>            </form>          </div>        </div>        <div class="glass-card p-4 mb-4">          <div class="section-header d-flex justify-content-between align-items-center mb-4">            <h4 class="section-title mb-0">              <i class="bi bi-prescription2 me-2"></i>              Prescriptions            </h4>            <span *ngIf="editingPrescriptionId" class="badge edit-badge">              <i class="bi bi-pencil me-1"></i>              Editing            </span>          </div>          @if (prescriptions.length === 0) {            <div class="empty-state text-center py-4">              <i class="bi bi-capsule display-4 text-muted mb-3"></i>              <p class="text-muted mb-0">No prescriptions recorded</p>            </div>          } @else {            <div class="prescriptions-list">              @for (rx of (showAllPrescriptions ? prescriptions : prescriptions.slice(0, 3)); track rx._id) {                <div class="prescription-item glass-card">                  <div class="prescription-header d-flex justify-content-between align-items-start mb-3">                    <div>                      <h6 class="prescription-name">{{ rx.name }}</h6>                      <div class="prescription-dates text-muted">                        <small>                          <i class="bi bi-calendar-range me-1"></i>                          {{ fmt(rx.start) }} - {{ fmt(rx.stop) }}                        </small>                      </div>                    </div>                    <span class="badge prescription-status" [ngClass]="badge(rx.status)">                      {{ rx.status }}                    </span>                  </div>                                    <div class="prescription-actions mt-3">                    <button class="btn action-btn edit-btn"                            (click)="startEditPrescription(rx)">                      <i class="bi bi-pencil me-1"></i>                      Edit                    </button>                    <button class="btn action-btn delete-btn"                            (click)="deletePrescription(rx)">                      <i class="bi bi-trash me-1"></i>                      Delete                    </button>                  </div>                </div>              }            </div>            @if (prescriptions.length > 3) {              <button class="btn view-more-btn w-100 mt-3"                      (click)="showAllPrescriptions = !showAllPrescriptions">                <i class="bi" [ngClass]="showAllPrescriptions ? \'bi-chevron-up\' : \'bi-chevron-down\'"></i>                {{ showAllPrescriptions ? \'Show Less\' : \'Show More\' }}              </button>            }          }          <hr class="my-4">          <div class="prescription-form">            <h5 class="form-title">              <i class="bi" [ngClass]="editingPrescriptionId ? \'bi-pencil\' : \'bi-plus-circle\'"></i>              {{ editingPrescriptionId ? \'Update Prescription\' : \'Add New Prescription\' }}            </h5>                        <form [formGroup]="prescriptionForm" (ngSubmit)="savePrescription()" class="mt-3">              <div class="row g-3">                <div class="col-12">                  <label class="form-label">Medication Name</label>                  <input class="form-control form-input" formControlName="name" placeholder="e.g., Amoxicillin 500mg">                </div>                <div class="col-md-6">                  <label class="form-label">Start Date</label>                  <input type="date" class="form-control form-input" formControlName="start">                </div>                <div class="col-md-6">                  <label class="form-label">Stop Date (optional)</label>                  <input type="date" class="form-control form-input" formControlName="stop">                </div>                <div class="col-md-6">                  <label class="form-label">Status</label>                  <select class="form-control form-select" formControlName="status">                    <option value="active">Active</option>                    <option value="completed">Completed</option>                    <option value="cancelled">Cancelled</option>                  </select>                </div>                <div class="col-12 mt-3">                  <button class="btn primary-btn me-2"                          [disabled]="prescriptionForm.invalid">                    <i class="bi" [ngClass]="editingPrescriptionId ? \'bi-save\' : \'bi-plus-circle\'"></i>                    {{ editingPrescriptionId ? \'Save Changes\' : \'Add Prescription\' }}                  </button>                  <button *ngIf="editingPrescriptionId"                          type="button"                          class="btn secondary-btn"                          (click)="cancelEditPrescription()">                    <i class="bi bi-x-circle me-1"></i>                    Cancel Edit                  </button>                </div>              </div>            </form>          </div>        </div>        <div class="glass-card p-4">          <div class="section-header d-flex justify-content-between align-items-center mb-4">            <h4 class="section-title mb-0">              <i class="bi bi-clipboard-check me-2"></i>              Care Plans            </h4>            <span *ngIf="editingCareplanId" class="badge edit-badge">              <i class="bi bi-pencil me-1"></i>              Editing            </span>          </div>          @if (careplans.length === 0) {            <div class="empty-state text-center py-4">              <i class="bi bi-clipboard display-4 text-muted mb-3"></i>              <p class="text-muted mb-0">No careplans recorded</p>            </div>          } @else {            <div class="careplans-list">              @for (c of (showAllCareplans ? careplans : careplans.slice(0, 3)); track c._id) {                <div class="careplan-item glass-card">                  <div class="careplan-header d-flex justify-content-between align-items-start mb-3">                    <h6 class="careplan-name mb-0">{{ c.description || \'Care Plan\' }}</h6>                    <span class="badge careplan-status">Active</span>                  </div>                  <div class="careplan-dates text-muted">                    <small>                      <i class="bi bi-calendar-range me-1"></i>                      {{ fmt(c.start) }} - {{ fmt(c.stop) }}                    </small>                  </div>                                    <div class="careplan-actions mt-3">                    <button class="btn action-btn edit-btn"                            (click)="startEditCareplan(c)">                      <i class="bi bi-pencil me-1"></i>                      Edit                    </button>                    <button class="btn action-btn delete-btn"                            (click)="deleteCareplan(c)">                      <i class="bi bi-trash me-1"></i>                      Delete                    </button>                  </div>                </div>              }            </div>            @if (careplans.length > 3) {              <button class="btn view-more-btn w-100 mt-3"                      (click)="showAllCareplans = !showAllCareplans">                <i class="bi" [ngClass]="showAllCareplans ? \'bi-chevron-up\' : \'bi-chevron-down\'"></i>                {{ showAllCareplans ? \'Show Less\' : \'Show More\' }}              </button>            }          }          <hr class="my-4">                  <div class="careplan-form">            <h5 class="form-title">              <i class="bi" [ngClass]="editingCareplanId ? \'bi-pencil\' : \'bi-plus-circle\'"></i>              {{ editingCareplanId ? \'Update Careplan\' : \'Add New Careplan\' }}            </h5>                        <form [formGroup]="careplanForm" (ngSubmit)="saveCareplan()" class="mt-3">              <div class="row g-3">                <div class="col-12">                  <label class="form-label">Description</label>                  <input class="form-control form-input" formControlName="description"                          placeholder="e.g., Diabetes management plan">                </div>                <div class="col-md-6">                  <label class="form-label">Start Date</label>                  <input type="date" class="form-control form-input" formControlName="start">                </div>                <div class="col-md-6">                  <label class="form-label">Stop Date (optional)</label>                  <input type="date" class="form-control form-input" formControlName="stop">                </div>                <div class="col-12 mt-3">                  <button class="btn primary-btn me-2"                          [disabled]="careplanForm.invalid">                    <i class="bi" [ngClass]="editingCareplanId ? \'bi-save\' : \'bi-plus-circle\'"></i>                    {{ editingCareplanId ? \'Save Changes\' : \'Add Careplan\' }}                  </button>                  <button *ngIf="editingCareplanId"                          type="button"                          class="btn secondary-btn"                          (click)="cancelEditCareplan()">                    <i class="bi bi-x-circle me-1"></i>                    Cancel Edit                  </button>                </div>              </div>            </form>          </div>        </div>      </div>            <div class="col-lg-4">                       <div class="glass-card p-4 mb-4">          <h4 class="section-title mb-3">            <i class="bi bi-geo-alt me-2"></i>            Patient Location          </h4>                    <div class="map-container">            <google-map height="250px" width="100%" [options]="map_options">              @for (m of map_markers; track m.lat + \',\' + m.lng) {  <map-marker [position]="m"></map-marker>}            </google-map>          </div>                    <div class="mt-3">            <small class="text-muted">              <i class="bi bi-info-circle me-1"></i>              Location: {{ patient.town || \'Not specified\' }}            </small>          </div>        </div>               <div class="glass-card p-4">          <h4 class="section-title mb-3">            <i class="bi bi-clipboard2-pulse me-2"></i>            Clinical Summary          </h4>                    <div class="clinical-summary">            <p class="text-muted">              Patient presents with <strong>{{ patient.condition || \'no recorded condition\' }}</strong>.               Treatment includes {{ prescriptions.length }} prescription(s)               and {{ careplans.length }} care plan(s).            </p>                                    <div class="summary-stats-small mt-4">              <div class="stat-small">                <div class="stat-small-value">{{ appointments.length }}</div>                <div class="stat-small-label">Total Appts</div>              </div>              <div class="stat-small">                <div class="stat-small-value">{{ prescriptions.length }}</div>                <div class="stat-small-label">Prescriptions</div>              </div>              <div class="stat-small">                <div class="stat-small-value">{{ careplans.length }}</div>                <div class="stat-small-label">Care Plans</div>              </div>            </div>          </div>        </div>      </div>    </div>  </div></div></div>'
+    var COMPONENTS = [{'name': 'AddPatientComponent', 'selector': 'app-add-patient'},{'name': 'App', 'selector': 'app-root'},{'name': 'DeletePatientComponent', 'selector': 'app-delete-patient'},{'name': 'GpChecklistComponent', 'selector': 'app-gp-checklist'},{'name': 'HomeCalendarComponent', 'selector': 'app-home-calendar'},{'name': 'HomeComponent', 'selector': 'app-home'},{'name': 'LoadingSpinnerComponent', 'selector': 'app-loading-spinner'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'NavigationComponent', 'selector': 'app-navigation'},{'name': 'PatientComponent', 'selector': 'app-patient'},{'name': 'PatientPortalComponent', 'selector': 'app-patient-portal'},{'name': 'PatientsComponent', 'selector': 'app-patients'},{'name': 'RecentAppointmentsComponent', 'selector': 'app-recent-appointments'},{'name': 'StatCardComponent', 'selector': 'app-stat-card'},{'name': 'TestApiComponent', 'selector': 'app-test-api'},{'name': 'ToastContainerComponent', 'selector': 'app-toast-container'}];
+    var DIRECTIVES = [{'name': 'HighlightUrgentDirective', 'selector': '[appHighlightUrgent]'}];
+    var ACTUAL_COMPONENT = {'name': 'PatientComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'PatientComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

@@ -1,6 +1,5 @@
 <div class="add-patient-container">
 
-  <!-- HEADER -->
   <div class="add-patient-header mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
@@ -20,12 +19,10 @@
     </div>
   </div>
 
-  <!-- FORM CONTAINER -->
   <div class="add-patient-form-wrapper">
     <div class="form-card glass-card">
       <form (ngSubmit)="submitNewPatient(patientForm)" #patientForm="ngForm" class="patient-form">
 
-        <!-- ROW 1: Name & Age -->
         <div class="row g-4 mb-4">
           <div class="col-md-6">
             <div class="form-group">
@@ -73,7 +70,6 @@
           </div>
         </div>
 
-        <!-- ROW 2: Gender & Condition -->
         <div class="row g-4 mb-4">
           <div class="col-md-6">
             <div class="form-group">
@@ -113,28 +109,8 @@
           </div>
         </div>
 
-        <!-- Image URL Field (from original) -->
-        <div class="mb-5">
-          <div class="form-group">
-            <label for="image_url" class="form-label">
-              <i class="bi bi-image me-2"></i>
-              Profile Image URL (Optional)
-            </label>
-            <input 
-              type="url" 
-              id="image_url"
-              class="form-control form-input" 
-              [(ngModel)]="newPatient.image_url" 
-              name="image_url" 
-              placeholder="https://example.com/patient-photo.jpg">
-            <small class="text-muted form-help">
-              <i class="bi bi-info-circle me-1"></i>
-              Leave blank for default avatar
-            </small>
-          </div>
-        </div>
+        
 
-        <!-- FORM ACTIONS -->
         <div class="form-actions">
           <div class="d-flex justify-content-between align-items-center">
             <button 
@@ -160,7 +136,6 @@
           </div>
         </div>
 
-        <!-- ALERT MESSAGES -->
         <div *ngIf="addPatientError" class="alert error-alert glass-card mt-4">
           <i class="bi bi-exclamation-triangle-fill me-2"></i>
           {{ addPatientError }}

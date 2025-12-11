@@ -1,11 +1,20 @@
-// src/app/components/patient-portal/patient-portal.component.ts
-
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
 import { AuthService } from '../../auth/auth.service';
 
+/**
+ * PatientPortalComponent
+ *
+ * Provides a secure self-service portal for patients to:
+ * - View confirmed and pending appointments
+ * - View prescriptions
+ * - View care plans
+ * - Submit new appointment requests
+ *
+ * All data is loaded using the authenticated patient ID.
+ */
 @Component({
   selector: 'app-patient-portal',
   standalone: true,
@@ -15,32 +24,63 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class PatientPortalComponent {
 
+  /** Logged-in patient record */
   patient: any = null;
 
+  /** Global loading indicator */
   loading = false;
 
+  /** Toast notification message */
   toastMessage: string = '';
+
+  /** Toast message type */
   toastType: 'success' | 'error' = 'success';
 
+  /** Toggle all appointments visibility */
   showAllAppointments = false;
+
+  /** Toggle all prescriptions visibility */
   showAllPrescriptions = false;
+
+  /** Toggle all careplans visibility */
   showAllCareplans = false;
 
+  /** Requested appointment date */
   requestDate = '';
+
+  /** Patient symptom description */
   requestSymptoms = '';
+
+  /** Indicates successful submission */
   submitted = false;
 
-  // Data arrays
+  /** Prescription list */
   prescriptions: any[] = [];
-  careplans: any[] = [];
-  pendingRequests: any[] = [];
-  confirmedAppointments: any[] = [];  // Fixed: pre-computed, reliable
 
+  /** Careplan list */
+  careplans: any[] = [];
+
+  /** Pending appointment requests */
+  pendingRequests: any[] = [];
+
+  /** Confirmed and non-pending appointments */
+  confirmedAppointments: any[] = [];
+
+  /**
+   * Creates instance of PatientPortalComponent
+   *
+   * @param api API service
+   * @param auth Authentication service
+   */
   constructor(
     private api: Api,
     private auth: AuthService
   ) {}
 
+  /**
+   * Angular lifecycle hook.
+   * Loads the authenticated patient profile.
+   */
   ngOnInit() {
     const pid = this.auth.getPatientId();
     if (!pid) {
@@ -53,18 +93,34 @@ export class PatientPortalComponent {
   // -------------------------------------------------
   // TOAST & LOADING HELPERS
   // -------------------------------------------------
+
+  /**
+   * Displays a notification message.
+   *
+   * @param msg Message text
+   * @param type Message type
+   */
   private showToast(msg: string, type: 'success' | 'error' = 'success') {
     this.toastMessage = msg;
     this.toastType = type;
     setTimeout(() => this.toastMessage = '', 4000);
   }
 
+  /** Enables the global loading spinner */
   private startLoading() { this.loading = true; }
+
+  /** Disables the global loading spinner */
   private stopLoading() { this.loading = false; }
 
   // -------------------------------------------------
   // LOAD PATIENT DATA
   // -------------------------------------------------
+
+  /**
+   * Loads patient record and associated data.
+   *
+   * @param id Patient ID
+   */
   private loadPatient(id: string) {
     this.startLoading();
 
@@ -73,12 +129,10 @@ export class PatientPortalComponent {
         const p = res.data;
         this.patient = p;
 
-        // Ensure arrays exist
         const appointments = p.appointments || [];
         this.prescriptions = p.prescriptions || [];
         this.careplans = p.careplans || [];
 
-        // Separate pending requests from confirmed/scheduled appointments
         this.pendingRequests = appointments.filter((a: any) => 
           a.status === 'requested'
         );
@@ -87,7 +141,6 @@ export class PatientPortalComponent {
           a.status && a.status !== 'requested'
         );
 
-        // Optional: sort confirmed appointments (newest first)
         this.confirmedAppointments.sort((a: any, b: any) => {
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         });
@@ -102,6 +155,10 @@ export class PatientPortalComponent {
   // -------------------------------------------------
   // SUBMIT APPOINTMENT REQUEST
   // -------------------------------------------------
+
+  /**
+   * Sends an appointment request to the GP.
+   */
   submitRequest() {
     if (!this.requestDate) {
       this.showToast("Please select a date.", "error");
@@ -128,10 +185,8 @@ export class PatientPortalComponent {
         this.showToast("Appointment request sent successfully!", "success");
         this.submitted = true;
 
-        // Reload fresh data
         this.loadPatient(pid);
 
-        // Reset form
         this.requestDate = '';
         this.requestSymptoms = '';
       },
@@ -143,8 +198,15 @@ export class PatientPortalComponent {
   }
 
   // -------------------------------------------------
-  // HELPER: Date formatting
+  // HELPERS
   // -------------------------------------------------
+
+  /**
+   * Formats a date value for display.
+   *
+   * @param date Date input
+   * @returns Formatted date string
+   */
   fmt(date: string | Date): string {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('en-GB', {
@@ -154,9 +216,9 @@ export class PatientPortalComponent {
     });
   }
 
-  // -------------------------------------------------
-  // BADGE STYLING
-  // -------------------------------------------------
+  /**
+   * Returns the Bootstrap badge class for appointment status.
+   */
   badge(status: string): string {
     switch (status?.toLowerCase()) {
       case 'requested':  return 'bg-warning text-dark';
@@ -168,6 +230,9 @@ export class PatientPortalComponent {
     }
   }
 
+  /**
+   * Returns Bootstrap class for prescription status.
+   */
   getPrescriptionStatusClass(p: any): string {
     const s = p.status?.toLowerCase();
     if (!s) return 'bg-secondary';
@@ -180,9 +245,9 @@ export class PatientPortalComponent {
     return 'bg-info';
   }
 
-  // -------------------------------------------------
-  // FORM HELPERS
-  // -------------------------------------------------
+  /**
+   * Returns today's date in yyyy-mm-dd format.
+   */
   getTodayDate(): string {
     const today = new Date();
     const year = today.getFullYear();

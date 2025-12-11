@@ -1,4 +1,4 @@
-// src/app/components/home/gp-checklist.component.ts
+
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';

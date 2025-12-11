@@ -1,7 +1,5 @@
-<!-- src/app/components/patients/patients.html -->
 <div class="patients-container">
 
-  <!-- HEADER -->
   <div class="patients-header d-flex justify-content-between align-items-center mb-5">
     <div>
       <h2 class="patients-title mb-2">
@@ -26,7 +24,6 @@
     </div>
   </div>
 
-  <!-- SEARCH & FILTER BAR -->
   <div class="search-filter-section glass-card mb-4 p-3">
     <div class="row g-3">
       <div class="col-md-8">
@@ -64,7 +61,6 @@
       </div>
     </div>
     
-    <!-- Active filters display -->
     <div *ngIf="searchQuery || filterOption !== 'all'" class="active-filters mt-3">
       <small class="text-muted">
         <i class="bi bi-funnel me-1"></i>
@@ -81,7 +77,6 @@
     </div>
   </div>
 
-  <!-- LOADING STATE -->
   <div *ngIf="loading" class="loading-state glass-card p-5 text-center">
     <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
@@ -89,7 +84,6 @@
     <p class="text-muted mb-0">Loading patient records...</p>
   </div>
 
-  <!-- ERROR STATE -->
   <div *ngIf="!loading && errorMsg" class="error-state glass-card p-4">
     <div class="d-flex align-items-center">
       <i class="bi bi-exclamation-triangle-fill text-danger me-3 fs-4"></i>
@@ -104,7 +98,6 @@
     </button>
   </div>
 
-  <!-- PATIENT CARDS GRID -->
   <div class="row g-4" *ngIf="!loading && !errorMsg">
     <ng-container *ngIf="filteredPatients.length > 0; else noPatients">
       <div class="col-xl-4 col-lg-6 col-md-6 mb-4"
@@ -116,7 +109,7 @@
              tabindex="0"
              (keyup.enter)="navigateToPatient(patient)">
 
-          <!-- Card Header -->
+          
           <div class="card-header d-flex justify-content-between align-items-center">
             <div class="patient-status">
               <span class="status-indicator" [class.active]="isPatientActive(patient)"></span>
@@ -128,19 +121,28 @@
             </span>
           </div>
 
-          <!-- Card Body -->
+          
           <div class="card-body d-flex flex-column">
 
-            <!-- Patient Name & Basic Info -->
-            <div class="patient-info mb-3">
-              <h5 class="patient-name mb-2">
-                {{ patient.name }}
-                <span *ngIf="patient.age" class="patient-age">({{ patient.age }})</span>
-              </h5>
-              
-            </div>
+           
+<div class="patient-info mb-3">
+  <h5 class="patient-name mb-1">
+    {{ patient.name }}
+    <span *ngIf="patient.age" class="patient-age">({{ patient.age }})</span>
+  </h5>
 
-            <!-- Condition -->
+  
+  <div class="patient-id-wrapper mt-1">
+    <span class="patient-id-label">ID:</span>
+    <span class="patient-id-text"
+          (click)="copyPatientId(getPatientId(patient), $event)"
+          title="Click to copy ID">
+      {{ getPatientId(patient) }}
+    </span>
+  </div>
+</div>
+
+           
             <div class="patient-condition mb-4">
               <h6 class="condition-title">
                 <i class="bi bi-clipboard2-pulse me-2"></i>
@@ -149,7 +151,7 @@
               <p class="condition-value">{{ patient.condition || 'Not recorded' }}</p>
             </div>
 
-            <!-- Activity Stats -->
+        
             <div class="patient-activity mt-auto">
               <div class="row g-2 text-center">
                 <div class="col-4">
@@ -181,7 +183,7 @@
                 </div>
               </div>
               
-              <!-- No Activity Message -->
+              
               <div *ngIf="getAppointmentsCount(patient) === 0
                          && getPrescriptionsCount(patient) === 0
                          && getCareplansCount(patient) === 0"
@@ -193,7 +195,7 @@
 
           </div>
 
-          <!-- Card Footer -->
+          
           <div class="card-footer">
             
           </div>
@@ -202,7 +204,7 @@
     </ng-container>
   </div>
 
-  <!-- NO PATIENTS STATE -->
+  
   <ng-template #noPatients>
     <div class="no-patients-state glass-card p-5 text-center" *ngIf="!loading">
       <i class="bi bi-people display-1 text-muted mb-3"></i>
@@ -221,7 +223,7 @@
     </div>
   </ng-template>
 
-  <!-- PAGINATION -->
+
   <div class="pagination-section mt-5" *ngIf="filteredPatients.length > 0 && !loading">
     <div class="pagination-row d-flex justify-content-between align-items-center">
       <button class="btn pager-btn pager-prev"
@@ -249,21 +251,7 @@
       </button>
     </div>
     
-    <!-- Page Size Selector -->
-    <div class="page-size-selector mt-3 text-end">
-      <small class="text-muted me-2">Show:</small>
-      <div class="btn-group btn-group-sm">
-        <button class="btn btn-outline-primary" 
-                [class.active]="pageSize === 6"
-                (click)="changePageSize(6)">6</button>
-        <button class="btn btn-outline-primary" 
-                [class.active]="pageSize === 12"
-                (click)="changePageSize(12)">12</button>
-        <button class="btn btn-outline-primary" 
-                [class.active]="pageSize === 24"
-                (click)="changePageSize(24)">24</button>
-      </div>
-    </div>
+    
   </div>
 
 </div>

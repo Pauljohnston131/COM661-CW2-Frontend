@@ -9,7 +9,7 @@ export interface ToastMessage {
   type: ToastType;
   message: string;
   title?: string;
-  duration?: number; // ms
+  duration?: number; 
 }
 
 @Injectable({ providedIn: 'root' })

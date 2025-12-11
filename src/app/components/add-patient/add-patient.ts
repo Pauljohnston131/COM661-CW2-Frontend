@@ -5,6 +5,16 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Api } from '../../services/api';
 
+/**
+ * AddPatientComponent
+ *
+ * Used by GPs to manually add a new patient into the system.
+ * Handles:
+ * - Basic form validation
+ * - API submission
+ * - Success + error handling
+ * - Auto redirect after successful creation
+ */
 @Component({
   selector: 'app-add-patient',
   standalone: true,
@@ -13,6 +23,10 @@ import { Api } from '../../services/api';
   styleUrls: ['./add-patient.css']
 })
 export class AddPatientComponent implements OnInit {
+
+  /**
+   * Local model used to bind to the add-patient form.
+   */
   newPatient = {
     name: '',
     age: '',
@@ -20,8 +34,14 @@ export class AddPatientComponent implements OnInit {
     condition: '',
     image_url: ''
   };
+
+  /** Error message shown if submission fails */
   addPatientError = '';
+
+  /** Flag used to show success feedback */
   addPatientSuccess = false;
+
+  /** Disables the submit button while saving */
   isSubmitting = false;
 
   constructor(
@@ -29,8 +49,21 @@ export class AddPatientComponent implements OnInit {
     private router: Router
   ) {}
 
+  /**
+   * Runs when the component is initialised.
+   */
   ngOnInit(): void {}
 
+  /**
+   * Submits a new patient to the backend.
+   * Includes:
+   * - Form validation
+   * - Payload mapping
+   * - API call
+   * - Success redirect
+   *
+   * @param form Angular form reference
+   */
   submitNewPatient(form: NgForm): void {
     if (form.invalid) {
       this.addPatientError = 'Please fill in all required fields correctly.';
@@ -59,7 +92,8 @@ export class AddPatientComponent implements OnInit {
         if (res.success) {
           this.addPatientSuccess = true;
           this.isSubmitting = false;
-          // Auto-redirect to dashboard after 2 seconds
+
+          // Auto redirect back to GP dashboard after 2 seconds
           setTimeout(() => {
             this.router.navigate(['/gp/home']);
           }, 2000);

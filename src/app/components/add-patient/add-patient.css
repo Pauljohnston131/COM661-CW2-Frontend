@@ -1,6 +1,4 @@
-/* ==========================================
-   ADD PATIENT CONTAINER - SAME STYLE AS OTHER PAGES
-========================================== */
+
 .add-patient-container {
   padding: 6rem 1.5rem 3rem;
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -11,9 +9,7 @@
   box-sizing: border-box;
 }
 
-/* ==========================================
-   GLASS CARD
-========================================== */
+
 .glass-card {
   background: rgba(255, 255, 255, 0.75);
   border-radius: 20px;
@@ -24,9 +20,7 @@
   transition: all 0.3s ease;
 }
 
-/* ==========================================
-   HEADER
-========================================== */
+
 .add-patient-header {
   margin-bottom: 3rem;
 }
@@ -44,9 +38,7 @@
   max-width: 600px;
 }
 
-/* ==========================================
-   BUTTONS
-========================================== */
+
 .back-btn {
   background: rgba(45, 55, 101, 0.1);
   color: #2D3765;
@@ -79,9 +71,7 @@
   cursor: not-allowed;
 }
 
-/* ==========================================
-   FORM CONTAINER
-========================================== */
+
 .add-patient-form-wrapper {
   max-width: 800px;
   margin: 0 auto;
@@ -91,9 +81,6 @@
   padding: 2.5rem;
 }
 
-/* ==========================================
-   FORM ELEMENTS
-========================================== */
 .form-label {
   color: #2D3765;
   font-weight: 600;
@@ -112,18 +99,13 @@
   width: 100%;
 }
 
-/* ==========================================
-   FORM ACTIONS
-========================================== */
+
 .form-actions {
   margin-top: 3rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(45, 55, 101, 0.1);
 }
 
-/* ==========================================
-   ALERT MESSAGES
-========================================== */
 .error-alert {
   background: rgba(220, 53, 69, 0.1);
   border: 1px solid rgba(220, 53, 69, 0.2);
@@ -140,9 +122,6 @@
   padding: 1rem 1.25rem;
 }
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
 @media (max-width: 768px) {
   .add-patient-container {
     padding: 5rem 1rem 2rem;

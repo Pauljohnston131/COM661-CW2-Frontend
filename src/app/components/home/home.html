@@ -1,18 +1,16 @@
-<!-- src/app/components/home/home.html -->
 <div class="dashboard-container">
 
-  <!-- Header -->
   <div class="dashboard-header">
     <div>
       <h2 class="dashboard-title">GP Practice Dashboard</h2>
       <p class="text-muted mb-0 greeting-text">
-        Hello, Doctor • {{ today | date:'fullDate' }}
+         {{ today | date:'fullDate' }}
       </p>
     </div>
 
     <div class="d-flex gap-3 align-items-center flex-wrap">
 
-      <!-- Unified action buttons -->
+   
       <div class="quick-actions d-flex flex-row align-items-center">
 
   <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
@@ -24,17 +22,17 @@
   </button>
 
   <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
-    <i class="bi bi-pencil-square"></i> Update Patient
+    <i class="bi bi-pencil-square"></i> Update Patient Information
   </button>
 
-  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
-    <i class="bi bi-person-x"></i> Delete Patient
-  </button>
+  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/delete-patient']">
+  <i class="bi bi-person-x"></i> Delete Patient
+</button>
+
 
 </div>
 
 
-      <!-- Review Requests Button -->
       <button class="btn review-btn shadow-sm d-flex align-items-center gap-2"
               (click)="goToFirstPending()"
               [disabled]="pendingRequests === 0">
@@ -46,7 +44,7 @@
     </div>
   </div>
 
-  <!-- Stats Grid -->
+ 
   <div class="stats-grid">
 
     <div class="stat-tile glass-card">
@@ -83,10 +81,10 @@
 
   </div>
 
-  <!-- 3 Column Layout -->
+ 
   <div class="main-grid-3">
 
-    <!-- LEFT — Tasks -->
+    
     <div class="checklist-section">
       <div class="section-header">
         <h5>Today's Priority Tasks</h5>
@@ -97,10 +95,12 @@
         <ng-container *ngIf="gpChecklist.length; else noTasks">
           <div class="checklist-list">
             <div class="checklist-card"
-                 *ngFor="let item of gpChecklist | slice:0:8"
-                 (click)="router.navigate(item.link)">
+     *ngFor="let item of gpChecklist | slice:0:8"
+     [appHighlightUrgent]="item.type === 'Appointment Request'"
+     (click)="router.navigate(item.link)">
+
               <div class="d-flex justify-content-between align-items-start">
-                <div class="flex-grow-1">
+                <div class="grow">
                   <div class="checklist-type text-purple">{{ item.type }}</div>
                   <div class="checklist-patient fw-semibold">{{ item.patient }}</div>
                   <div class="text-muted small">{{ item.date | date:'shortDate' }}</div>
@@ -122,7 +122,6 @@
       </div>
     </div>
 
-    <!-- MIDDLE — Recent Activity -->
     <div class="activity-section">
       <div class="section-header"><h5>Recent Activity</h5></div>
 
@@ -153,7 +152,6 @@
       </div>
     </div>
 
-    <!-- RIGHT — Calendar -->
     <div class="calendar-section">
       <div class="calendar-card glass-card">
         <app-home-calendar [events]="events"></app-home-calendar>
@@ -162,7 +160,6 @@
 
   </div>
 
-  <!-- MAP BELOW ALL 3 COLUMNS -->
   <div class="map-section mt-4">
     <div class="section-header">
       <h5>Patient Map</h5>

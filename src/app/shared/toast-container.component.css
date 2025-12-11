@@ -1,4 +1,4 @@
-/* src/app/shared/toast-container.component.css */
+
 
 .toast-wrapper {
   position: fixed;
@@ -10,7 +10,7 @@
   gap: 0.75rem;
 }
 
-/* Base toast style */
+
 .toast-item {
   min-width: 260px;
   max-width: 360px;
@@ -58,7 +58,7 @@
   opacity: 0.9;
 }
 
-/* Variants */
+
 .toast-success .toast-icon {
   background: rgba(22, 163, 74, 0.2);
   color: #4ade80;
@@ -79,7 +79,7 @@
   color: #93c5fd;
 }
 
-/* Animations */
+
 @keyframes toast-slide-in {
   from {
     opacity: 0;

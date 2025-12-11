@@ -12,7 +12,13 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { Api } from '../../services/api';
 import { EventInput } from '@fullcalendar/core';
 import { HomeCalendarComponent } from './calendar/home-calendar.component';
+import { HighlightUrgentDirective } from '../../directives/highlight-urgent.directive';
 
+/**
+ * Home dashboard component for GP users.
+ * Displays key system statistics, recent appointments, pending requests,
+ * interactive maps, and a calendar overview.
+ */
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -20,36 +26,54 @@ import { HomeCalendarComponent } from './calendar/home-calendar.component';
     CommonModule,
     RouterModule,
     GoogleMapsModule,
-    HomeCalendarComponent
+    HomeCalendarComponent,
+    HighlightUrgentDirective
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  /** Current date used for dashboard display */
   today = new Date();
 
-  // Dashboard Stats
+  /** Total number of registered patients */
   totalPatients = 0;
+
+  /** Total number of appointments across all patients */
   totalAppointments = 0;
+
+  /** Total number of prescriptions issued */
   totalPrescriptions = 0;
+
+  /** Total number of care plans assigned */
   totalCareplans = 0;
 
-  // Pending & Checklist
+  /** Total number of pending appointment requests */
   pendingRequests = 0;
+
+  /** GP checklist items for outstanding actions */
   gpChecklist: any[] = [];
 
-  // Patient Data
+  /** Array of all patient records */
   allPatients: any[] = [];
+
+  /** List of recent appointments displayed on the dashboard */
   recentAppointments: any[] = [];
 
-  // Calendar events
+  /** Calendar event list derived from recent appointments */
   events: EventInput[] = [];
 
-  // Map
+  /** Default map centre location */
   mapCenter: google.maps.LatLngLiteral = { lat: 54.95, lng: -7.75 };
+
+  /** Default map zoom level */
   mapZoom = 12;
+
+  /** Map marker locations for patient addresses */
   mapMarkers: google.maps.LatLngLiteral[] = [];
+
+  /** Map configuration options */
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'terrain',
     fullscreenControl: false,
@@ -62,14 +86,29 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Lifecycle hook that runs on component initialisation.
+   * Loads all dashboard statistics and data.
+   */
   ngOnInit(): void {
     this.loadDashboard();
   }
 
+  /**
+   * Lifecycle hook that runs after the view has fully initialised.
+   */
   ngAfterViewInit(): void {}
+
+  /**
+   * Lifecycle hook that runs when the component is destroyed.
+   */
   ngOnDestroy(): void {}
 
-  // === DASHBOARD DATA LOADING ===
+  /**
+   * Loads all main dashboard data including:
+   * - Pending appointment request count
+   * - Patient summary data
+   */
   private loadDashboard(): void {
     this.api.getPendingRequests().subscribe((res) => {
       this.pendingRequests = res.data?.pending || 0;
@@ -81,6 +120,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * Processes patient summary data and calculates all dashboard statistics.
+   * Also prepares recent appointment data, map markers, and checklist items.
+   *
+   * @param list Array of patient summary objects
+   */
   private processSummary(list: any[]): void {
     this.allPatients = list;
     this.mapMarkers = [];
@@ -97,13 +142,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.totalCareplans += p.careplans?.length || 0;
       this.totalPrescriptions += p.prescriptions_count || 0;
 
-      // Add map marker
       if (p.location?.coordinates) {
         const [lng, lat] = p.location.coordinates;
         this.mapMarkers.push({ lat, lng });
       }
 
-      // Recent appointments
       p.appointments?.forEach((a: any) => {
         if (!a.date) return;
         this.recentAppointments.push({
@@ -121,6 +164,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.finishDashboard();
   }
 
+  /**
+   * Adds checklist items for any patients with pending appointment requests.
+   *
+   * @param patient Patient object containing appointment data
+   */
   private addChecklistItems(patient: any): void {
     (patient.appointments || []).forEach((a: any) => {
       if (a.status === 'requested') {
@@ -135,6 +183,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * Finalises dashboard setup including:
+   * - Sorting recent appointments
+   * - Limiting results to 5 entries
+   * - Adjusting map zoom
+   * - Preparing calendar events
+   */
   private finishDashboard(): void {
     this.recentAppointments.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -150,7 +205,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mapZoom = 14;
     }
 
-    // Build calendar events (FullCalendar)
     this.events = this.recentAppointments.map(a => ({
       title: a.patient,
       date: a.date,
@@ -161,6 +215,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  /**
+   * Returns the correct display colour for an appointment status.
+   *
+   * @param status Appointment status
+   * @returns Hex colour code
+   */
   private statusColor(status: string): string {
     switch (status.toLowerCase()) {
       case 'completed': return '#198754';
@@ -171,6 +231,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Navigates the GP to the first pending appointment request.
+   * If none exist, redirects to the patient list view.
+   */
   goToFirstPending() {
     const first = this.gpChecklist.find((i) => i.type === 'Appointment Request');
     if (first) this.router.navigate(first.link);

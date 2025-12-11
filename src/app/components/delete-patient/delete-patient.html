@@ -1,0 +1,146 @@
+<div class="add-patient-container">
+
+
+  <div class="add-patient-header mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="add-patient-title mb-2">
+          <i class="bi bi-person-x-fill me-2"></i>
+          Delete Patient
+        </h2>
+        <p class="add-patient-subtitle text-muted">
+          Permanently remove a patient from the system
+        </p>
+      </div>
+      <button class="btn back-btn" [routerLink]="['/gp/patients']">
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Patients
+      </button>
+    </div>
+  </div>
+
+  <div class="add-patient-form-wrapper">
+    <div class="form-card glass-card">
+      <form (ngSubmit)="submitDeletePatient(deleteForm)" #deleteForm="ngForm" class="patient-form">
+
+        <div class="search-filter-section glass-card mb-4 p-3">
+
+          <label class="form-label mb-2">
+            <i class="bi bi-search me-2"></i>
+            Search Patient by Name
+          </label>
+
+          <div class="input-group search-group mb-2">
+            <span class="input-group-text search-icon">
+              <i class="bi bi-search"></i>
+            </span>
+
+            <input
+              type="text"
+              class="form-control search-input"
+              placeholder="Type a patient name..."
+              [(ngModel)]="searchQuery"
+              (input)="searchPatients()"
+              name="searchQuery">
+
+            <button *ngIf="searchQuery"
+                    class="btn btn-clear"
+                    type="button"
+                    (click)="searchQuery = ''; searchResults = []">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <small class="text-muted" *ngIf="isSearching">
+            Searching patients...
+          </small>
+
+          <div class="list-group mt-2" *ngIf="searchResults.length">
+            <button type="button"
+                    class="list-group-item list-group-item-action"
+                    *ngFor="let p of searchResults"
+                    (click)="selectPatient(p)">
+              <strong>{{ p.name }}</strong>
+              <span class="text-muted">— {{ p.condition || 'No condition' }}</span>
+              <div class="small text-muted">ID: {{ p.id || p._id }}</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <div class="form-group">
+            <label for="patientId" class="form-label">
+              <i class="bi bi-fingerprint me-2"></i>
+              Confirm Patient ID <span class="text-danger">*</span>
+            </label>
+
+            <input
+              type="text"
+              id="patientId"
+              class="form-control form-input"
+              [(ngModel)]="patientId"
+              name="patientId"
+              required
+              pattern="[0-9a-fA-F]{24}"
+              placeholder="e.g. 66f9c123456789abcde12345"
+              #patientIdField="ngModel">
+
+            <div class="invalid-feedback" *ngIf="patientIdField.invalid && (patientIdField.dirty || patientIdField.touched)">
+              <div *ngIf="patientIdField.errors?.['required']">
+                Patient ID is required.
+              </div>
+              <div *ngIf="patientIdField.errors?.['pattern']">
+                Must be a valid 24-character hex ID.
+              </div>
+            </div>
+
+            <small class="text-muted form-help d-block mt-2">
+              Warning: This will permanently delete the patient and all associated records (appointments, prescriptions, care plans).
+            </small>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <div class="d-flex justify-content-between align-items-center">
+            <button
+              type="button"
+              class="btn cancel-btn"
+              [routerLink]="['/gp/patients']">
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="btn submit-btn bg-danger text-white"
+              [disabled]="!deleteForm.form.valid || isSubmitting">
+
+              <span *ngIf="!isSubmitting">
+                <i class="bi bi-trash me-2"></i>
+                Delete Patient
+              </span>
+
+              <span *ngIf="isSubmitting">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Deleting...
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="deleteError" class="alert error-alert glass-card mt-4">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ deleteError }}
+        </div>
+
+        <div *ngIf="deleteSuccess" class="alert success-alert glass-card mt-4">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          Patient deleted successfully!
+          <small class="d-block mt-1">
+            Redirecting to patients list in 2 seconds...
+          </small>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

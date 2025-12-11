@@ -5,6 +5,16 @@ import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { ToastService } from '../../shared/toast.service';
 
+/**
+ * LoginComponent
+ *
+ * Handles user login for both:
+ * - GP users
+ * - Patient users
+ *
+ * Uses JWT-based authentication via the AuthService.
+ * Displays feedback using toast notifications.
+ */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -14,8 +24,13 @@ import { ToastService } from '../../shared/toast.service';
 })
 export class LoginComponent {
 
+  /** Username entered in the login form */
   username = '';
+
+  /** Password entered in the login form */
   password = '';
+
+  /** Error message shown on the UI if login fails */
   error = '';
 
   constructor(
@@ -24,6 +39,11 @@ export class LoginComponent {
     private toast: ToastService
   ) {}
 
+  /**
+   * Runs when the login form is submitted.
+   * Validates input, sends login request, stores token,
+   * and redirects based on user role.
+   */
   onSubmit() {
     this.error = '';
 
@@ -44,11 +64,13 @@ export class LoginComponent {
             return;
           }
 
+          // Store JWT for later use
           this.auth.storeToken(token);
 
+          // Redirect based on role
           if (this.auth.isGP()) {
             this.toast.success('Logged in as GP.', 'Welcome');
-            this.router.navigate(['/gp/patients']);
+            this.router.navigate(['/']);
           } else if (this.auth.isPatient()) {
             this.toast.success('Logged in as patient.', 'Welcome');
             this.router.navigate(['/patient-portal']);
