@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
 import { AuthService } from '../../auth/auth.service';
+import { Router } from '@angular/router';
 
 /**
  * PatientPortalComponent
@@ -66,6 +67,11 @@ export class PatientPortalComponent {
   /** Confirmed and non-pending appointments */
   confirmedAppointments: any[] = [];
 
+  startTriage() {
+  this.router.navigate(['/patient/triage']);
+}
+
+
   /**
    * Creates instance of PatientPortalComponent
    *
@@ -73,9 +79,11 @@ export class PatientPortalComponent {
    * @param auth Authentication service
    */
   constructor(
-    private api: Api,
-    private auth: AuthService
-  ) {}
+  private api: Api,
+  private auth: AuthService,
+  private router: Router
+) {}
+
 
   /**
    * Angular lifecycle hook.
@@ -115,7 +123,6 @@ export class PatientPortalComponent {
   // -------------------------------------------------
   // LOAD PATIENT DATA
   // -------------------------------------------------
-
   /**
    * Loads patient record and associated data.
    *

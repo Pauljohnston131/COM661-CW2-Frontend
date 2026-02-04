@@ -1,0 +1,252 @@
+<div class="triage-container">
+  <div class="triage-form-card glass-card">
+    
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-number">1</div>
+        <div class="step-label">Select Area</div>
+      </div>
+      <div class="step-connector" [class.active]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+        <div class="step-number">2</div>
+        <div class="step-label">Choose Symptoms</div>
+      </div>
+      <div class="step-connector" [class.active]="currentStep > 2"></div>
+      <div class="step" [class.active]="currentStep === 3">
+        <div class="step-number">3</div>
+        <div class="step-label">Additional Details</div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p class="mt-3 text-muted">Processing your request...</p>
+    </div>
+
+    <!-- Step 1: Body Area Selection -->
+    <div *ngIf="currentStep === 1" class="step-container">
+      <div class="step-header">
+        <h2 class="step-title">
+          <i class="bi bi-body-index me-2"></i>
+          Where are you experiencing symptoms?
+        </h2>
+        <p class="step-subtitle">
+          Tap on the body area where you're feeling discomfort or pain. This helps us understand your concern better.
+        </p>
+      </div>
+
+      <!-- Body Map Grid -->
+      <div class="body-map-grid">
+        <div *ngFor="let area of bodyAreas" 
+             class="body-area-card"
+             [class.selected]="selectedBodyArea === area.id"
+             (click)="selectBodyArea(area.id)">
+          <div class="body-area-icon">
+            <i [class]="area.icon"></i>
+          </div>
+          <div class="body-area-content">
+            <h3 class="body-area-name">{{ area.name }}</h3>
+            <p class="body-area-desc">{{ area.description }}</p>
+          </div>
+          <div class="body-area-check">
+            <i class="bi bi-check-circle-fill"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="step-navigation">
+        <button class="nav-btn secondary-btn" (click)="resetForm()">
+          <i class="bi bi-arrow-clockwise"></i> Reset
+        </button>
+        <button class="nav-btn primary-btn" 
+                (click)="nextStep()"
+                [disabled]="!isBodySelected">
+          Next: Select Symptoms <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Specific Symptoms -->
+    <div *ngIf="currentStep === 2" class="step-container">
+      <div class="step-header">
+        <h2 class="step-title">
+          <i class="bi bi-clipboard-plus me-2"></i>
+          What specific symptoms are you experiencing?
+        </h2>
+        <p class="step-subtitle">
+          Select all symptoms that apply to your {{ getBodyAreaName(selectedBodyArea) }} concern.
+        </p>
+      </div>
+
+      <!-- Loading Symptoms -->
+      <div *ngIf="loadingSymptoms" class="loading-symptoms">
+        <div class="loading-spinner small"></div>
+        <p>Loading symptoms...</p>
+      </div>
+
+      <!-- Symptoms Grid -->
+      <div *ngIf="!loadingSymptoms" class="symptoms-grid">
+        <div *ngFor="let symptom of specificSymptoms" 
+             class="symptom-item"
+             [class.selected]="symptom.selected"
+             (click)="toggleSymptom(symptom)">
+          <div class="symptom-check">
+            <i class="bi" [class.bi-check-square]="symptom.selected" [class.bi-square]="!symptom.selected"></i>
+          </div>
+          <div class="symptom-content">
+            <h4 class="symptom-name">{{ symptom.name }}</h4>
+            <p class="symptom-desc">{{ symptom.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="step-navigation">
+        <button class="nav-btn secondary-btn" (click)="previousStep()">
+          <i class="bi bi-arrow-left"></i> Back
+        </button>
+        <button class="nav-btn primary-btn" 
+                (click)="nextStep()"
+                [disabled]="getSelectedSymptoms().length === 0">
+          Next: Additional Details <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: General Symptoms & Details -->
+    <div *ngIf="currentStep === 3" class="step-container">
+      <div class="step-header">
+        <h2 class="step-title">
+          <i class="bi bi-clipboard-data me-2"></i>
+          Additional Information
+        </h2>
+        <p class="step-subtitle">
+          Help us understand the severity and impact of your symptoms.
+        </p>
+      </div>
+
+      <!-- Pain Level -->
+      <div class="triage-section">
+        <label class="section-label">
+          <i class="bi bi-activity"></i>
+          Pain Level Assessment
+        </label>
+        <div class="pain-slider-container">
+          <div class="pain-slider-header">
+            <span class="section-label">Rate your current pain level:</span>
+            <div class="pain-value-display">{{ pain_level }}/10</div>
+          </div>
+          <input type="range" min="0" max="10" 
+                 [(ngModel)]="pain_level" 
+                 name="pain_level"
+                 class="pain-slider"
+                 (input)="pain_level = $any($event.target).value">
+          <div class="pain-labels">
+            <span>No Pain</span>
+            <span>Moderate</span>
+            <span>Severe</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Duration -->
+      <div class="triage-section">
+        <label class="section-label">
+          <i class="bi bi-calendar-day"></i>
+          How long have you had these symptoms?
+        </label>
+        <div class="duration-input-container">
+          <input type="number" min="0" max="365"
+                 [(ngModel)]="duration_days"
+                 name="duration_days"
+                 class="days-input">
+          <span class="days-label">Days</span>
+        </div>
+      </div>
+
+      <!-- General Symptoms -->
+      <div class="triage-section">
+        <label class="section-label">
+          <i class="bi bi-heart-pulse"></i>
+          General Symptoms
+        </label>
+        <p class="text-muted mb-3">Select any additional general symptoms:</p>
+        <div class="symptom-grid">
+          <label class="symptom-checkbox">
+            <input type="checkbox"
+                   [(ngModel)]="fever"
+                   name="fever">
+            <i class="bi bi-thermometer-half symptom-icon"></i>
+            <span class="symptom-label">Fever / Chills</span>
+          </label>
+          
+          <label class="symptom-checkbox">
+            <input type="checkbox"
+                   [(ngModel)]="breathing_difficulty"
+                   name="breathing_difficulty">
+            <i class="bi bi-lungs symptom-icon"></i>
+            <span class="symptom-label">Breathing Difficulty</span>
+          </label>
+          
+          <label class="symptom-checkbox">
+            <input type="checkbox"
+                   [(ngModel)]="mobility_impact"
+                   name="mobility_impact">
+            <i class="bi bi-person-standing symptom-icon"></i>
+            <span class="symptom-label">Mobility Affected</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Additional Notes -->
+      <div class="triage-section">
+        <label class="section-label">
+          <i class="bi bi-journal-text"></i>
+          Additional Information
+        </label>
+        <p class="text-muted mb-3">Please provide any additional details:</p>
+        <textarea [(ngModel)]="notes"
+                  name="notes"
+                  class="notes-textarea"
+                  placeholder="Describe what makes it better/worse, any triggers, medications tried, etc."></textarea>
+      </div>
+
+      <!-- Navigation & Submit -->
+      <div class="step-navigation">
+        <button class="nav-btn secondary-btn" (click)="previousStep()">
+          <i class="bi bi-arrow-left"></i> Back
+        </button>
+        <button type="button" 
+                class="nav-btn primary-btn submit-btn"
+                (click)="submitTriage()"
+                [disabled]="loading">
+          <i class="bi bi-send-check"></i>
+          {{ loading ? 'Submitting...' : 'Submit Triage' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Alert Message -->
+    <div *ngIf="message" 
+         class="triage-alert alert"
+         [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-warning'">
+      <i [class]="messageType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'"></i>
+      <div>
+        <strong>{{ messageType === 'success' ? 'Success!' : 'Important:' }}</strong>
+        <div>{{ message }}</div>
+      </div>
+    </div>
+
+    <!-- Emergency Notice -->
+    <div class="emergency-notice">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <div>
+        <strong>Medical Emergency?</strong>
+        <p>If you're experiencing chest pain, difficulty breathing, severe bleeding, or loss of consciousness, call 911 or go to the nearest emergency room immediately.</p>
+      </div>
+    </div>
+  </div>
+</div>

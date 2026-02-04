@@ -12,6 +12,7 @@ import { GpGuard } from './guards/gp.guard';
 import { PatientGuard } from './guards/patient.guard';
 import { AddPatientComponent } from './components/add-patient/add-patient';
 import { DeletePatientComponent } from './components/delete-patient/delete-patient.component';
+import { PatientTriageComponent } from './patient-triage/patient-triage';
 
 /**
  * Main application routes.
@@ -74,6 +75,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PatientGuard],
     component: PatientPortalComponent
   },
+
+  {
+  path: 'patient/triage',
+  canActivate: [AuthGuard, PatientGuard],
+  component: PatientTriageComponent
+},
 
   /**
    * Fallback route
