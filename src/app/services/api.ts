@@ -20,13 +20,48 @@ export class Api {
   ) {}
 
   private get headers(): HttpHeaders {
-    return new HttpHeaders({
+    const token = this.auth.getToken();
+    const headers: any = {
       'Content-Type': 'application/json'
-    });
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return new HttpHeaders(headers);
   }
 
   // ===== TRIAGE METHODS =====
   
+  /**
+   * Gets all available triage categories
+   * @returns Observable categories list
+   */
+  getTriageCategories(): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/triage/categories`,
+      { headers: this.headers }
+    );
+  }
+
+  /**
+   * Retrieves symptoms for a specific category and area
+   * @param category Category identifier (physical, mental, general, unsure)
+   * @param areaId Body area identifier (for physical category only)
+   * @returns Observable symptoms list
+   */
+  getSymptomsByCategoryAndArea(category: string, areaId?: string): Observable<any> {
+    let url = `${this.baseUrl}/triage/symptoms/${category}`;
+    if (areaId) {
+      url += `/${areaId}`;
+    }
+    return this.http.get(
+      url,
+      { headers: this.headers }
+    );
+  }
+
   /**
    * Submits a triage assessment
    * @param payload Triage data
@@ -41,13 +76,25 @@ export class Api {
   }
 
   /**
-   * Retrieves symptoms for a specific body area
+   * Retrieves symptoms for a specific body area (legacy method)
    * @param areaId Body area identifier
    * @returns Observable symptoms list
    */
   getSymptomsByArea(areaId: string): Observable<any> {
     return this.http.get(
-      `${this.baseUrl}/triage/symptoms/${areaId}`,
+      `${this.baseUrl}/triage/symptoms/physical/${areaId}`,
+      { headers: this.headers }
+    );
+  }
+
+  /**
+   * Gets triage history for a patient
+   * @param patientId Patient identifier
+   * @returns Observable triage history
+   */
+  getTriageHistory(patientId: string): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/triage/history/${patientId}`,
       { headers: this.headers }
     );
   }
