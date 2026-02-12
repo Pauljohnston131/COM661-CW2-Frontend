@@ -13,6 +13,7 @@ import { PatientGuard } from './guards/patient.guard';
 import { AddPatientComponent } from './components/add-patient/add-patient';
 import { DeletePatientComponent } from './components/delete-patient/delete-patient.component';
 import { PatientTriageComponent } from './patient-triage/patient-triage';
+import { GpTriageDetailComponent } from './components/home/gp-triage-detail';
 
 /**
  * Main application routes.
@@ -80,6 +81,12 @@ export const routes: Routes = [
   path: 'patient/triage',
   canActivate: [AuthGuard, PatientGuard],
   component: PatientTriageComponent
+},
+
+{
+  path: 'gp/triage/:id',
+  component: GpTriageDetailComponent,
+  canActivate: [AuthGuard, GpGuard]
 },
 
   /**

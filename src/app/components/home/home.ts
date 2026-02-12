@@ -1,4 +1,4 @@
-// src/app/components/home/home.ts
+ // src/app/components/home/home.ts
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -73,6 +73,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Map marker locations for patient addresses */
   mapMarkers: google.maps.LatLngLiteral[] = [];
 
+  /** Triage Queue */
+  triageQueue: any[] = [];
+
+
   /** Map configuration options */
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'terrain',
@@ -110,15 +114,24 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * - Patient summary data
    */
   private loadDashboard(): void {
-    this.api.getPendingRequests().subscribe((res) => {
-      this.pendingRequests = res.data?.pending || 0;
-    });
 
-    this.api.getPatientSummary().subscribe((res) => {
-      const list = res.data?.patients || [];
-      this.processSummary(list);
-    });
-  }
+  // 1. Pending appointment requests
+  this.api.getPendingRequests().subscribe((res) => {
+    this.pendingRequests = res.data?.pending || 0;
+  });
+
+  // 2. GP triage inbox
+  this.api.getGpTriageQueue().subscribe((res) => {
+    this.triageQueue = res.data?.cases || [];
+  });
+
+  // 3. Patient summary (already there)
+  this.api.getPatientSummary().subscribe((res) => {
+    const list = res.data?.patients || [];
+    this.processSummary(list);
+  });
+
+}
 
   /**
    * Processes patient summary data and calculates all dashboard statistics.

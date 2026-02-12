@@ -33,6 +33,29 @@ export class Api {
   }
 
   // ===== TRIAGE METHODS =====
+
+  getGpTriageQueue(): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/triage/gp/queue`,
+    { headers: this.headers }
+  );
+}
+
+getGpTriageCase(triageId: string): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/triage/gp/case/${triageId}`,
+    { headers: this.headers }
+  );
+}
+
+gpTriageAction(triageId: string, payload: any): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/triage/gp/case/${triageId}/action`,
+    payload,
+    { headers: this.headers }
+  );
+}
+
   
   /**
    * Gets all available triage categories

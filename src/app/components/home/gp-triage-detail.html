@@ -1,0 +1,284 @@
+<div *ngIf="loading" class="gp-triage-loading">
+  <div class="loading-spinner"></div>
+  <span>Loading triage case…</span>
+</div>
+
+<div *ngIf="triage" class="gp-triage-detail-container">
+  <div class="gp-triage-detail-content">
+    
+    <!-- Back Button -->
+    <button class="gp-triage-back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </button>
+    
+    <!-- Patient Header with Status Banner -->
+    <div class="status-banner" [ngClass]="getStatusClass()">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ getCaseStatus() }}</span>
+      </div>
+      <span class="case-id" *ngIf="triage._id">Case #{{ triage._id.slice(-6) }}</span>
+    </div>
+    
+    <!-- Patient Header -->
+    <div class="gp-triage-patient-header">
+      <div class="patient-title-section">
+        <h1 class="gp-triage-patient-name">{{ triage.patient_name || triage.patient?.name || 'Patient' }}</h1>
+        <span class="patient-dob" *ngIf="triage.patient?.date_of_birth">
+          <i class="bi bi-calendar3"></i> DOB: {{ triage.patient.date_of_birth | date:'dd/MM/yyyy' }}
+          <span class="age-badge">({{ calculateAge(triage.patient.date_of_birth) }} yrs)</span>
+        </span>
+      </div>
+      
+      <div class="gp-triage-meta-info">
+        <div class="category-section" *ngIf="triage.category">
+          <span class="meta-label">Category:</span>
+          <span class="category-value">
+            <i [class]="getCategoryIcon(triage.category)" class="me-1"></i>
+            {{ getCategoryDisplayName(triage.category) }}
+          </span>
+        </div>
+        
+        <div class="priority-section">
+          <span class="meta-label">Priority:</span>
+          <span class="gp-triage-priority-badge" [ngClass]="(triage.urgency || triage.priority?.urgency || 'unknown').toLowerCase()">
+            {{ triage.urgency || triage.priority?.urgency || 'Unknown' }}
+          </span>
+        </div>
+        
+        <div class="score-section">
+          <span class="meta-label">Severity Score:</span>
+          <span class="score-value">{{ triage.score || triage.priority?.score || 'N/A' }}/10</span>
+        </div>
+        
+        <div class="timestamp-section" *ngIf="triage.submitted_at">
+          <i class="bi bi-clock"></i>
+          Submitted: {{ triage.submitted_at | date:'EEEE, MMMM d, yyyy \'at\' h:mm a' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Action Cards -->
+    <div class="quick-action-cards">
+      <div class="action-card" (click)="scheduleAppointment()">
+        <div class="action-icon">
+          <i class="bi bi-calendar-plus"></i>
+        </div>
+        <div class="action-details">
+          <h4>Schedule Appointment</h4>
+          <p>Book a consultation with the patient</p>
+        </div>
+      </div>
+      
+      <div class="action-card" (click)="markAsRead()">
+        <div class="action-icon">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <div class="action-details">
+          <h4>Mark as Reviewed</h4>
+          <p>Acknowledge this triage case</p>
+        </div>
+      </div>
+      
+      <div class="action-card" (click)="closeCase()">
+        <div class="action-icon">
+          <i class="bi bi-folder-check"></i>
+        </div>
+        <div class="action-details">
+          <h4>Close Case</h4>
+          <p>Resolve and archive</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Main Clinical Information Grid -->
+    <div class="clinical-grid">
+      
+      <!-- Left Column - Symptoms & Details -->
+      <div class="clinical-left">
+        
+        <!-- Chief Complaint Section - UPDATED with formatted symptoms -->
+        <div class="clinical-card chief-complaint-card">
+          <div class="card-header">
+            <i class="bi bi-chat-dots"></i>
+            <h3>Chief Complaint</h3>
+          </div>
+          <div class="card-body">
+            <div class="complaint-text">
+              {{ formatSymptoms(triage.symptoms, triage.category) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Symptoms Details Grid -->
+        <div *ngIf="hasSymptomsDetails()" class="clinical-card symptoms-details-card">
+          <div class="card-header">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h3>Symptom Details</h3>
+          </div>
+          <div class="card-body">
+            <div class="details-grid">
+              <div *ngIf="getSymptomProperty('duration')" class="detail-item">
+                <span class="detail-label">Duration:</span>
+                <span class="detail-value">{{ getSymptomProperty('duration') }}</span>
+              </div>
+              <div *ngIf="getSymptomProperty('severity')" class="detail-item">
+                <span class="detail-label">Severity:</span>
+                <span class="detail-value severity-badge" [ngClass]="getSymptomProperty('severity')?.toLowerCase()">
+                  {{ getSymptomProperty('severity') }}
+                </span>
+              </div>
+              <div *ngIf="getSymptomProperty('onset')" class="detail-item">
+                <span class="detail-label">Onset:</span>
+                <span class="detail-value">{{ getSymptomProperty('onset') }}</span>
+              </div>
+              <div *ngIf="getSymptomProperty('progression')" class="detail-item">
+                <span class="detail-label">Progression:</span>
+                <span class="detail-value">{{ getSymptomProperty('progression') }}</span>
+              </div>
+              <div *ngIf="getSymptomProperty('body_location')" class="detail-item full-width">
+                <span class="detail-label">Location:</span>
+                <span class="detail-value">{{ getSymptomProperty('body_location') }}</span>
+              </div>
+              <div *ngIf="getSymptomProperty('character')" class="detail-item full-width">
+                <span class="detail-label">Character:</span>
+                <span class="detail-value">{{ getSymptomProperty('character') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Patient Information -->
+        <div *ngIf="hasAdditionalInfo()" class="clinical-card additional-info-card">
+          <div class="card-header">
+            <i class="bi bi-person-lines-fill"></i>
+            <h3>Additional Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="info-list">
+              <div *ngIf="triage.body_area" class="info-row">
+                <span class="info-label">Body Area:</span>
+                <span class="info-value">{{ getBodyAreaName(triage.body_area) }}</span>
+              </div>
+              <div *ngIf="triage.duration" class="info-row">
+                <span class="info-label">Duration:</span>
+                <span class="info-value">{{ triage.duration }}</span>
+              </div>
+              <div *ngIf="triage.notes" class="info-row">
+                <span class="info-label">Patient Notes:</span>
+                <span class="info-value">{{ triage.notes }}</span>
+              </div>
+              <div *ngIf="triage.additional_details" class="info-row">
+                <span class="info-label">Additional Details:</span>
+                <span class="info-value">{{ triage.additional_details }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Assessment & AI -->
+      <div class="clinical-right">
+        
+        <!-- Priority Assessment Card -->
+        <div class="clinical-card priority-assessment-card">
+          <div class="card-header">
+            <i class="bi bi-shield-check"></i>
+            <h3>Priority Assessment</h3>
+          </div>
+          <div class="card-body">
+            <div class="priority-meter">
+              <div class="meter-label">
+                <span>Severity Score</span>
+                <span class="score-display">{{ triage.score || triage.priority?.score || '0' }}/10</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" 
+                     [style.width.%]="getScorePercentage()"
+                     [ngClass]="getScoreClass()">
+                </div>
+              </div>
+            </div>
+            
+            <div class="priority-breakdown" *ngIf="triage.priority?.breakdown">
+              <h4>Assessment Breakdown</h4>
+              <div class="breakdown-items">
+                <div *ngFor="let key of getBreakdownKeys()" class="breakdown-item">
+                  <span class="breakdown-label">{{ formatBreakdownLabel(key) }}:</span>
+                  <span class="breakdown-value">{{ triage.priority.breakdown[key] }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Clinical Suggestion Card -->
+        <div *ngIf="triage.ai" class="clinical-card ai-suggestion-card">
+          <div class="card-header">
+            <i class="bi bi-cpu"></i>
+            <h3>AI Clinical Decision Support</h3>
+            <span class="badge ai-badge">AI Assisted</span>
+          </div>
+          <div class="card-body">
+            <!-- Main AI Recommendation -->
+            <div class="ai-recommendation" *ngIf="triage.ai.ai_gp_note">
+              <div class="recommendation-icon">
+                <i class="bi bi-megaphone"></i>
+              </div>
+              <div class="recommendation-text">
+                {{ triage.ai.ai_gp_note }}
+              </div>
+            </div>
+
+            <!-- Confidence Indicator -->
+            <div class="confidence-indicator" *ngIf="triage.ai.confidence">
+              <span class="confidence-label">AI Confidence:</span>
+              <span class="confidence-value" [ngClass]="getConfidenceClass(triage.ai.confidence)">
+                {{ triage.ai.confidence }}
+              </span>
+              <span class="model-version" *ngIf="triage.ai.model_version">(v{{ triage.ai.model_version }})</span>
+            </div>
+
+            <!-- Alternative Considerations -->
+            <div *ngIf="triage.ai.alternative_considerations?.length" class="alternative-considerations">
+              <h4>Alternative Considerations</h4>
+              <div class="alternatives-list">
+                <div *ngFor="let alt of triage.ai.alternative_considerations" class="alternative-item">
+                  <div class="alternative-summary">{{ alt.summary || 'Alternative diagnosis' }}</div>
+                  <div *ngIf="alt.confidence" class="alternative-confidence" [ngClass]="getConfidenceClass(alt.confidence)">
+                    {{ alt.confidence }} confidence
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="ai-disclaimer" *ngIf="triage.ai.confidence_note">
+              <i class="bi bi-info-circle"></i>
+              {{ triage.ai.confidence_note }}
+            </div>
+            <div class="ai-disclaimer" *ngIf="!triage.ai.confidence_note">
+              <i class="bi bi-info-circle"></i>
+              This is an AI-generated suggestion and should be reviewed by a clinical professional.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw Data Accordion (Optional, for debugging) -->
+    <div class="raw-data-section">
+      <details>
+        <summary class="raw-data-summary">
+          <i class="bi bi-code-slash"></i> View Raw Data
+        </summary>
+        <div class="raw-data-content">
+          <pre>{{ triage | json }}</pre>
+        </div>
+      </details>
+    </div>
+
+  </div>
+</div>

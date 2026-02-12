@@ -4,39 +4,37 @@
     <div>
       <h2 class="dashboard-title">GP Practice Dashboard</h2>
       <p class="text-muted mb-0 greeting-text">
-         {{ today | date:'fullDate' }}
+        {{ today | date:'fullDate' }}
       </p>
     </div>
 
     <div class="d-flex gap-3 align-items-center flex-wrap">
 
-   
       <div class="quick-actions d-flex flex-row align-items-center">
 
-  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
-    <i class="bi bi-person-lines-fill"></i> View Patients
-  </button>
+        <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
+          <i class="bi bi-person-lines-fill"></i> View Patients
+        </button>
 
-  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/add-patient']">
-    <i class="bi bi-person-plus"></i> Add Patient
-  </button>
+        <button class="btn nav-action-btn me-2" [routerLink]="['/gp/add-patient']">
+          <i class="bi bi-person-plus"></i> Add Patient
+        </button>
 
-  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
-    <i class="bi bi-pencil-square"></i> Update Patient Information
-  </button>
+        <button class="btn nav-action-btn me-2" [routerLink]="['/gp/patients']">
+          <i class="bi bi-pencil-square"></i> Update Patient Information
+        </button>
 
-  <button class="btn nav-action-btn me-2" [routerLink]="['/gp/delete-patient']">
-  <i class="bi bi-person-x"></i> Delete Patient
-</button>
+        <button class="btn nav-action-btn me-2" [routerLink]="['/gp/delete-patient']">
+          <i class="bi bi-person-x"></i> Delete Patient
+        </button>
 
+      </div>
 
-</div>
+      <button
+        class="btn review-btn shadow-sm d-flex align-items-center gap-2"
+        (click)="goToFirstPending()"
+        [disabled]="pendingRequests === 0">
 
-
-      <button class="btn review-btn shadow-sm d-flex align-items-center gap-2"
-              (click)="goToFirstPending()"
-              [disabled]="pendingRequests === 0">
-        
         Review pending requests
         <span class="badge bg-dark ms-2">{{ pendingRequests }}</span>
       </button>
@@ -44,7 +42,6 @@
     </div>
   </div>
 
- 
   <div class="stats-grid">
 
     <div class="stat-tile glass-card">
@@ -81,10 +78,9 @@
 
   </div>
 
- 
   <div class="main-grid-3">
 
-    
+    <!-- GP Checklist -->
     <div class="checklist-section">
       <div class="section-header">
         <h5>Today's Priority Tasks</h5>
@@ -94,10 +90,11 @@
       <div class="checklist-container glass-card">
         <ng-container *ngIf="gpChecklist.length; else noTasks">
           <div class="checklist-list">
-            <div class="checklist-card"
-     *ngFor="let item of gpChecklist | slice:0:8"
-     [appHighlightUrgent]="item.type === 'Appointment Request'"
-     (click)="router.navigate(item.link)">
+            <div
+              class="checklist-card"
+              *ngFor="let item of gpChecklist | slice:0:8"
+              [appHighlightUrgent]="item.type === 'Appointment Request'"
+              (click)="router.navigate(item.link)">
 
               <div class="d-flex justify-content-between align-items-start">
                 <div class="grow">
@@ -106,9 +103,12 @@
                   <div class="text-muted small">{{ item.date | date:'shortDate' }}</div>
                 </div>
                 <div class="text-end">
-                  <div class="checklist-action fw-semibold text-primary">{{ item.action }} →</div>
+                  <div class="checklist-action fw-semibold text-primary">
+                    {{ item.action }} →
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </ng-container>
@@ -116,42 +116,66 @@
         <ng-template #noTasks>
           <div class="text-center py-5 text-muted">
             <i class="bi bi-check-circle display-4 text-success opacity-25"></i>
-            <p class="mt-3">All clear! No pending actions.</p>
+            <p class="mt-3">No pending actions.</p>
           </div>
         </ng-template>
       </div>
     </div>
 
-    <div class="activity-section">
-      <div class="section-header"><h5>Recent Activity</h5></div>
+    <!-- GP TRIAGE INBOX -->
+<!-- GP TRIAGE INBOX -->
+<div class="activity-section">
+  <div class="section-header">
+    <h5>Triage Inbox</h5>
+  </div>
 
-      <div class="activity-list glass-card">
-        <div *ngFor="let a of recentAppointments" class="activity-item">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="fw-semibold">{{ a.patient }}</div>
-              <div class="small text-muted">
-                {{ a.date | date:'mediumDate' }} with {{ a.doctor }}
-              </div>
-            </div>
-
-            <span class="badge rounded-pill"
-              [ngClass]="{
-                'bg-success': a.status === 'completed',
-                'bg-warning text-dark': a.status === 'scheduled',
-                'bg-light text-muted border': a.status === 'cancelled'
-              }">
-              {{ a.status }}
-            </span>
+  <div class="activity-list glass-card">
+    <div *ngFor="let t of triageQueue" class="activity-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <!-- Left side: Patient info -->
+        <div class="patient-info grow pe-3">
+          <div class="fw-semibold mb-1">{{ t.patient_name }}</div>
+          <div class="small text-muted mb-1">
+            {{ t.category | titlecase }}
+            <span *ngIf="t.body_area">({{ t.body_area }})</span>
+          </div>
+          <div class="small text-muted">
+            Submitted {{ t.submitted_at | date:'short' }} · Score {{ t.score }}
           </div>
         </div>
-
-        <div *ngIf="!recentAppointments.length" class="text-center text-muted py-4">
-          No recent appointments
+        
+        <!-- Right side: Urgency badge and View button -->
+        <div class="action-container d-flex flex-column flex-sm-row align-items-end align-items-sm-center gap-2">
+          <span
+            class="badge rounded-pill urgency-badge"
+            [ngClass]="{
+              'bg-danger': t.urgency === 'emergency',
+              'bg-warning text-dark': t.urgency === 'urgent',
+              'bg-primary': t.urgency === 'routine',
+              'bg-secondary': t.urgency === 'low'
+            }">
+            {{ t.urgency }}
+          </span>
+          
+          <!-- View Button -->
+          <button 
+            class="btn btn-outline-primary btn-sm view-btn"
+            [routerLink]="['/gp/triage', t._id]"
+            title="View Triage Details">
+            View
+            <i class="bi bi-chevron-right ms-1"></i>
+          </button>
         </div>
       </div>
     </div>
 
+    <div *ngIf="!triageQueue.length" class="text-center text-muted py-4">
+      No triage cases awaiting review
+    </div>
+  </div>
+</div>
+
+    <!-- Calendar -->
     <div class="calendar-section">
       <div class="calendar-card glass-card">
         <app-home-calendar [events]="events"></app-home-calendar>
@@ -167,11 +191,15 @@
     </div>
 
     <div class="map-container-small glass-card">
-      <google-map height="100%" width="100%"
-                  [center]="mapCenter"
-                  [zoom]="mapZoom"
-                  [options]="mapOptions">
+      <google-map
+        height="100%"
+        width="100%"
+        [center]="mapCenter"
+        [zoom]="mapZoom"
+        [options]="mapOptions">
+
         <map-marker *ngFor="let m of mapMarkers" [position]="m"></map-marker>
+
       </google-map>
     </div>
   </div>
