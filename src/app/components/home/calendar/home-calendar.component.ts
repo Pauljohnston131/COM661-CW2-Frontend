@@ -1,11 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-
-import { CalendarOptions, EventInput } from '@fullcalendar/core';
+import { CalendarOptions, EventInput, EventClickArg } from '@fullcalendar/core';
 
 @Component({
   selector: 'app-home-calendar',
@@ -17,6 +15,7 @@ import { CalendarOptions, EventInput } from '@fullcalendar/core';
 export class HomeCalendarComponent {
 
   @Input() events: EventInput[] = [];
+  @Output() eventClicked = new EventEmitter<any>();
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin],
@@ -26,18 +25,15 @@ export class HomeCalendarComponent {
       center: '',
       right: 'prev,next'
     },
-
-  
     displayEventTime: false,
-
-   
     eventDisplay: 'block',
-
     selectable: false,
     editable: false,
-
     fixedWeekCount: false,
     height: 'auto',
+    eventClick: (arg: EventClickArg) => {
+      this.eventClicked.emit(arg.event.extendedProps);
+    }
   };
 
   ngOnChanges() {

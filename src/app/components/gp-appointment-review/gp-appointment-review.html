@@ -1,0 +1,257 @@
+<div *ngIf="loading" class="gp-appointment-loading">
+  <div class="loading-spinner"></div>
+  <span>Loading appointment details…</span>
+</div>
+
+<div *ngIf="appointment" class="gp-appointment-review-container">
+  <div class="gp-appointment-review-content">
+    
+    <!-- Back Button -->
+    <button class="gp-appointment-back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </button>
+    
+    <!-- Status Banner -->
+    <div class="status-banner" [ngClass]="getStatusClass()">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ getCaseStatus() }}</span>
+      </div>
+      <span class="case-id" *ngIf="appointment._id">Appt #{{ appointment._id.slice(-6) }}</span>
+    </div>
+    
+    <!-- Patient Header -->
+    <div class="gp-appointment-patient-header">
+      <div class="patient-title-section">
+        <h1 class="gp-appointment-patient-name">{{ appointment.patient_name || 'Patient' }}</h1>
+        <span class="patient-dob" *ngIf="appointment.patient_dob">
+          <i class="bi bi-calendar3"></i> DOB: {{ appointment.patient_dob | date:'dd/MM/yyyy' }}
+          <span class="age-badge">({{ calculateAge(appointment.patient_dob) }} yrs)</span>
+        </span>
+      </div>
+      
+      <div class="gp-appointment-meta-info">
+        <div class="priority-section">
+          <span class="meta-label">Priority:</span>
+          <span class="gp-appointment-priority-badge" [ngClass]="getUrgencyClass(appointment.urgency)">
+            {{ getUrgencyBadge(appointment.urgency) }}
+          </span>
+        </div>
+        
+        <div class="score-section" *ngIf="appointment.score">
+          <span class="meta-label">Severity Score:</span>
+          <span class="score-value">{{ appointment.score }}/10</span>
+        </div>
+        
+        <div class="timestamp-section" *ngIf="appointment.created_at">
+          <i class="bi bi-clock"></i>
+          Requested: {{ appointment.created_at | date:'EEEE, MMMM d, yyyy \'at\' h:mm a' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Action Cards -->
+    <div class="quick-action-cards">
+      <div class="action-card" (click)="confirmAppointment()" [class.disabled]="processing">
+        <div class="action-icon">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <div class="action-details">
+          <h4>Confirm Appointment</h4>
+          <p>Accept this appointment request</p>
+        </div>
+      </div>
+      
+      <div class="action-card" (click)="openRescheduleModal()" [class.disabled]="processing">
+        <div class="action-icon">
+          <i class="bi bi-calendar-plus"></i>
+        </div>
+        <div class="action-details">
+          <h4>Reschedule</h4>
+          <p>Propose a new time</p>
+        </div>
+      </div>
+      
+      <div class="action-card" (click)="declineAppointment()" [class.disabled]="processing">
+        <div class="action-icon">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="action-details">
+          <h4>Decline Request</h4>
+          <p>Reject this appointment</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Main Clinical Information Grid -->
+    <div class="clinical-grid">
+      
+      <!-- Left Column - Patient & Appointment Info -->
+      <div class="clinical-left">
+        
+        <!-- Patient Contact Card -->
+        <div class="clinical-card patient-contact-card">
+          <div class="card-header">
+            <i class="bi bi-person-circle"></i>
+            <h3>Patient Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-label">Patient ID:</span>
+                <span class="info-value">#{{ appointment.patient_id?.slice(-6) || 'N/A' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Phone:</span>
+                <span class="info-value">{{ appointment.patient_phone || 'Not provided' }}</span>
+              </div>
+              <div *ngIf="appointment.patient_email" class="info-row">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ appointment.patient_email }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointment Details Card -->
+        <div class="clinical-card appointment-details-card">
+          <div class="card-header">
+            <i class="bi bi-calendar-check"></i>
+            <h3>Appointment Details</h3>
+          </div>
+          <div class="card-body">
+            <div class="requested-time highlight-box">
+              <i class="bi bi-clock-fill"></i>
+              <div>
+                <span class="detail-label">Requested Time</span>
+                <span class="detail-value large">{{ formatDate(appointment.datetime) }}</span>
+              </div>
+            </div>
+
+            <!-- Red Flags -->
+            <!-- Update the red flag section in the Appointment Details Card -->
+<div *ngIf="appointment.red_flags?.length" class="red-flags-section">
+  <h4>Red Flags</h4>
+  <div class="red-flags-list">
+    <span *ngFor="let flag of appointment.red_flags" class="red-flag-badge">
+      {{ formatRedFlag(flag) | titlecase }}
+    </span>
+  </div>
+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Triage Summary & Notes -->
+      <div class="clinical-right">
+        
+        <!-- Triage Summary Card -->
+        <div *ngIf="appointment.triage" class="clinical-card triage-summary-card">
+          <div class="card-header">
+            <i class="bi bi-clipboard-pulse"></i>
+            <h3>Triage Summary</h3>
+            <span class="badge triage-badge">Triage Attached</span>
+          </div>
+          <div class="card-body">
+            <div class="info-list">
+              <div *ngIf="appointment.triage_category" class="info-row">
+                <span class="info-label">Category:</span>
+                <span class="info-value">{{ appointment.triage_category | titlecase }}</span>
+              </div>
+              <div *ngIf="appointment.triage?.submitted_at" class="info-row">
+                <span class="info-label">Submitted:</span>
+                <span class="info-value">{{ appointment.triage.submitted_at | date:'medium' }}</span>
+              </div>
+            </div>
+            
+            <div class="triage-actions">
+              <a [routerLink]="['/gp/triage', appointment.triage_id]" class="btn-view-triage">
+                <i class="bi bi-box-arrow-up-right"></i>
+                View Full Triage Details
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- GP Notes Card -->
+        <div class="clinical-card gp-notes-card">
+          <div class="card-header">
+            <i class="bi bi-chat-text"></i>
+            <h3>GP Notes</h3>
+          </div>
+          <div class="card-body">
+            <textarea class="gp-notes-input" 
+                      rows="4" 
+                      [(ngModel)]="gpNotes"
+                      placeholder="Add clinical notes, observations, or instructions for this appointment..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Processing Overlay -->
+    <div *ngIf="processing" class="processing-overlay">
+      <div class="processing-content">
+        <div class="loading-spinner"></div>
+        <span>Processing request...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reschedule Modal -->
+<div class="modal-overlay" *ngIf="showRescheduleModal" (click)="showRescheduleModal = false">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Reschedule Appointment</h3>
+      <button class="modal-close" (click)="showRescheduleModal = false">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      
+      <!-- Manual Date Selection -->
+      <div class="form-group">
+        <label class="form-label">Select New Date & Time</label>
+        <div class="datetime-inputs">
+          <input type="date" class="form-control" [(ngModel)]="newDate">
+          <input type="time" class="form-control" [(ngModel)]="newTime">
+        </div>
+      </div>
+
+      <!-- Available Slots -->
+      <div *ngIf="availableSlots.length" class="form-group">
+        <label class="form-label">Or choose from available slots:</label>
+        <div class="slot-grid">
+          <button *ngFor="let slot of availableSlots" 
+                  class="slot-btn"
+                  [class.active]="selectedSlot === slot.datetime"
+                  (click)="selectSlot(slot.datetime)">
+            {{ slot.display }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Reschedule Notes -->
+      <div class="form-group">
+        <label class="form-label">Reason for rescheduling (optional)</label>
+        <textarea class="form-control" 
+                  rows="2" 
+                  [(ngModel)]="gpNotes"
+                  placeholder="Add reason for rescheduling..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-btn secondary" (click)="showRescheduleModal = false">
+        Cancel
+      </button>
+      <button class="modal-btn primary" 
+              (click)="submitReschedule()"
+              [disabled]="processing">
+        {{ processing ? 'Processing...' : 'Confirm Reschedule' }}
+      </button>
+    </div>
+  </div>
+</div>

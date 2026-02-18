@@ -275,6 +275,62 @@ gpTriageAction(triageId: string, payload: any): Observable<any> {
     );
   }
 
+  bookSlot(payload: any): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/triage/book-slot`,
+    payload,
+    { headers: this.headers }
+  );
+}
+// Add to api.ts inside the Api class
+
+// ===== GP APPOINTMENT REVIEW METHODS =====
+
+/**
+ * Get all pending appointment requests for GP review
+ */
+getPendingAppointments(): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/triage/gp/pending-appointments`,
+    { headers: this.headers }
+  );
+}
+
+/**
+ * Get detailed appointment information
+ * @param appointmentId Appointment ID
+ */
+getAppointmentDetails(appointmentId: string): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/triage/gp/appointment/${appointmentId}`,
+    { headers: this.headers }
+  );
+}
+
+/**
+ * Process an appointment (confirm, reschedule, decline)
+ * @param appointmentId Appointment ID
+ * @param payload { action: 'confirm'|'reschedule'|'decline', new_datetime?: string, notes?: string }
+ */
+processAppointment(appointmentId: string, payload: any): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/triage/gp/appointment/${appointmentId}/process`,
+    payload,
+    { headers: this.headers }
+  );
+}
+
+/**
+ * Get all confirmed appointments for calendar
+ */
+getGpCalendar(): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/triage/gp/calendar`,
+    { headers: this.headers }
+  );
+}
+
+
   deleteCareplan(patientId: string, careplanId: string): Observable<any> {
     return this.http.delete(
       `${this.baseUrl}/patients/${patientId}/careplans/${careplanId}`,

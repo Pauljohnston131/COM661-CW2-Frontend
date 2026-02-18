@@ -7,15 +7,26 @@
         <div class="step-number">1</div>
         <div class="step-label">Select Type</div>
       </div>
+
       <div class="step-connector" [class.active]="currentStep > 1"></div>
+
       <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
         <div class="step-number">2</div>
         <div class="step-label">Describe</div>
       </div>
+
       <div class="step-connector" [class.active]="currentStep > 2"></div>
-      <div class="step" [class.active]="currentStep === 3">
+
+      <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
         <div class="step-number">3</div>
         <div class="step-label">Details</div>
+      </div>
+
+      <div class="step-connector" [class.active]="currentStep > 3"></div>
+
+      <div class="step" [class.active]="currentStep === 4">
+        <div class="step-number">4</div>
+        <div class="step-label">Select Time</div>
       </div>
     </div>
 
@@ -621,13 +632,93 @@
       </div>
     </div>
 
+    <!-- Step 4: Select Appointment Slot -->
+    <div *ngIf="currentStep === 4" class="step-container">
+      <div class="step-header">
+        <h2 class="step-title">
+          <i class="bi bi-calendar-check me-2"></i>
+          Select an Appointment Time
+        </h2>
+        <p class="step-subtitle" *ngIf="availabilityWindow?.message">
+  {{ availabilityWindow?.message }}
+</p>
+        <p class="step-subtitle" *ngIf="!availabilityWindow?.message">
+  Please choose a time that works best for you.
+</p>
+      </div>
+
+      <!-- Priority Info Banner -->
+      <div *ngIf="triageUrgency" class="priority-banner" [ngClass]="'priority-' + triageUrgency">
+        <div class="priority-icon">
+          <i class="bi" [ngClass]="{
+            'bi-exclamation-triangle-fill': triageUrgency === 'urgent',
+            'bi-info-circle-fill': triageUrgency === 'routine',
+            'bi-calendar-plus': triageUrgency === 'low'
+          }"></i>
+        </div>
+        <div class="priority-message">
+          <strong>Priority Level: {{ triageUrgency | titlecase }}</strong>
+          <p>{{ getUrgencyMessage(triageUrgency) }}</p>
+        </div>
+      </div>
+
+      <!-- No slots -->
+      <div *ngIf="availableSlots.length === 0" class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        No available appointment slots at the moment. Please try again later or contact the clinic.
+      </div>
+
+      <!-- Slot Cards -->
+      <div class="slots-grid" *ngIf="availableSlots.length > 0">
+        <div *ngFor="let slot of availableSlots"
+     class="slot-card"
+     [class.selected]="selectedSlot === slot.datetime"
+     (click)="selectSlot(slot.datetime)">
+
+          <div class="slot-date">
+            <i class="bi bi-calendar-event"></i>
+            <span>{{ slot.datetime | date:'fullDate' }}</span>
+          </div>
+          <div class="slot-time">
+            <i class="bi bi-clock"></i>
+            <strong>{{ slot.datetime | date:'shortTime' }}</strong>
+          </div>
+          
+          <div class="slot-check" *ngIf="selectedSlot === slot.datetime">
+  <i class="bi bi-check-circle-fill"></i>
+</div>
+
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="step-navigation mt-4">
+        <button class="nav-btn secondary-btn" (click)="currentStep = 3">
+          <i class="bi bi-arrow-left"></i> Back
+        </button>
+
+        <button class="nav-btn primary-btn"
+                (click)="confirmSlot()"
+                [disabled]="!selectedSlot || loading">
+          <i class="bi bi-check-circle"></i>
+          {{ loading ? 'Booking...' : 'Request Appointment' }}
+        </button>
+      </div>
+
+      <p class="text-muted small mt-3 text-center">
+        <i class="bi bi-info-circle"></i>
+        Your appointment request will be sent to the GP for confirmation.
+      </p>
+    </div>
+
     <!-- Alert Message -->
     <div *ngIf="message" 
          class="triage-alert alert"
          [ngClass]="{
            'alert-success': messageType === 'success',
            'alert-warning': messageType === 'warning',
-           'alert-danger': messageType === 'danger'
+           'alert-danger': messageType === 'danger',
+           'alert-info': messageType === 'info'
          }">
       <i [class]="getAlertIcon()"></i>
       <div>

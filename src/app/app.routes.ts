@@ -89,6 +89,11 @@ export const routes: Routes = [
   canActivate: [AuthGuard, GpGuard]
 },
 
+{
+  path: 'gp/appointment-review/:id',
+  loadComponent: () => import('./components/gp-appointment-review/gp-appointment-review').then(m => m.GpAppointmentReviewComponent)
+},
+
   /**
    * Fallback route
    * Redirects any unknown URLs back to the main dashboard

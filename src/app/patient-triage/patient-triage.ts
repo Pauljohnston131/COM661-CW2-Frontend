@@ -32,6 +32,13 @@ interface ApiResponse {
   message?: string;
 }
 
+interface AvailabilityWindow {
+  start: string;
+  end: string;
+  skip_days: number;
+  message: string;
+}
+
 @Component({
   selector: 'app-patient-triage',
   standalone: true,
@@ -76,7 +83,7 @@ export class PatientTriageComponent implements OnInit {
   loading = false;
   loadingSymptoms = false;
   message = '';
-  messageType: 'success' | 'warning' | 'danger' = 'success';
+  messageType: 'success' | 'warning' | 'danger' | 'info' = 'success';
   
   // Arrays for multi-select
   mental_symptoms: string[] = [];
@@ -129,6 +136,13 @@ export class PatientTriageComponent implements OnInit {
     { id: 'poor_diet', name: 'Poor Diet', description: 'Unhealthy eating habits', selected: false },
     { id: 'high_stress', name: 'High Stress', description: 'High stress levels', selected: false }
   ];
+
+  // Appointment data
+  availableSlots: any[] = [];
+  availabilityWindow: AvailabilityWindow | null = null;
+  triageId: string = '';
+  selectedSlot: string = '';
+  triageUrgency: string = '';
 
   constructor(
     private api: Api,
@@ -309,7 +323,7 @@ export class PatientTriageComponent implements OnInit {
     }
   }
 
-  showMessage(text: string, type: 'success' | 'warning' | 'danger') {
+  showMessage(text: string, type: 'success' | 'warning' | 'danger' | 'info') {
     this.message = text;
     this.messageType = type;
     setTimeout(() => {
@@ -340,6 +354,8 @@ export class PatientTriageComponent implements OnInit {
         return 'bi bi-exclamation-triangle-fill';
       case 'danger':
         return 'bi bi-exclamation-octagon-fill';
+      case 'info':
+        return 'bi bi-info-circle-fill';
       default:
         return 'bi bi-info-circle-fill';
     }
@@ -353,10 +369,30 @@ export class PatientTriageComponent implements OnInit {
         return 'Important:';
       case 'danger':
         return 'Emergency:';
+      case 'info':
+        return 'Information:';
       default:
         return 'Information:';
     }
   }
+
+  getUrgencyMessage(urgency: string): string {
+    switch(urgency) {
+      case 'urgent':
+        return 'Based on your symptoms, you can book an appointment within the next 2 days.';
+      case 'routine':
+        return 'Based on your symptoms, appointments are available starting tomorrow.';
+      case 'low':
+        return 'Based on your symptoms, appointments are available in 2+ days to prioritize more urgent cases.';
+      default:
+        return 'Please select an available appointment time.';
+    }
+  }
+
+  selectSlot(datetime: string) {
+  this.selectedSlot = datetime;
+}
+
 
   submitTriage() {
     const patientId = this.auth.getPatientId();
@@ -430,47 +466,128 @@ export class PatientTriageComponent implements OnInit {
 
     this.api.submitTriage(payload).subscribe({
       next: (res: any) => {
+        console.log("TRIAGE RESPONSE:", res.data);
         this.loading = false;
-        
+
+        // Store triage data
+        this.triageId = res.data?.triage_id;
+        this.triageUrgency = res.data?.urgency;
+
+        //  Emergency referral
         if (res.data?.emergency_referral?.required) {
           this.showMessage(
-            `EMERGENCY: ${res.data.emergency_referral.message}. Please seek immediate care or call ${res.data.emergency_referral.hotline || '911'}.`,
+            `EMERGENCY: ${res.data.emergency_referral.message}${res.data.emergency_referral.hotline ? ' Call ' + res.data.emergency_referral.hotline : ''}.`,
             'danger'
           );
+
           setTimeout(() => {
             this.router.navigate(['/patient-portal']);
           }, 5000);
+
           return;
         }
 
+        // 🗓 AUTO BOOK → SHOW SLOT SELECTION WITH PRIORITY MESSAGE
         if (res.data?.action === 'auto_book') {
-          const categoryName = this.getCategoryName(this.selectedCategory);
-          this.showMessage(
-            `Appointment requested for ${categoryName.toLowerCase()} concern. You'll be contacted shortly.`,
-            'success'
-          );
-        } else if (res.data?.action === 'gp_review') {
-          this.showMessage(
-            `Urgent concern sent for medical review. A healthcare provider will contact you soon.`,
-            'warning'
-          );
-        } else if (res.data?.action === 'mental_health_crisis') {
-          this.showMessage(
-            `Urgent mental health concern identified. Please call 988 for immediate support. A provider will contact you.`,
-            'warning'
-          );
+          if (res.data?.available_slots?.length > 0) {
+            this.availableSlots = res.data.available_slots;
+            this.availabilityWindow = res.data.availability_window;
+            
+            // Show priority-based message from server or generate locally
+            if (this.availabilityWindow?.message) {
+              this.showMessage(this.availabilityWindow.message, 'info');
+            } else {
+              this.showMessage(this.getUrgencyMessage(this.triageUrgency), 'info');
+            }
+            
+            this.currentStep = 4;  // move to slot selection
+            return;
+          } else {
+            this.showMessage(
+              'No available appointment slots at the moment. Please try again later or contact the clinic.',
+              'warning'
+            );
+            return;
+          }
         }
 
-        setTimeout(() => {
-          this.router.navigate(['/patient-portal']);
-        }, 4000);
+        //  GP Review
+        if (res.data?.action === 'gp_review') {
+          this.showMessage(
+            `Your concern has been sent for medical review. A healthcare provider will contact you soon.`,
+            'warning'
+          );
+
+          setTimeout(() => {
+            this.router.navigate(['/patient-portal']);
+          }, 4000);
+
+          return;
+        }
+
+        // Mental Health Crisis
+        if (res.data?.action === 'mental_health_crisis') {
+          this.showMessage(
+            `Urgent mental health concern identified. Please call ${res.data.emergency_referral?.hotline || '988'} for immediate support. A provider will contact you.`,
+            'warning'
+          );
+
+          setTimeout(() => {
+            this.router.navigate(['/patient-portal']);
+          }, 4000);
+
+          return;
+        }
       },
-      error: (err: Error) => {
+
+      error: (err: any) => {
         this.loading = false;
+        console.error(err);
         this.showMessage('Failed to submit triage. Please try again.', 'danger');
       }
     });
   }
+
+  // REPLACE THE ENTIRE confirmSlot() METHOD WITH THIS:
+confirmSlot() {
+  if (!this.selectedSlot) {
+    this.showMessage('Please select an appointment time', 'warning');
+    return;
+  }
+
+  this.loading = true;
+
+  // selectedSlot is already "2026-02-18T12:00:00" — use it directly
+  // DO NOT pass through new Date() as it shifts timezone
+  const cleanDatetime = this.selectedSlot.substring(0, 19);
+
+  console.log('Sending datetime:', cleanDatetime);
+  console.log('patient_id:', this.auth.getPatientId());
+  console.log('triage_id:', this.triageId);
+
+  this.api.bookSlot({
+    patient_id: this.auth.getPatientId(),
+    triage_id: this.triageId,
+    datetime: cleanDatetime
+  }).subscribe({
+    next: () => {
+      this.loading = false;
+      this.showMessage(
+        'Appointment requested successfully. Your GP will confirm it shortly.',
+        'success'
+      );
+      setTimeout(() => {
+        this.router.navigate(['/patient-portal']);
+      }, 2000);
+    },
+    error: (err: any) => {
+      this.loading = false;
+      console.error('Booking error:', err);
+      console.error('Error details:', err.error);
+      this.showMessage('Slot already taken. Please choose another time.', 'danger');
+    }
+  });
+}
 
   getCategoryName(categoryId: string): string {
     const category = this.categories.find(c => c.id === categoryId);
@@ -488,6 +605,10 @@ export class PatientTriageComponent implements OnInit {
     this.selectedBodyArea = '';
     this.isBodySelected = false;
     this.specificSymptoms = [];
+    this.availableSlots = [];
+    this.availabilityWindow = null;
+    this.selectedSlot = '';
+    this.triageUrgency = '';
     
     // Reset all symptoms selections
     this.mentalSymptomsList.forEach(s => s.selected = false);
