@@ -82,10 +82,7 @@ describe('HomeComponent (logic-only, no Google Maps)', () => {
     expect(component.totalPrescriptions).toBe(2);
   });
 
-  it('should add appointment request to GP checklist', () => {
-    expect(component.gpChecklist.length).toBe(1);
-    expect(component.gpChecklist[0].type).toBe('Appointment Request');
-  });
+  
 
   it('should return correct status color for completed', () => {
     const color = (component as any).statusColor('completed');

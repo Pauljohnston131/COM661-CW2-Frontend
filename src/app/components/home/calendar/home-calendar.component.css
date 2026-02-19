@@ -24,3 +24,116 @@
 .fc .fc-daygrid-event-harness:hover {
   background: rgba(13, 110, 253, 0.1);
 }
+.calendar-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-title i {
+  color: #72CFD4;
+}
+
+/* FullCalendar customizations */
+:host ::ng-deep .fc {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  flex: 1;
+}
+
+:host ::ng-deep .fc-theme-standard th,
+:host ::ng-deep .fc-theme-standard td {
+  border-color: #e2e8f0;
+}
+
+:host ::ng-deep .fc-toolbar-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2D3765;
+}
+
+:host ::ng-deep .fc-button {
+  background: #2D3765;
+  border-color: #2D3765;
+  text-transform: capitalize;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+:host ::ng-deep .fc-button:hover {
+  background: #23315a;
+  border-color: #23315a;
+}
+
+:host ::ng-deep .fc-button-active {
+  background: #72CFD4 !important;
+  border-color: #72CFD4 !important;
+  color: #2D3765 !important;
+}
+
+/* Event styling */
+:host ::ng-deep .fc-event.event-confirmed {
+  background-color: #10b981;
+  border-color: #059669;
+}
+
+:host ::ng-deep .fc-event.event-rescheduled {
+  background-color: #f59e0b;
+  border-color: #d97706;
+}
+
+:host ::ng-deep .fc-event.event-requested {
+  background-color: #3b82f6;
+  border-color: #2563eb;
+}
+
+:host ::ng-deep .fc-event {
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+:host ::ng-deep .fc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .fc-timegrid-slot {
+  height: 2.5rem;
+}
+
+:host ::ng-deep .fc-timegrid-slot-label {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+:host ::ng-deep .fc-col-header-cell {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+}
+
+:host ::ng-deep .fc-day-today {
+  background-color: rgba(114, 207, 212, 0.05) !important;
+}
+
+:host ::ng-deep .fc-timegrid-now-indicator-line {
+  border-color: #ef4444;
+  border-width: 2px;
+}

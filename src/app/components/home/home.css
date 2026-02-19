@@ -1,4 +1,3 @@
-
 .dashboard-container {
   padding: 6rem 1.5rem 3rem;
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -20,6 +19,7 @@
   font-size: 2.2rem;
   position: relative;
   display: inline-block;
+  margin-bottom: 0.5rem;
 }
 
 .dashboard-title::after {
@@ -37,6 +37,7 @@
   color: #5e6d8a;
   font-size: 1rem;
   font-weight: 500;
+  margin-top: 0.5rem;
 }
 
 .nav-action-btn {
@@ -77,6 +78,11 @@
   box-shadow: 0 10px 26px rgba(114, 207, 212, 0.45);
 }
 
+.review-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .quick-actions {
   display: flex;
   align-items: center;
@@ -85,19 +91,33 @@
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.1);
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0 0.25rem;
+}
+
+.section-header h5 {
+  color: #2D3765;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0;
+}
 
 .stats-grid {
   display: grid;
@@ -141,84 +161,7 @@
   margin-top: 0.25rem;
 }
 
-/* Triage Inbox Styles */
-.activity-item {
-  padding: 1rem;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  transition: background-color 0.2s ease;
-}
-
-.activity-item:last-child {
-  border-bottom: none;
-}
-
-.activity-item:hover {
-  background-color: rgba(0,0,0,0.01);
-}
-
-/* Ensure patient info takes available space */
-.patient-info {
-  min-width: 0; /* Allows text truncation */
-}
-
-/* Action container - ensures buttons stay aligned */
-.action-container {
-  flex-shrink: 0; /* Prevents buttons from shrinking */
-  min-width: 140px; /* Set minimum width for consistent alignment */
-}
-
-/* View button styles */
-.view-btn {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  border-width: 1px;
-  transition: all 0.2s ease;
-  color: var(--primary); /* Use primary color for text */
-  background-color: transparent;
-}
-
-/* Hover state - keeps text color the same */
-.view-btn:hover {
-  background-color: var(--primary);
-  /* color: white !important; Only change to white on hover */
-  transform: translateX(2px);
-}
-
-/* Active/focus states */
-.view-btn:active,
-.view-btn:focus {
-  background-color: var(--primary);
-  color: white !important;
-  border-color: var(--primary);
-}
-
-/* Urgency badge sizing */
-.urgency-badge {
-  min-width: 70px; /* Ensures badges have consistent width */
-  text-align: center;
-  padding: 0.25em 0.6em;
-  font-size: 0.75rem;
-}
-
-/* For better alignment on smaller screens */
-@media (max-width: 576px) {
-  .activity-item > .d-flex {
-    flex-direction: column;
-    align-items: stretch !important;
-  }
-  
-  .action-container {
-    margin-top: 0.75rem;
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .patient-info {
-    padding-right: 0 !important;
-  }
-}
-
+/* Main grid layout */
 .main-grid-3 {
   display: grid;
   grid-template-columns: 1.1fr 1fr 1fr;
@@ -226,56 +169,405 @@
   margin-bottom: 3rem;
 }
 
+/* Today's Schedule Styles - Enhanced */
+.todays-schedule-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
-.checklist-card {
-  padding: 1rem 1.25rem;
+.schedule-card-container {
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.schedule-card-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.schedule-card-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+}
+
+.schedule-card-container::-webkit-scrollbar-thumb {
+  background: rgba(114, 207, 212, 0.3);
+  border-radius: 10px;
+}
+
+.schedule-card-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(114, 207, 212, 0.5);
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-item {
+  padding: 1.2rem 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.checklist-card:hover {
-  background: rgba(114, 207, 212, 0.05);
+.schedule-item:hover {
+  background: rgba(114, 207, 212, 0.08);
+  transform: translateX(4px);
 }
 
-.checklist-card:last-child {
+.schedule-item:last-child {
   border-bottom: none;
 }
 
-.activity-item {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: background 0.2s ease;
+.time-badge {
+  background: rgba(114, 207, 212, 0.15);
+  color: #2D3765;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
-.activity-item:hover {
-  background: rgba(114, 207, 212, 0.05);
+.time-badge i {
+  color: #72CFD4;
+  font-size: 0.9rem;
 }
 
-.activity-item:last-child {
-  border-bottom: none;
+.schedule-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.activity-icon {
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.patient-name {
+  font-weight: 700;
+  color: #2D3765;
+  font-size: 1rem;
+}
+
+.status-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-confirmed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #0b8e5e;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-rescheduled {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-pending {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.appointment-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6c7a99;
+  font-size: 0.85rem;
+}
+
+.appointment-meta i {
+  color: #72CFD4;
+  font-size: 0.85rem;
+}
+
+.reason-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-action {
+  color: #72CFD4;
   font-size: 1.2rem;
-  margin-top: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+.schedule-item:hover .schedule-action {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* Triage Inbox Styles - Enhanced */
+.triage-card-container {
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.triage-card-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.triage-card-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+}
+
+.triage-card-container::-webkit-scrollbar-thumb {
+  background: rgba(114, 207, 212, 0.3);
+  border-radius: 10px;
+}
+
+.triage-card-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(114, 207, 212, 0.5);
+}
+
+.triage-item {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.triage-item:hover {
+  background: rgba(114, 207, 212, 0.05);
+}
+
+.triage-item:last-child {
+  border-bottom: none;
+}
+
+.triage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.patient-info-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.triage-category {
+  background: rgba(45, 55, 101, 0.1);
+  color: #2D3765;
+  padding: 0.25rem 0.75rem;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.urgency-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.urgency-emergency {
+  background: rgba(220, 38, 38, 0.15);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.urgency-urgent {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.urgency-routine {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.urgency-low {
+  background: rgba(16, 185, 129, 0.15);
+  color: #0b8e5e;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.triage-body {
+  margin-bottom: 1rem;
+}
+
+.triage-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6c7a99;
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+}
+
+.detail-item i {
+  color: #72CFD4;
+  font-size: 0.8rem;
+}
+
+.triage-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: rgba(114, 207, 212, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border-left: 3px solid #72CFD4;
+}
+
+.triage-preview i {
+  color: #72CFD4;
+  font-size: 1rem;
+  margin-top: 0.1rem;
+}
+
+.triage-preview p {
+  color: #4a5568;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.triage-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-view-triage {
+  background: transparent;
+  border: 1px solid rgba(114, 207, 212, 0.5);
+  color: #2D3765;
+  padding: 0.5rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-view-triage:hover {
+  background: #72CFD4;
+  border-color: #72CFD4;
+  color: #2D3765;
+  transform: translateX(2px);
+}
+
+.btn-view-triage i {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-view-triage:hover i {
+  transform: translateX(3px);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #a0aec0;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Calendar styles */
+.calendar-card {
+  padding: 1.2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+}
+
+/* Map styles */
 .map-container-small {
   height: 300px;
-  border-radius: 16px;
+  border-radius: 24px;
   overflow: hidden;
   background: rgba(45, 55, 101, 0.03);
 }
 
-.calendar-placeholder {
-  border-radius: 16px;
-  overflow: hidden;
+.map-section {
+  margin-top: 2rem;
 }
 
+/* Badge colors */
+.bg-purple {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+}
+
+/* Responsive styles */
 @media (max-width: 1200px) {
   .main-grid-3 {
     grid-template-columns: 1fr 1fr;
+  }
+  
+  .calendar-section {
+    grid-column: span 2;
   }
 }
 
@@ -301,6 +593,10 @@
     grid-template-columns: 1fr;
   }
   
+  .calendar-section {
+    grid-column: span 1;
+  }
+  
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
@@ -316,18 +612,41 @@
     margin-right: 0;
     margin-bottom: 0.5rem;
   }
-
   
-.dashboard-container {
-  width: 100%;
-  overflow-x: hidden;
+  .triage-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .triage-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .detail-item {
+    width: fit-content;
+  }
 }
 
-.stats-grid, .main-grid-3 {
-  width: 100%;
-}
-
-.glass-card {
-  max-width: 100%;
-}
+@media (max-width: 480px) {
+  .schedule-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .time-badge {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .schedule-action {
+    align-self: flex-end;
+  }
+  
+  .patient-info-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
 }

@@ -803,9 +803,11 @@
   font-weight: 600;
 }
 
-/* Duration Input - Enhanced */
+/* REPLACE the existing duration-input-container, days-input, days-label styles */
 .duration-input-container {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   max-width: 220px;
   margin-top: 0.5rem;
 }
@@ -814,12 +816,13 @@
   border-radius: 14px;
   border: 2px solid rgba(45, 55, 101, 0.15);
   background: rgba(255, 255, 255, 0.95);
-  padding: 1rem 1.25rem 1rem 3.5rem;
+  padding: 1rem 1.25rem;   /* removed the large left padding */
   font-size: 1.1rem;
   color: #2D3765;
   transition: all 0.3s ease;
-  width: 100%;
+  width: 120px;            /* fixed width, label sits beside it */
   font-weight: 600;
+  text-align: center;
 }
 
 .days-input:hover {
@@ -836,13 +839,11 @@
 }
 
 .days-label {
-  position: absolute;
-  left: 1.25rem;
-  top: 50%;
-  transform: translateY(-50%);
   color: #6c7a99;
   font-weight: 600;
   font-size: 0.95rem;
+  white-space: nowrap;
+  /* removed position: absolute entirely */
 }
 
 /* General Symptoms Checkboxes - Enhanced */

@@ -80,53 +80,96 @@
 
   <div class="main-grid-3">
 
-    <!-- GP Checklist -->
-    <div class="checklist-section">
-      <div class="section-header">
-        <h5>Today's Priority Tasks</h5>
-        <span class="badge bg-purple text-white">{{ gpChecklist.length }}</span>
+    <!-- Pending Requests & Today's Schedule -->
+    <div class="todays-schedule-section">
+      
+      <!-- Pending Requests -->
+      <div *ngIf="pendingAppointmentsList.length > 0" class="mb-3">
+        <div class="section-header">
+          <h5><i class="bi bi-exclamation-circle me-2"></i>Pending Requests</h5>
+          <span class="badge bg-warning text-dark">{{ pendingAppointmentsList.length }}</span>
+        </div>
+
+        <div class="glass-card schedule-card-container">
+          <div class="schedule-list">
+            <div *ngFor="let appt of pendingAppointmentsList | slice:0:5" 
+                 class="schedule-item pending-item"
+                 (click)="navigateToAppointment(appt._id)">
+              <div class="schedule-time">
+                <div class="time-badge pending">
+                  <i class="bi bi-clock-history"></i>
+                  <span>{{ appt.datetime | date:'shortTime' }}</span>
+                </div>
+              </div>
+              <div class="schedule-content">
+                <div class="patient-info">
+                  <span class="patient-name">{{ appt.patient_name }}</span>
+                  <span class="badge status-badge status-pending">
+                    <i class="bi bi-hourglass-split"></i> Awaiting Review
+                  </span>
+                </div>
+                <div class="appointment-meta">
+                  <i class="bi bi-calendar-event"></i>
+                  <span class="reason-text">{{ appt.datetime | date:'EEE, MMM d' }}</span>
+                  <span class="urgency-mini" [ngClass]="{
+                    'text-danger': appt.urgency === 'urgent',
+                    'text-primary': appt.urgency === 'routine',
+                    'text-secondary': appt.urgency === 'low'
+                  }">
+                    <i class="bi bi-dot"></i>{{ appt.urgency }}
+                  </span>
+                </div>
+              </div>
+              <div class="schedule-action">
+                <i class="bi bi-chevron-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="checklist-container glass-card">
-        <ng-container *ngIf="gpChecklist.length; else noTasks">
-          <div class="checklist-list">
-            <!-- FIND the checklist-card div and replace with: -->
-<div
-  class="checklist-card"
-  *ngFor="let item of gpChecklist | slice:0:8"
-  [appHighlightUrgent]="item.type === 'Appointment Request'"
-  (click)="navigateToItem(item)">
-  <div class="d-flex justify-content-between align-items-start">
-    <div class="grow">
-      <div class="checklist-type text-purple">{{ item.type }}</div>
-      <div class="checklist-patient fw-semibold">{{ item.patient }}</div>
-      <div class="text-muted small">{{ item.date | date:'shortDate' }}</div>
-    </div>
-    <div class="text-end d-flex flex-column align-items-end gap-1">
-      <span *ngIf="item.urgency" 
-            class="badge rounded-pill"
-            [ngClass]="{
-              'bg-danger': item.urgency === 'urgent',
-              'bg-primary': item.urgency === 'routine',
-              'bg-secondary': item.urgency === 'low'
-            }">
-        {{ item.urgency }}
-      </span>
-      <div class="checklist-action fw-semibold text-primary">
-        {{ item.action }} →
-      </div>
-    </div>
-  </div>
-</div>
-          </div>
-        </ng-container>
+      <!-- Today's Confirmed Schedule -->
+      <div>
+        <div class="section-header">
+          <h5><i class="bi bi-calendar-check me-2"></i>Today's Schedule</h5>
+          <span class="badge bg-success text-white">{{ todayAppointments.length }}</span>
+        </div>
 
-        <ng-template #noTasks>
-          <div class="text-center py-5 text-muted">
-            <i class="bi bi-check-circle display-4 text-success opacity-25"></i>
-            <p class="mt-3">No pending actions.</p>
-          </div>
-        </ng-template>
+        <div class="glass-card schedule-card-container">
+          <ng-container *ngIf="todayAppointments.length; else noAppointments">
+            <div class="schedule-list">
+              <div *ngFor="let appt of todayAppointments" 
+                   class="schedule-item"
+                   (click)="navigateToAppointment(appt._id)">
+                <div class="schedule-time">
+                  <div class="time-badge confirmed">
+                    <i class="bi bi-clock"></i>
+                    <span>{{ appt.datetime | date:'shortTime' }}</span>
+                  </div>
+                </div>
+                <div class="schedule-content">
+                  <div class="patient-info">
+                    <span class="patient-name">{{ appt.patient_name }}</span>
+                    <span class="badge status-badge" [ngClass]="{
+                      'status-confirmed': appt.status === 'confirmed',
+                      'status-rescheduled': appt.status === 'rescheduled'
+                    }">{{ appt.status }}</span>
+                  </div>
+                </div>
+                <div class="schedule-action">
+                  <i class="bi bi-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #noAppointments>
+            <div class="empty-state">
+              <i class="bi bi-calendar-x"></i>
+              <p>No confirmed appointments for today</p>
+            </div>
+          </ng-template>
+        </div>
       </div>
     </div>
 
@@ -134,61 +177,70 @@
     <div class="activity-section">
       <div class="section-header">
         <h5>Triage Inbox</h5>
+        <span class="badge bg-primary text-white">{{ triageQueue.length }}</span>
       </div>
 
-      <div class="activity-list glass-card">
-        <div *ngFor="let t of triageQueue" class="activity-item">
-          <div class="d-flex justify-content-between align-items-center">
-            <!-- Left side: Patient info -->
-            <div class="patient-info grow pe-3">
-              <div class="fw-semibold mb-1">{{ t.patient_name }}</div>
-              <div class="small text-muted mb-1">
-                {{ t.category | titlecase }}
-                <span *ngIf="t.body_area">({{ t.body_area }})</span>
-              </div>
-              <div class="small text-muted">
-                Submitted {{ t.submitted_at | date:'short' }} · Score {{ t.score }}
-              </div>
+      <div class="glass-card triage-card-container">
+        <div *ngFor="let t of triageQueue" class="triage-item">
+          <div class="triage-header">
+            <div class="patient-info-main">
+              <span class="patient-name">{{ t.patient_name }}</span>
+              <span class="triage-category">{{ t.category | titlecase }}</span>
             </div>
-            
-            <!-- Right side: Urgency badge and View button -->
-            <div class="action-container d-flex flex-column flex-sm-row align-items-end align-items-sm-center gap-2">
-              <span
-                class="badge rounded-pill urgency-badge"
-                [ngClass]="{
-                  'bg-danger': t.urgency === 'emergency',
-                  'bg-warning text-dark': t.urgency === 'urgent',
-                  'bg-primary': t.urgency === 'routine',
-                  'bg-secondary': t.urgency === 'low'
-                }">
-                {{ t.urgency }}
+            <span class="urgency-indicator" [ngClass]="{
+              'urgency-emergency': t.urgency === 'emergency',
+              'urgency-urgent': t.urgency === 'urgent',
+              'urgency-routine': t.urgency === 'routine',
+              'urgency-low': t.urgency === 'low'
+            }">
+              <i class="bi" [ngClass]="{
+                'bi-exclamation-triangle-fill': t.urgency === 'emergency',
+                'bi-exclamation-circle-fill': t.urgency === 'urgent',
+                'bi-clock-fill': t.urgency === 'routine',
+                'bi-check-circle-fill': t.urgency === 'low'
+              }"></i>
+              {{ t.urgency }}
+            </span>
+          </div>
+          
+          <div class="triage-body">
+            <div class="triage-details">
+              <span class="detail-item" *ngIf="t.body_area">
+                <i class="bi bi-activity"></i> {{ t.body_area }}
               </span>
-              
-              <!-- View Button -->
-              <button 
-                class="btn btn-outline-primary btn-sm view-btn"
-                [routerLink]="['/gp/triage', t._id]"
-                title="View Triage Details">
-                View
-                <i class="bi bi-chevron-right ms-1"></i>
-              </button>
+              <span class="detail-item">
+                <i class="bi bi-star-fill text-warning"></i> Score {{ t.score }}
+              </span>
+              <span class="detail-item">
+                <i class="bi bi-clock-history"></i> {{ t.submitted_at | date:'short' }}
+              </span>
             </div>
+          </div>
+          
+          <div class="triage-footer">
+            <button 
+              class="btn-view-triage"
+              [routerLink]="['/gp/triage', t._id]">
+              Review Case
+              <i class="bi bi-arrow-right"></i>
+            </button>
           </div>
         </div>
 
-        <div *ngIf="!triageQueue.length" class="text-center text-muted py-4">
-          No triage cases awaiting review
+        <div *ngIf="!triageQueue.length" class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>No triage cases awaiting review</p>
         </div>
       </div>
     </div>
 
     <!-- Calendar -->
     <div class="calendar-section">
-      <div class="calendar-card glass-card">
+      <div class="glass-card calendar-card">
         <app-home-calendar 
-  [events]="events"
-  (eventClicked)="onCalendarEventClick($event)">
-</app-home-calendar>
+          [events]="events"
+          (eventClicked)="onCalendarEventClick($event)">
+        </app-home-calendar>
       </div>
     </div>
 
@@ -200,7 +252,7 @@
       <small class="text-muted">{{ mapMarkers.length }} plotted</small>
     </div>
 
-    <div class="map-container-small glass-card">
+    <div class="glass-card map-container-small">
       <google-map
         height="100%"
         width="100%"

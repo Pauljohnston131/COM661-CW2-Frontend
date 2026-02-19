@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { CalendarOptions, EventInput, EventClickArg } from '@fullcalendar/core';
 
@@ -18,21 +19,36 @@ export class HomeCalendarComponent {
   @Output() eventClicked = new EventEmitter<any>();
 
   calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, interactionPlugin],
-    initialView: 'dayGridMonth',
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: 'timeGridWeek',
     headerToolbar: {
-      left: 'title',
-      center: '',
-      right: 'prev,next'
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
-    displayEventTime: false,
+    slotMinTime: '08:00:00',
+    slotMaxTime: '18:00:00',
+    // Remove allDaySlot - it's not in the CalendarOptions type
+    nowIndicator: true,
+    displayEventTime: true,
     eventDisplay: 'block',
-    selectable: false,
-    editable: false,
+    selectable: true,
+    editable: true,
+    eventDurationEditable: false,
     fixedWeekCount: false,
     height: 'auto',
+    slotDuration: '01:00:00',
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
     eventClick: (arg: EventClickArg) => {
       this.eventClicked.emit(arg.event.extendedProps);
+    },
+    eventClassNames: (arg) => {
+      const status = arg.event.extendedProps['status'];
+      return [`event-${status || 'confirmed'}`];
     }
   };
 

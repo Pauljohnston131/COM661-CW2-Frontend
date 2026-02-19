@@ -295,6 +295,11 @@ export class PatientTriageComponent implements OnInit {
     }
   }
 
+  // Add this helper method anywhere in the class
+ scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
   nextStep() {
     if (this.currentStep === 1 && !this.selectedCategory) {
       this.showMessage('Please select a category', 'warning');
@@ -315,11 +320,13 @@ export class PatientTriageComponent implements OnInit {
     }
     
     this.currentStep++;
+    this.scrollToTop();
   }
 
   previousStep() {
     if (this.currentStep > 1) {
       this.currentStep--;
+      this.scrollToTop();
     }
   }
 
@@ -376,18 +383,6 @@ export class PatientTriageComponent implements OnInit {
     }
   }
 
-  getUrgencyMessage(urgency: string): string {
-    switch(urgency) {
-      case 'urgent':
-        return 'Based on your symptoms, you can book an appointment within the next 2 days.';
-      case 'routine':
-        return 'Based on your symptoms, appointments are available starting tomorrow.';
-      case 'low':
-        return 'Based on your symptoms, appointments are available in 2+ days to prioritize more urgent cases.';
-      default:
-        return 'Please select an available appointment time.';
-    }
-  }
 
   selectSlot(datetime: string) {
   this.selectedSlot = datetime;
@@ -496,11 +491,10 @@ export class PatientTriageComponent implements OnInit {
             // Show priority-based message from server or generate locally
             if (this.availabilityWindow?.message) {
               this.showMessage(this.availabilityWindow.message, 'info');
-            } else {
-              this.showMessage(this.getUrgencyMessage(this.triageUrgency), 'info');
-            }
+            } 
             
-            this.currentStep = 4;  // move to slot selection
+            this.currentStep = 4;
+            this.scrollToTop();  // move to slot selection
             return;
           } else {
             this.showMessage(

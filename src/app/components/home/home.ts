@@ -1,4 +1,4 @@
- // src/app/components/home/home.ts
+//src/app/components/home/home.ts
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -12,7 +12,6 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { Api } from '../../services/api';
 import { EventInput } from '@fullcalendar/core';
 import { HomeCalendarComponent } from './calendar/home-calendar.component';
-import { HighlightUrgentDirective } from '../../directives/highlight-urgent.directive';
 
 /**
  * Home dashboard component for GP users.
@@ -27,7 +26,6 @@ import { HighlightUrgentDirective } from '../../directives/highlight-urgent.dire
     RouterModule,
     GoogleMapsModule,
     HomeCalendarComponent,
-    HighlightUrgentDirective
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
@@ -52,8 +50,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Total number of pending appointment requests */
   pendingRequests = 0;
 
-  /** GP checklist items for outstanding actions */
-  gpChecklist: any[] = [];
+  /** Pending appointment requests awaiting GP review */
+  pendingAppointmentsList: any[] = [];
+
+  /** Total number of confirmed appointments */
+  confirmedAppointmentsCount = 0;
+
+  /** Today's appointments */
+  todayAppointments: any[] = [];
 
   /** Array of all patient records */
   allPatients: any[] = [];
@@ -61,7 +65,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   /** List of recent appointments displayed on the dashboard */
   recentAppointments: any[] = [];
 
-  /** Calendar event list derived from recent appointments */
+  /** Calendar event list derived from confirmed appointments */
   events: EventInput[] = [];
 
   /** Default map centre location */
@@ -76,9 +80,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Triage Queue */
   triageQueue: any[] = [];
 
-  confirmedAppointments: any[] = [];
-
-
   /** Map configuration options */
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'terrain',
@@ -92,83 +93,93 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  /**
-   * Lifecycle hook that runs on component initialisation.
-   * Loads all dashboard statistics and data.
-   */
   ngOnInit(): void {
     this.loadDashboard();
   }
 
-  /**
-   * Lifecycle hook that runs after the view has fully initialised.
-   */
   ngAfterViewInit(): void {}
 
-  /**
-   * Lifecycle hook that runs when the component is destroyed.
-   */
   ngOnDestroy(): void {}
 
   /**
-   * Loads all main dashboard data including:
-   * - Pending appointment request count
-   * - Patient summary data
+   * Loads all main dashboard data
    */
   private loadDashboard(): void {
-  // 1. GP triage inbox (unreviewed cases)
-  this.api.getGpTriageQueue().subscribe((res) => {
-    this.triageQueue = res.data?.cases || [];
-  });
+    // 1. GP triage inbox (unreviewed cases)
+    this.api.getGpTriageQueue().subscribe((res) => {
+      this.triageQueue = res.data?.cases || [];
+    });
 
-  // 2. Pending appointment requests from triage system
-  this.api.getPendingAppointments().subscribe((res) => {
-    const pending = res.data?.appointments || [];
-    this.pendingRequests = pending.length;
-    // Build checklist from real triage appointments
-    this.gpChecklist = pending.map((appt: any) => ({
-      type: 'Appointment Request',
-      patient: appt.patient_name || 'Unknown Patient',
-      date: appt.datetime || appt.created_at || new Date().toISOString(),
-      action: 'Review request',
-      appointmentId: appt._id,
-      urgency: appt.urgency,
-      link: ['/gp/appointment-review', appt._id]
-    }));
-  });
+    // 2. Pending appointment requests from triage system
+    this.api.getPendingAppointments().subscribe((res) => {
+      const pending = res.data?.appointments || [];
+      this.pendingRequests = pending.length;
+      this.pendingAppointmentsList = pending.sort((a: any, b: any) => {
+        return new Date(a.datetime).getTime() - new Date(b.datetime).getTime();
+      });
+    });
 
-  // 3. Patient summary for stats and map only
-  this.api.getPatientSummary().subscribe((res) => {
-    this.processSummary(res.data?.patients || []);
-  });
+    // 3. Patient summary for stats and map only
+    this.api.getPatientSummary().subscribe((res) => {
+      this.processSummary(res.data?.patients || []);
+    });
 
-  // Add this inside loadDashboard()
-this.api.getGpCalendar().subscribe((res) => {
-  const confirmed = res.data?.appointments || [];
-  this.events = confirmed.map((appt: any) => ({
-    title: appt.patient_name || 'Patient',
-    date: appt.datetime,
-    backgroundColor: '#198754',
-    borderColor: '#198754',
-    extendedProps: {
-      appointmentId: appt._id,
-      triageId: appt.triage_id
-    }
-  }));
-});
-}
-
-onCalendarEventClick(props: any): void {
-  if (props?.appointmentId) {
-    this.router.navigate(['/gp/appointment-review', props.appointmentId]);
+    // 4. Load confirmed appointments for calendar
+    this.api.getGpCalendar().subscribe((res) => {
+      const confirmed = res.data?.appointments || [];
+      this.confirmedAppointmentsCount = confirmed.length;
+      
+      // Filter today's appointments
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      this.todayAppointments = confirmed.filter((appt: any) => {
+        const apptDate = new Date(appt.datetime);
+        return apptDate >= today && apptDate < tomorrow;
+      }).sort((a: any, b: any) => {
+        return new Date(a.datetime).getTime() - new Date(b.datetime).getTime();
+      });
+      
+      // Map to FullCalendar event format
+      this.events = confirmed.map((appt: any) => ({
+        title: appt.patient_name || 'Patient',
+        start: appt.datetime,
+        backgroundColor: this.getAppointmentColor(appt.status),
+        borderColor: this.getAppointmentColor(appt.status),
+        extendedProps: {
+          appointmentId: appt._id,
+          triageId: appt.triage_id,
+          status: appt.status
+        }
+      }));
+    });
   }
-}
 
   /**
-   * Processes patient summary data and calculates all dashboard statistics.
-   * Also prepares recent appointment data, map markers, and checklist items.
-   *
-   * @param list Array of patient summary objects
+   * Handle calendar event clicks
+   */
+  onCalendarEventClick(props: any): void {
+    if (props?.appointmentId) {
+      this.router.navigate(['/gp/appointment-review', props.appointmentId]);
+    }
+  }
+
+  /**
+   * Get appointment color based on status
+   */
+  private getAppointmentColor(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'confirmed': return '#10b981';
+      case 'rescheduled': return '#f59e0b';
+      case 'requested': return '#3b82f6';
+      default: return '#6b7280';
+    }
+  }
+
+  /**
+   * Processes patient summary data and calculates dashboard statistics
    */
   private processSummary(list: any[]): void {
     this.allPatients = list;
@@ -200,89 +211,41 @@ onCalendarEventClick(props: any): void {
           status: a.status || 'scheduled',
         });
       });
-
-      this.addChecklistItems(p);
     });
 
     this.finishDashboard();
   }
 
   /**
-   * Adds checklist items for any patients with pending appointment requests.
-   *
-   * @param patient Patient object containing appointment data
-   */
-  private addChecklistItems(patient: any): void {
-  // Checklist is now built from triage pending appointments in loadDashboard()
-  // This method is kept to avoid breaking processSummary() loop
-}
-
-  /**
-   * Finalises dashboard setup including:
-   * - Sorting recent appointments
-   * - Limiting results to 5 entries
-   * - Adjusting map zoom
-   * - Preparing calendar events
+   * Finalises dashboard setup
    */
   private finishDashboard(): void {
-  this.recentAppointments.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-  this.recentAppointments = this.recentAppointments.slice(0, 5);
+    this.recentAppointments.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    this.recentAppointments = this.recentAppointments.slice(0, 5);
 
-  this.gpChecklist.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+    if (this.mapMarkers.length === 1) {
+      this.mapCenter = this.mapMarkers[0];
+      this.mapZoom = 14;
+    }
 
-  if (this.mapMarkers.length === 1) {
-    this.mapCenter = this.mapMarkers[0];
-    this.mapZoom = 14;
+    this.cdr.detectChanges();
   }
 
-  // ❌ REMOVE THESE LINES - they overwrite the triage calendar events
-  // this.events = this.recentAppointments.map(a => ({
-  //   title: a.patient,
-  //   date: a.date,
-  //   backgroundColor: this.statusColor(a.status),
-  //   borderColor: this.statusColor(a.status)
-  // }));
-
-  this.cdr.detectChanges();
-}
   /**
-   * Returns the correct display colour for an appointment status.
-   *
-   * @param status Appointment status
-   * @returns Hex colour code
+   * Navigates to the first pending appointment request
    */
-  private statusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'completed': return '#198754';
-      case 'scheduled': return '#0d6efd';
-      case 'requested': return '#ffc107';
-      case 'cancelled': return '#6c757d';
-      default: return '#0d6efd';
+  goToFirstPending() {
+    if (this.pendingAppointmentsList.length > 0) {
+      this.router.navigate(['/gp/appointment-review', this.pendingAppointmentsList[0]._id]);
     }
   }
 
   /**
-   * Navigates the GP to the first pending appointment request.
-   * If none exist, redirects to the patient list view.
+   * Navigate to a specific appointment
    */
-  goToFirstPending() {
-  const first = this.gpChecklist.find(i => i.type === 'Appointment Request');
-  if (first && first.appointmentId) {
-    this.router.navigate(['/gp/appointment-review', first.appointmentId]);
-  } else {
-    this.router.navigate(['/gp/patients']);
+  navigateToAppointment(appointmentId: string): void {
+    this.router.navigate(['/gp/appointment-review', appointmentId]);
   }
-}
-
-  navigateToItem(item: any): void {
-  if (item.type === 'Appointment Request' && item.appointmentId) {
-    this.router.navigate(['/gp/appointment-review', item.appointmentId]);
-  } else if (item.link) {
-    this.router.navigate(item.link);
-  }
-}
 }

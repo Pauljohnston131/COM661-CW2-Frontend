@@ -639,27 +639,10 @@
           <i class="bi bi-calendar-check me-2"></i>
           Select an Appointment Time
         </h2>
-        <p class="step-subtitle" *ngIf="availabilityWindow?.message">
-  {{ availabilityWindow?.message }}
-</p>
-        <p class="step-subtitle" *ngIf="!availabilityWindow?.message">
+        <p class="step-subtitle">
   Please choose a time that works best for you.
-</p>
-      </div>
-
-      <!-- Priority Info Banner -->
-      <div *ngIf="triageUrgency" class="priority-banner" [ngClass]="'priority-' + triageUrgency">
-        <div class="priority-icon">
-          <i class="bi" [ngClass]="{
-            'bi-exclamation-triangle-fill': triageUrgency === 'urgent',
-            'bi-info-circle-fill': triageUrgency === 'routine',
-            'bi-calendar-plus': triageUrgency === 'low'
-          }"></i>
-        </div>
-        <div class="priority-message">
-          <strong>Priority Level: {{ triageUrgency | titlecase }}</strong>
-          <p>{{ getUrgencyMessage(triageUrgency) }}</p>
-        </div>
+        </p>
+        
       </div>
 
       <!-- No slots -->
@@ -693,7 +676,7 @@
 
       <!-- Navigation -->
       <div class="step-navigation mt-4">
-        <button class="nav-btn secondary-btn" (click)="currentStep = 3">
+        <button class="nav-btn secondary-btn" (click)="currentStep = 3; scrollToTop()">
           <i class="bi bi-arrow-left"></i> Back
         </button>
 
