@@ -148,32 +148,50 @@
       <div class="clinical-right">
         
         <!-- Triage Summary Card -->
-        <div *ngIf="appointment.triage" class="clinical-card triage-summary-card">
-          <div class="card-header">
-            <i class="bi bi-clipboard-pulse"></i>
-            <h3>Triage Summary</h3>
-            <span class="badge triage-badge">Triage Attached</span>
-          </div>
-          <div class="card-body">
-            <div class="info-list">
-              <div *ngIf="appointment.triage_category" class="info-row">
-                <span class="info-label">Category:</span>
-                <span class="info-value">{{ appointment.triage_category | titlecase }}</span>
-              </div>
-              <div *ngIf="appointment.triage?.submitted_at" class="info-row">
-                <span class="info-label">Submitted:</span>
-                <span class="info-value">{{ appointment.triage.submitted_at | date:'medium' }}</span>
-              </div>
-            </div>
-            
-            <div class="triage-actions">
-              <a [routerLink]="['/gp/triage', appointment.triage_id]" class="btn-view-triage">
-                <i class="bi bi-box-arrow-up-right"></i>
-                View Full Triage Details
-              </a>
-            </div>
-          </div>
-        </div>
+        <div *ngIf="appointment.triage" class="clinical-card">
+
+  <div class="card-header">
+    <i class="bi bi-clipboard-pulse"></i>
+    <h3>Full Triage Details</h3>
+  </div>
+
+  <div class="card-body">
+
+    <div class="info-row">
+      <strong>Category:</strong>
+      {{ appointment.triage.category | titlecase }}
+    </div>
+
+    <div class="mt-3">
+      <strong>Symptoms:</strong>
+      <div>
+        {{ formatSymptoms(appointment.triage.symptoms, appointment.triage.category) }}
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <strong>Severity Score:</strong>
+      {{ appointment.score }}/10
+    </div>
+
+    <div *ngIf="appointment.red_flags?.length" class="mt-3">
+      <strong>Red Flags:</strong>
+      <span *ngFor="let flag of appointment.red_flags"
+            class="badge bg-danger me-2">
+        {{ formatRedFlag(flag) | titlecase }}
+      </span>
+    </div>
+
+    <div *ngIf="appointment.ai?.ai_gp_note" class="mt-4">
+      <strong>AI Clinical Note:</strong>
+      <div class="mt-2">
+        {{ appointment.ai.ai_gp_note }}
+      </div>
+    </div>
+
+  </div>
+
+</div>
 
         <!-- GP Notes Card -->
         <div class="clinical-card gp-notes-card">

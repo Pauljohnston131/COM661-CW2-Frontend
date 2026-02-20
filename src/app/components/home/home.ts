@@ -1,4 +1,3 @@
-//src/app/components/home/home.ts
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -87,6 +86,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     mapTypeControl: false,
   };
 
+  // UI State
+  hoveredStat: string | null = null;
+  hoveredSection: string | null = null;
+
   constructor(
     private api: Api,
     public router: Router,
@@ -112,11 +115,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 2. Pending appointment requests from triage system
     this.api.getPendingAppointments().subscribe((res) => {
+
       const pending = res.data?.appointments || [];
-      this.pendingRequests = pending.length;
-      this.pendingAppointmentsList = pending.sort((a: any, b: any) => {
-        return new Date(a.datetime).getTime() - new Date(b.datetime).getTime();
+
+      // Add computed age from DOB
+      pending.forEach((appt: any) => {
+        appt.patient_age = appt.patient_age || appt.age || '?';
       });
+
+      // Sort by highest score first (clinical priority)
+      this.pendingAppointmentsList = pending.sort((a: any, b: any) => {
+        return (b.score || 0) - (a.score || 0);
+      });
+
+      this.pendingRequests = this.pendingAppointmentsList.length;
     });
 
     // 3. Patient summary for stats and map only
@@ -128,20 +140,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.api.getGpCalendar().subscribe((res) => {
       const confirmed = res.data?.appointments || [];
       this.confirmedAppointmentsCount = confirmed.length;
-      
+
       // Filter today's appointments
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
-      
+
       this.todayAppointments = confirmed.filter((appt: any) => {
         const apptDate = new Date(appt.datetime);
         return apptDate >= today && apptDate < tomorrow;
       }).sort((a: any, b: any) => {
         return new Date(a.datetime).getTime() - new Date(b.datetime).getTime();
       });
-      
+
       // Map to FullCalendar event format
       this.events = confirmed.map((appt: any) => ({
         title: appt.patient_name || 'Patient',
@@ -176,6 +188,82 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'requested': return '#3b82f6';
       default: return '#6b7280';
     }
+  }
+
+  /**
+   * Returns a CSS class string based on urgency level and triage score.
+   * Used to colour-code pending clinical review badges.
+   * High score (>=7) or 'urgent' urgency → red
+   * Medium score (>=4) or 'moderate' urgency → amber
+   * Otherwise → green (routine)
+   */
+  getUrgencyClass(appt: any): string {
+    const urgency = appt.urgency?.toLowerCase();
+    const score = appt.score || 0;
+
+    if (urgency === 'urgent' || urgency === 'high' || score >= 7) {
+      return 'urgency-high';
+    } else if (urgency === 'moderate' || urgency === 'medium' || score >= 4) {
+      return 'urgency-moderate';
+    } else {
+      return 'urgency-routine';
+    }
+  }
+
+  /**
+   * Returns a human-readable urgency label for display in the badge.
+   */
+  getUrgencyLabel(appt: any): string {
+    const urgency = appt.urgency?.toLowerCase();
+    const score = appt.score || 0;
+
+    if (urgency === 'urgent' || urgency === 'high' || score >= 7) {
+      return 'Urgent';
+    } else if (urgency === 'moderate' || urgency === 'medium' || score >= 4) {
+      return 'Moderate';
+    } else {
+      return 'Routine';
+    }
+  }
+
+  /**
+   * Returns a human-readable waiting time string from a submitted_at timestamp.
+   * e.g. "Just now", "3 hours ago", "2 days ago"
+   * If no timestamp is available, returns an empty string.
+   */
+  getWaitingTime(appt: any): string {
+    const submitted = appt.submitted_at || appt.created_at || appt.datetime;
+    if (!submitted) return '';
+
+    const now = new Date();
+    const then = new Date(submitted);
+    const diffMs = now.getTime() - then.getTime();
+
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (minutes < 5) return 'Just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours} hr${hours > 1 ? 's' : ''} ago`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  }
+
+  /**
+   * Returns a CSS class for the waiting time label.
+   * Cases waiting over 48 hours are highlighted red as overdue.
+   * Cases waiting over 24 hours are highlighted amber.
+   */
+  getWaitingTimeClass(appt: any): string {
+    const submitted = appt.submitted_at || appt.created_at || appt.datetime;
+    if (!submitted) return '';
+
+    const diffMs = new Date().getTime() - new Date(submitted).getTime();
+    const hours = diffMs / (1000 * 60 * 60);
+
+    if (hours >= 48) return 'wait-overdue';
+    if (hours >= 24) return 'wait-warning';
+    return 'wait-normal';
   }
 
   /**
@@ -247,5 +335,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   navigateToAppointment(appointmentId: string): void {
     this.router.navigate(['/gp/appointment-review', appointmentId]);
+  }
+
+  // Helper methods for UI enhancements
+  setHoveredStat(stat: string | null) {
+    this.hoveredStat = stat;
+  }
+
+  setHoveredSection(section: string | null) {
+    this.hoveredSection = section;
   }
 }

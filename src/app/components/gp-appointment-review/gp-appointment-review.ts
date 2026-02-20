@@ -244,4 +244,37 @@ formatRedFlag(flag: string): string {
   if (!flag) return '';
   return flag.replace(/_/g, ' ');
 }
+formatSymptoms(symptoms: any, category?: string): string {
+
+  if (!symptoms) return 'No symptoms reported';
+
+  if (typeof symptoms === 'string') return symptoms;
+
+  if (typeof symptoms !== 'object') return String(symptoms);
+
+  const parts: string[] = [];
+
+  if (symptoms.body_area) {
+    parts.push(`Area: ${symptoms.body_area}`);
+  }
+
+  if (symptoms.pain_level !== undefined) {
+    parts.push(`Pain level: ${symptoms.pain_level}/10`);
+  }
+
+  if (symptoms.duration_days) {
+    parts.push(`Duration: ${symptoms.duration_days} days`);
+  }
+
+  if (symptoms.described_symptoms) {
+    parts.push(symptoms.described_symptoms);
+  }
+
+  if (symptoms.notes) {
+    parts.push(`Notes: ${symptoms.notes}`);
+  }
+
+  return parts.join(' • ');
+}
+
 }

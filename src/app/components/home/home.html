@@ -1,10 +1,11 @@
 <div class="dashboard-container">
 
+  <!-- ================= HEADER ================= -->
   <div class="dashboard-header">
-    <div>
+    <div class="header-text">
       <h2 class="dashboard-title">GP Practice Dashboard</h2>
       <p class="text-muted mb-0 greeting-text">
-        {{ today | date:'fullDate' }}
+        <i class="bi bi-calendar3 me-2"></i>{{ today | date:'fullDate' }}
       </p>
     </div>
 
@@ -34,210 +35,283 @@
         class="btn review-btn shadow-sm d-flex align-items-center gap-2"
         (click)="goToFirstPending()"
         [disabled]="pendingRequests === 0">
-
+        <i class="bi bi-clipboard-check"></i>
         Review pending requests
-        <span class="badge bg-dark ms-2">{{ pendingRequests }}</span>
+        <span class="badge bg-dark ms-1">{{ pendingRequests }}</span>
       </button>
 
     </div>
   </div>
 
+
+  <!-- ================= STATS ================= -->
   <div class="stats-grid">
 
-    <div class="stat-tile glass-card">
-      <div class="stat-icon text-primary"><i class="bi bi-people-fill"></i></div>
-      <div>
+    <!-- Patients -->
+    <div class="stat-tile glass-card" [routerLink]="['/gp/patients']" style="cursor:pointer">
+      <div class="stat-icon-wrap stat-icon-patients">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="7" r="3"/>
+          <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          <path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
+        </svg>
+      </div>
+      <div class="stat-body">
         <div class="stat-value">{{ totalPatients }}</div>
         <div class="stat-label">Total Patients</div>
       </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-right-short"></i>
+      </div>
     </div>
 
+    <!-- Appointments -->
     <div class="stat-tile glass-card">
-      <div class="stat-icon text-success"><i class="bi bi-calendar-check"></i></div>
-      <div>
+      <div class="stat-icon-wrap stat-icon-appointments">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+          <polyline points="9 16 11 18 15 14"/>
+        </svg>
+      </div>
+      <div class="stat-body">
         <div class="stat-value">{{ totalAppointments }}</div>
         <div class="stat-label">Appointments</div>
       </div>
-    </div>
-
-    <div class="stat-tile glass-card">
-      <div class="stat-icon text-info"><i class="bi bi-prescription2"></i></div>
-      <div>
-        <div class="stat-value">{{ totalPrescriptions }}</div>
-        <div class="stat-label">Prescriptions</div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-right-short"></i>
       </div>
     </div>
 
+    <!-- Prescriptions -->
     <div class="stat-tile glass-card">
-      <div class="stat-icon text-purple"><i class="bi bi-heart-pulse-fill"></i></div>
-      <div>
+      <div class="stat-icon-wrap stat-icon-prescriptions">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9l-6-6z"/>
+          <path d="M9 3v6h6"/>
+          <line x1="12" y1="12" x2="12" y2="18"/>
+          <line x1="9" y1="15" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ totalPrescriptions }}</div>
+        <div class="stat-label">Prescriptions</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-right-short"></i>
+      </div>
+    </div>
+
+    <!-- Care Plans -->
+    <div class="stat-tile glass-card">
+      <div class="stat-icon-wrap stat-icon-careplans">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          <line x1="12" y1="9" x2="12" y2="15"/>
+          <line x1="9" y1="12" x2="15" y2="12"/>
+        </svg>
+      </div>
+      <div class="stat-body">
         <div class="stat-value">{{ totalCareplans }}</div>
         <div class="stat-label">Active Care Plans</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-right-short"></i>
       </div>
     </div>
 
   </div>
 
+
+  <!-- ================= MAIN GRID ================= -->
   <div class="main-grid-3">
 
-    <!-- Pending Requests & Today's Schedule -->
+    <!-- ========= COLUMN 1: Pending Clinical Reviews ========= -->
     <div class="todays-schedule-section">
-      
-      <!-- Pending Requests -->
-      <div *ngIf="pendingAppointmentsList.length > 0" class="mb-3">
-        <div class="section-header">
-          <h5><i class="bi bi-exclamation-circle me-2"></i>Pending Requests</h5>
-          <span class="badge bg-warning text-dark">{{ pendingAppointmentsList.length }}</span>
-        </div>
 
-        <div class="glass-card schedule-card-container">
-          <div class="schedule-list">
-            <div *ngFor="let appt of pendingAppointmentsList | slice:0:5" 
-                 class="schedule-item pending-item"
-                 (click)="navigateToAppointment(appt._id)">
-              <div class="schedule-time">
-                <div class="time-badge pending">
-                  <i class="bi bi-clock-history"></i>
-                  <span>{{ appt.datetime | date:'shortTime' }}</span>
-                </div>
-              </div>
-              <div class="schedule-content">
-                <div class="patient-info">
-                  <span class="patient-name">{{ appt.patient_name }}</span>
-                  <span class="badge status-badge status-pending">
-                    <i class="bi bi-hourglass-split"></i> Awaiting Review
-                  </span>
-                </div>
-                <div class="appointment-meta">
-                  <i class="bi bi-calendar-event"></i>
-                  <span class="reason-text">{{ appt.datetime | date:'EEE, MMM d' }}</span>
-                  <span class="urgency-mini" [ngClass]="{
-                    'text-danger': appt.urgency === 'urgent',
-                    'text-primary': appt.urgency === 'routine',
-                    'text-secondary': appt.urgency === 'low'
-                  }">
-                    <i class="bi bi-dot"></i>{{ appt.urgency }}
-                  </span>
-                </div>
-              </div>
-              <div class="schedule-action">
-                <i class="bi bi-chevron-right"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Today's Confirmed Schedule -->
-      <div>
-        <div class="section-header">
-          <h5><i class="bi bi-calendar-check me-2"></i>Today's Schedule</h5>
-          <span class="badge bg-success text-white">{{ todayAppointments.length }}</span>
-        </div>
-
-        <div class="glass-card schedule-card-container">
-          <ng-container *ngIf="todayAppointments.length; else noAppointments">
-            <div class="schedule-list">
-              <div *ngFor="let appt of todayAppointments" 
-                   class="schedule-item"
-                   (click)="navigateToAppointment(appt._id)">
-                <div class="schedule-time">
-                  <div class="time-badge confirmed">
-                    <i class="bi bi-clock"></i>
-                    <span>{{ appt.datetime | date:'shortTime' }}</span>
-                  </div>
-                </div>
-                <div class="schedule-content">
-                  <div class="patient-info">
-                    <span class="patient-name">{{ appt.patient_name }}</span>
-                    <span class="badge status-badge" [ngClass]="{
-                      'status-confirmed': appt.status === 'confirmed',
-                      'status-rescheduled': appt.status === 'rescheduled'
-                    }">{{ appt.status }}</span>
-                  </div>
-                </div>
-                <div class="schedule-action">
-                  <i class="bi bi-chevron-right"></i>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-
-          <ng-template #noAppointments>
-            <div class="empty-state">
-              <i class="bi bi-calendar-x"></i>
-              <p>No confirmed appointments for today</p>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-
-    <!-- GP TRIAGE INBOX -->
-    <div class="activity-section">
       <div class="section-header">
-        <h5>Triage Inbox</h5>
-        <span class="badge bg-primary text-white">{{ triageQueue.length }}</span>
+        <h5>
+          <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+          Pending Clinical Reviews
+        </h5>
+        <span class="badge bg-warning text-dark">
+          {{ pendingAppointmentsList.length }}
+        </span>
       </div>
 
-      <div class="glass-card triage-card-container">
-        <div *ngFor="let t of triageQueue" class="triage-item">
-          <div class="triage-header">
-            <div class="patient-info-main">
-              <span class="patient-name">{{ t.patient_name }}</span>
-              <span class="triage-category">{{ t.category | titlecase }}</span>
-            </div>
-            <span class="urgency-indicator" [ngClass]="{
-              'urgency-emergency': t.urgency === 'emergency',
-              'urgency-urgent': t.urgency === 'urgent',
-              'urgency-routine': t.urgency === 'routine',
-              'urgency-low': t.urgency === 'low'
-            }">
-              <i class="bi" [ngClass]="{
-                'bi-exclamation-triangle-fill': t.urgency === 'emergency',
-                'bi-exclamation-circle-fill': t.urgency === 'urgent',
-                'bi-clock-fill': t.urgency === 'routine',
-                'bi-check-circle-fill': t.urgency === 'low'
-              }"></i>
-              {{ t.urgency }}
-            </span>
-          </div>
-          
-          <div class="triage-body">
-            <div class="triage-details">
-              <span class="detail-item" *ngIf="t.body_area">
-                <i class="bi bi-activity"></i> {{ t.body_area }}
-              </span>
-              <span class="detail-item">
-                <i class="bi bi-star-fill text-warning"></i> Score {{ t.score }}
-              </span>
-              <span class="detail-item">
-                <i class="bi bi-clock-history"></i> {{ t.submitted_at | date:'short' }}
-              </span>
-            </div>
-          </div>
-          
-          <div class="triage-footer">
-            <button 
-              class="btn-view-triage"
-              [routerLink]="['/gp/triage', t._id]">
-              Review Case
-              <i class="bi bi-arrow-right"></i>
-            </button>
-          </div>
-        </div>
+      <div class="glass-card schedule-card-container">
 
-        <div *ngIf="!triageQueue.length" class="empty-state">
-          <i class="bi bi-inbox"></i>
-          <p>No triage cases awaiting review</p>
-        </div>
+        <ng-container *ngIf="pendingAppointmentsList.length; else noPending">
+
+          <div class="schedule-list">
+
+            <div *ngFor="let appt of pendingAppointmentsList | slice:0:6; let i = index"
+                 class="schedule-item pending-item"
+                 [ngClass]="getUrgencyClass(appt)"
+                 [style.animation-delay]="(i * 60) + 'ms'">
+
+              <div class="schedule-time">
+
+                <div class="time-badge pending" [ngClass]="getUrgencyClass(appt)">
+                  <i class="bi bi-hourglass-split"></i>
+                  Awaiting Review
+                </div>
+
+                <div class="wait-label" [ngClass]="getWaitingTimeClass(appt)" *ngIf="getWaitingTime(appt)">
+                  <i class="bi bi-clock-history"></i>
+                  {{ getWaitingTime(appt) }}
+                </div>
+
+              </div>
+
+              <div class="schedule-content">
+
+                <div class="patient-info">
+                  <span class="patient-name">
+                    {{ appt.patient_name }}
+                  </span>
+
+                  <span class="badge status-badge status-pending">
+                    {{ appt.urgency | titlecase }}
+                  </span>
+                </div>
+
+                <div class="appointment-meta">
+
+                  <span>
+                    <i class="bi bi-activity"></i>
+                    Score {{ appt.score || '?' }}
+                  </span>
+
+                  <span>
+                    <i class="bi bi-tag"></i>
+                    {{ appt.triage_category || 'Unknown' }}
+                  </span>
+
+                  <span>
+                    <i class="bi bi-calendar-event"></i>
+                    {{ appt.datetime | date:'EEE, MMM d' }}
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div class="schedule-actions">
+                <button class="btn view-item-btn" (click)="navigateToAppointment(appt._id)">
+                  <i class="bi bi-eye"></i> View
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+        </ng-container>
+
+        <ng-template #noPending>
+          <div class="empty-state">
+            <div class="empty-icon-wrap">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <p>No pending clinical reviews</p>
+            <small>All cases have been reviewed</small>
+          </div>
+        </ng-template>
+
       </div>
     </div>
 
-    <!-- Calendar -->
+
+    <!-- ========= COLUMN 2: Today's Schedule ========= -->
+    <div class="todays-schedule-section">
+
+      <div class="section-header">
+        <h5>
+          <i class="bi bi-calendar-check me-2"></i>
+          Today's Schedule
+        </h5>
+        <span class="badge bg-success text-white">
+          {{ todayAppointments.length }}
+        </span>
+      </div>
+
+      <div class="glass-card schedule-card-container">
+
+        <ng-container *ngIf="todayAppointments.length; else noAppointments">
+
+          <div class="schedule-list">
+
+            <div *ngFor="let appt of todayAppointments; let i = index"
+                 class="schedule-item"
+                 [style.animation-delay]="(i * 60) + 'ms'">
+
+              <div class="schedule-time">
+                <div class="time-badge confirmed">
+                  <i class="bi bi-clock"></i>
+                  {{ appt.datetime | date:'shortTime' }}
+                </div>
+              </div>
+
+              <div class="schedule-content">
+
+                <div class="patient-info">
+                  <span class="patient-name">
+                    {{ appt.patient_name }}
+                  </span>
+                </div>
+
+                <span class="badge status-badge"
+                      [ngClass]="{
+                        'status-confirmed': appt.status === 'confirmed',
+                        'status-rescheduled': appt.status === 'rescheduled'
+                      }">
+                  {{ appt.status }}
+                </span>
+
+              </div>
+
+              <div class="schedule-actions">
+                <button class="btn view-item-btn" (click)="navigateToAppointment(appt._id)">
+                  <i class="bi bi-eye"></i> View
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+        </ng-container>
+
+        <ng-template #noAppointments>
+          <div class="empty-state">
+            <div class="empty-icon-wrap">
+              <i class="bi bi-calendar-x"></i>
+            </div>
+            <p>No confirmed appointments today</p>
+            <small>Enjoy the clear schedule</small>
+          </div>
+        </ng-template>
+
+      </div>
+    </div>
+
+    <!-- ========= COLUMN 3: Calendar ========= -->
     <div class="calendar-section">
+      <div class="section-header">
+        <h5>
+          <i class="bi bi-calendar3 me-2"></i>
+          Upcoming Appointments
+        </h5>
+        <span class="badge" style="background: rgba(45,55,101,0.12); color: #2D3765;">
+          {{ events.length }} total
+        </span>
+      </div>
       <div class="glass-card calendar-card">
-        <app-home-calendar 
+        <app-home-calendar
           [events]="events"
           (eventClicked)="onCalendarEventClick($event)">
         </app-home-calendar>
@@ -246,10 +320,18 @@
 
   </div>
 
+
+  <!-- ================= MAP ================= -->
   <div class="map-section mt-4">
     <div class="section-header">
-      <h5>Patient Map</h5>
-      <small class="text-muted">{{ mapMarkers.length }} plotted</small>
+      <h5>
+        <i class="bi bi-geo-alt-fill me-2"></i>
+        Patient Map
+      </h5>
+      <small class="text-muted">
+        <i class="bi bi-pin-map me-1"></i>
+        {{ mapMarkers.length }} plotted
+      </small>
     </div>
 
     <div class="glass-card map-container-small">
@@ -260,7 +342,10 @@
         [zoom]="mapZoom"
         [options]="mapOptions">
 
-        <map-marker *ngFor="let m of mapMarkers" [position]="m"></map-marker>
+        <map-marker
+          *ngFor="let m of mapMarkers"
+          [position]="m">
+        </map-marker>
 
       </google-map>
     </div>
