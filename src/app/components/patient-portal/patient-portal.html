@@ -1,5 +1,6 @@
 <div class="patient-portal-container" *ngIf="patient">
 
+  <!-- ── HEADER ─────────────────────────────────────────────────── -->
   <div class="portal-header d-flex justify-content-between align-items-center mb-5">
     <div>
       <h2 class="portal-title mb-2">
@@ -25,7 +26,6 @@
         </span>
       </div>
     </div>
-    
     <div class="portal-status">
       <span class="badge status-badge">
         <i class="bi bi-check-circle me-1"></i>
@@ -34,13 +34,17 @@
     </div>
   </div>
 
+  <!-- ── TOAST ──────────────────────────────────────────────────── -->
   <div *ngIf="toastMessage"
        class="alert glass-card alert-toast mb-4"
        [ngClass]="toastType === 'success' ? 'alert-success' : 'alert-danger'">
-    <i class="bi" [ngClass]="toastType === 'success' ? 'bi-check-circle-fill me-2' : 'bi-exclamation-circle-fill me-2'"></i>
+    <i class="bi"
+       [ngClass]="toastType === 'success' ? 'bi-check-circle-fill me-2' : 'bi-exclamation-circle-fill me-2'">
+    </i>
     {{ toastMessage }}
   </div>
 
+  <!-- ── LOADING ────────────────────────────────────────────────── -->
   <div *ngIf="loading" class="loading-state glass-card p-5 text-center mb-4">
     <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
@@ -48,58 +52,92 @@
     <p class="text-muted mb-0">Loading your information...</p>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════════
+       APPROVAL NOTIFICATION BANNER
+       Shows when a GP has actioned one or more appointment requests
+       and the patient hasn't seen the update yet.
+       ═══════════════════════════════════════════════════════════════ -->
+  <div *ngIf="showApprovalBanner && unseenApprovals.length > 0" class="approval-banner-outer mb-4">
+    <div class="approval-banner-container">
 
+      <!-- "Dismiss all" control if multiple notifications -->
+      <div *ngIf="unseenApprovals.length > 1"
+           class="d-flex justify-content-between align-items-center mb-2 px-1">
+        <span class="text-muted small">
+          <i class="bi bi-bell-fill me-1 text-primary"></i>
+          {{ unseenApprovals.length }} new updates from your GP
+        </span>
+        <button class="btn btn-link btn-sm p-0 dismiss-all-btn" (click)="dismissAllApprovals()">
+          Dismiss all
+        </button>
+      </div>
+
+      <!-- Individual notification card per unseen approval -->
+      <div *ngFor="let appt of unseenApprovals"
+           class="approval-card glass-card p-4 mb-3"
+           [ngClass]="approvalCardClass(appt.status)">
+
+        <!-- Top row: icon + title + status badge -->
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="approval-icon-wrap">
+            <i class="bi" [ngClass]="approvalIcon(appt.status)"></i>
+          </div>
+          <h6 class="approval-title mb-0 grow">
+            Appointment {{ appt.status | titlecase }}
+          </h6>
+          <span class="badge" [ngClass]="badge(appt.status)">
+            {{ appt.status | titlecase }}
+          </span>
+        </div>
+
+        <!-- Message -->
+        <p class="approval-message mb-0 ms-1">
+          {{ approvalMessage(appt) }}
+        </p>
+
+        <!-- GP note if present -->
+        <div *ngIf="appt.gp_notes" class="approval-gp-note mt-2 ms-1">
+          <i class="bi bi-chat-left-text me-1"></i>
+          <em>GP note: {{ appt.gp_notes }}</em>
+        </div>
+
+        <!-- Footer: mark as seen -->
+        <div class="approval-footer mt-3">
+          <button class="btn approval-seen-btn" (click)="dismissApproval(appt)">
+            <i class="bi bi-check2 me-1"></i>
+            Mark as seen
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- ── END APPROVAL BANNER ──────────────────────────────────── -->
+
+
+  <!-- ── MAIN GRID ──────────────────────────────────────────────── -->
   <div class="portal-grid" *ngIf="!loading">
-    
-  
+
+    <!-- LEFT COLUMN -->
     <div class="portal-left-column">
-     
+
+      <!-- Request an Appointment -->
       <div class="glass-card mb-4 p-4">
         <h4 class="card-title mb-3 d-flex align-items-center">
           <i class="bi bi-calendar-plus me-2 text-primary"></i>
           Request an Appointment
         </h4>
-
         <p class="text-muted mb-4">
-  To request an appointment, please answer a few short questions so we can
-  prioritise your care appropriately.
-</p>
-
-<button class="btn request-btn w-100" (click)="startTriage()">
-  <i class="bi bi-clipboard-pulse me-2"></i>
-  Start Appointment Request
-</button>
-
-
-        <!-- <div class="form-group mb-3">
-          <label class="form-label">Select Appointment Date</label>
-          <input type="date" 
-                 class="form-control request-input" 
-                 [(ngModel)]="requestDate"
-                 [min]="getTodayDate()">
-        </div>
-
-        <div class="form-group mb-4">
-          <label class="form-label">Describe Symptoms</label>
-          <textarea class="form-control request-textarea" 
-                    rows="4"
-                    [(ngModel)]="requestSymptoms"
-                    placeholder="Please briefly describe your symptoms or reason for the appointment..."></textarea>
-          <small class="text-muted">Provide as much detail as possible for the doctor to prepare.</small>
-        </div>
-
-        <button class="btn request-btn w-100" (click)="submitRequest()" [disabled]="!requestDate || !requestSymptoms.trim()">
-          <i class="bi bi-send me-2"></i>
-          Submit Appointment Request
-        </button> -->
-
-        <div *ngIf="submitted" class="alert alert-success glass-card mt-3">
-          <i class="bi bi-check-circle-fill me-2"></i>
-          Appointment request successfully submitted. We'll contact you soon.
-        </div>
+          To request an appointment, please answer a few short questions so we
+          can prioritise your care appropriately.
+        </p>
+        <button class="btn request-btn w-100" (click)="startTriage()">
+          <i class="bi bi-clipboard-pulse me-2"></i>
+          Start Appointment Request
+        </button>
       </div>
 
-     
+      <!-- Care Plans -->
       <div class="glass-card p-4">
         <h4 class="card-title mb-3 d-flex align-items-center">
           <i class="bi bi-clipboard-check me-2 text-primary"></i>
@@ -122,7 +160,7 @@
                 <div class="careplan-dates text-muted">
                   <small>
                     <i class="bi bi-calendar me-1"></i>
-                    {{ fmt(c.start) }} - {{ fmt(c.stop) }}
+                    {{ fmt(c.start) }} — {{ fmt(c.stop) }}
                   </small>
                 </div>
                 <div class="careplan-description mt-2">
@@ -136,17 +174,19 @@
             <button class="btn btn-link w-100 mt-3 view-more-btn"
                     (click)="showAllCareplans = !showAllCareplans">
               <i class="bi" [ngClass]="showAllCareplans ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-              {{ showAllCareplans ? 'Show Less' : `View All (${careplans.length})` }}
+              {{ showAllCareplans ? 'Show Less' : 'View All (' + careplans.length + ')' }}
             </button>
           }
         }
       </div>
     </div>
+    <!-- END LEFT COLUMN -->
 
-    
+
+    <!-- RIGHT COLUMN -->
     <div class="portal-right-column">
-      
-      
+
+      <!-- ── PENDING REQUESTS ──────────────────────────────────── -->
       <div class="glass-card mb-4 p-4" *ngIf="pendingRequests.length > 0">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h4 class="card-title mb-0 d-flex align-items-center">
@@ -163,78 +203,106 @@
                 <div>
                   <div class="request-date">
                     <i class="bi bi-calendar-event me-2"></i>
-                    <strong>{{ fmt(a.date) }}</strong>
+                    <strong>{{ fmtDateTime(a.datetime) }}</strong>
                   </div>
-                  <div class="request-symptoms mt-2">
-                    <small class="text-muted">{{ a.notes || 'No symptoms described' }}</small>
+                  <div class="request-meta mt-1">
+                    <small class="text-muted" *ngIf="a.triage_category">
+                      <i class="bi bi-tag me-1"></i>
+                      {{ a.triage_category | titlecase }}
+                    </small>
+                  </div>
+                  <div class="request-notes mt-2" *ngIf="a.triage_notes">
+                    <small class="text-muted">{{ a.triage_notes }}</small>
                   </div>
                 </div>
                 <span class="badge request-status" [ngClass]="badge(a.status)">
-                  {{ a.status }}
+                  Awaiting GP
                 </span>
               </div>
             </div>
           }
         </div>
+
         <small class="text-muted d-block mt-3">
           <i class="bi bi-info-circle me-1"></i>
-          Your appointment requests are pending doctor approval.
+          Your appointment requests are pending GP approval. You'll be notified here when actioned.
         </small>
       </div>
+      <!-- END PENDING REQUESTS -->
 
 
-<div class="glass-card mb-4 p-4">
-  <h4 class="card-title mb-3 d-flex align-items-center">
-    <i class="bi bi-calendar-week me-2 text-primary"></i>
-    Your Appointments
-  </h4>
+      <!-- ── CONFIRMED / PAST APPOINTMENTS ─────────────────────── -->
+      <div class="glass-card mb-4 p-4">
+        <h4 class="card-title mb-3 d-flex align-items-center">
+          <i class="bi bi-calendar-week me-2 text-primary"></i>
+          Your Appointments
+        </h4>
 
-  @if (confirmedAppointments.length === 0) {
-    <div class="empty-state text-center py-4">
-      <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
-      <p class="text-muted mb-0">You have no scheduled or upcoming appointments</p>
-    </div>
-  } @else {
-    <div class="appointments-list">
-      @for (a of (showAllAppointments ? confirmedAppointments : confirmedAppointments.slice(0, 3)); track a._id || a.id) {
-        <div class="appointment-item mb-3 pb-3 border-bottom">
-          <div class="appointment-header d-flex justify-content-between align-items-start">
-            <div>
-              <div class="appointment-date fw-bold">
-                <i class="bi bi-calendar-check me-2"></i>
-                {{ fmt(a.date) }}
-              </div>
-              <div class="appointment-doctor mt-1">
-                <small class="text-muted">
-                  <i class="bi bi-person-badge me-1"></i>
-                  Dr. {{ a.doctor || 'To be assigned' }}
-                </small>
-              </div>
-            </div>
-            <span class="badge appointment-status" [ngClass]="badge(a.status)">
-              {{ a.status || 'Scheduled' }}
-            </span>
+        @if (confirmedAppointments.length === 0) {
+          <div class="empty-state text-center py-4">
+            <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+            <p class="text-muted mb-0">No confirmed appointments yet</p>
+            <small class="text-muted">Appointments you request via triage will appear here once confirmed by your GP.</small>
           </div>
-          @if (a.notes) {
-            <div class="appointment-notes mt-2">
-              <small class="text-muted">{{ a.notes }}</small>
-            </div>
+        } @else {
+          <div class="appointments-list">
+            @for (a of (showAllAppointments ? confirmedAppointments : confirmedAppointments.slice(0, 3)); track a._id) {
+              <div class="appointment-item mb-3 pb-3 border-bottom">
+
+                <!-- Date + status row -->
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div class="appointment-date fw-bold">
+                    <i class="bi bi-calendar-check me-2 text-primary"></i>
+                    {{ fmtDateTime(a.datetime) }}
+                  </div>
+                  <span class="badge appointment-status" [ngClass]="badge(a.status)">
+                    {{ a.status | titlecase }}
+                  </span>
+                </div>
+
+                <!-- Detail rows -->
+                <div class="appointment-details">
+
+                  <div class="appt-detail-row" *ngIf="a.triage_category">
+                    <i class="bi bi-tag-fill appt-detail-icon"></i>
+                    <span>{{ a.triage_category | titlecase }} appointment</span>
+                  </div>
+
+                  <div class="appt-detail-row" *ngIf="a.reviewed_by_gp_at">
+                    <i class="bi bi-person-check-fill appt-detail-icon"></i>
+                    <span>Confirmed by GP on {{ fmt(a.reviewed_by_gp_at) }}</span>
+                  </div>
+
+                  <div class="appt-detail-row" *ngIf="a.status === 'declined'">
+                    <i class="bi bi-telephone-fill appt-detail-icon text-danger"></i>
+                    <span class="text-danger">Please contact the clinic to reschedule</span>
+                  </div>
+
+                </div>
+
+                <!-- GP note -->
+                <div *ngIf="a.gp_notes" class="appointment-gp-note mt-2">
+                  <i class="bi bi-chat-left-text me-1"></i>
+                  <em>{{ a.gp_notes }}</em>
+                </div>
+
+              </div>
+            }
+          </div>
+
+          @if (confirmedAppointments.length > 3) {
+            <button class="btn btn-link w-100 mt-3 view-more-btn"
+                    (click)="showAllAppointments = !showAllAppointments">
+              <i class="bi" [ngClass]="showAllAppointments ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              {{ showAllAppointments ? 'Show Less' : 'View All (' + confirmedAppointments.length + ')' }}
+            </button>
           }
-        </div>
-      }
-    </div>
+        }
+      </div>
+      <!-- END CONFIRMED APPOINTMENTS -->
 
-    @if (confirmedAppointments.length > 3) {
-      <button class="btn btn-link w-100 mt-3 view-more-btn"
-              (click)="showAllAppointments = !showAllAppointments">
-        <i class="bi" [ngClass]="showAllAppointments ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-        {{ showAllAppointments ? 'Show Less' : 'View All (' + confirmedAppointments.length + ')' }}
-      </button>
-    }
-  }
-</div>
 
-     
+      <!-- ── PRESCRIPTIONS ──────────────────────────────────────── -->
       <div class="glass-card p-4">
         <h4 class="card-title mb-3 d-flex align-items-center">
           <i class="bi bi-prescription2 me-2 text-primary"></i>
@@ -256,7 +324,7 @@
                     <div class="prescription-dates text-muted">
                       <small>
                         <i class="bi bi-calendar-range me-1"></i>
-                        {{ fmt(p.start) }} - {{ fmt(p.stop) }}
+                        {{ fmt(p.start) }} — {{ fmt(p.stop) }}
                       </small>
                     </div>
                   </div>
@@ -280,12 +348,17 @@
             <button class="btn btn-link w-100 mt-3 view-more-btn"
                     (click)="showAllPrescriptions = !showAllPrescriptions">
               <i class="bi" [ngClass]="showAllPrescriptions ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-              {{ showAllPrescriptions ? 'Show Less' : `View All (${prescriptions.length})` }}
+              {{ showAllPrescriptions ? 'Show Less' : 'View All (' + prescriptions.length + ')' }}
             </button>
           }
         }
       </div>
+      <!-- END PRESCRIPTIONS -->
+
     </div>
+    <!-- END RIGHT COLUMN -->
+
   </div>
+  <!-- END MAIN GRID -->
 
 </div>

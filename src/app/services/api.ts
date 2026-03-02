@@ -282,10 +282,21 @@ gpTriageAction(triageId: string, payload: any): Observable<any> {
     { headers: this.headers }
   );
 }
-// Add to api.ts inside the Api class
 
-// ===== GP APPOINTMENT REVIEW METHODS =====
+getPatientTriageAppointments(patientId: string): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/triage/patient/${patientId}/appointments`,
+    { headers: this.headers }
+  );
+}
 
+markAppointmentSeen(appointmentId: string): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/triage/patient/appointment/${appointmentId}/seen`,
+    {},
+    { headers: this.headers }
+  );
+}
 /**
  * Get all pending appointment requests for GP review
  */

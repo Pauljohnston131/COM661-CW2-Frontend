@@ -154,56 +154,33 @@
                  [style.animation-delay]="(i * 60) + 'ms'">
 
               <div class="schedule-time">
-
                 <div class="time-badge pending" [ngClass]="getUrgencyClass(appt)">
                   <i class="bi bi-hourglass-split"></i>
                   Awaiting Review
                 </div>
-
                 <div class="wait-label" [ngClass]="getWaitingTimeClass(appt)" *ngIf="getWaitingTime(appt)">
                   <i class="bi bi-clock-history"></i>
                   {{ getWaitingTime(appt) }}
                 </div>
-
               </div>
 
-              <div class="schedule-content">
-
-                <div class="patient-info">
-                  <span class="patient-name">
-                    {{ appt.patient_name }}
-                  </span>
-
-                  <span class="badge status-badge status-pending">
-                    {{ appt.urgency | titlecase }}
-                  </span>
+              <div class="schedule-item-bottom">
+                <div class="schedule-content">
+                  <div class="patient-info">
+                    <span class="patient-name">{{ appt.patient_name }}</span>
+                    <span class="badge status-badge status-pending">{{ appt.urgency | titlecase }}</span>
+                  </div>
+                  <div class="appointment-meta">
+                    <span><i class="bi bi-activity"></i> Score {{ appt.score || '?' }}</span>
+                    <span><i class="bi bi-tag"></i> {{ appt.triage_category || 'Unknown' }}</span>
+                    <span><i class="bi bi-calendar-event"></i> {{ appt.datetime | date:'EEE, MMM d' }}</span>
+                  </div>
                 </div>
-
-                <div class="appointment-meta">
-
-                  <span>
-                    <i class="bi bi-activity"></i>
-                    Score {{ appt.score || '?' }}
-                  </span>
-
-                  <span>
-                    <i class="bi bi-tag"></i>
-                    {{ appt.triage_category || 'Unknown' }}
-                  </span>
-
-                  <span>
-                    <i class="bi bi-calendar-event"></i>
-                    {{ appt.datetime | date:'EEE, MMM d' }}
-                  </span>
-
+                <div class="schedule-actions">
+                  <button class="btn view-item-btn" (click)="navigateToAppointment(appt._id)">
+                    <i class="bi bi-eye"></i> View
+                  </button>
                 </div>
-
-              </div>
-
-              <div class="schedule-actions">
-                <button class="btn view-item-btn" (click)="navigateToAppointment(appt._id)">
-                  <i class="bi bi-eye"></i> View
-                </button>
               </div>
 
             </div>
@@ -256,28 +233,24 @@
                 </div>
               </div>
 
-              <div class="schedule-content">
-
-                <div class="patient-info">
-                  <span class="patient-name">
-                    {{ appt.patient_name }}
+              <div class="schedule-item-bottom">
+                <div class="schedule-content">
+                  <div class="patient-info">
+                    <span class="patient-name">{{ appt.patient_name }}</span>
+                  </div>
+                  <span class="badge status-badge"
+                        [ngClass]="{
+                          'status-confirmed': appt.status === 'confirmed',
+                          'status-rescheduled': appt.status === 'rescheduled'
+                        }">
+                    {{ appt.status }}
                   </span>
                 </div>
-
-                <span class="badge status-badge"
-                      [ngClass]="{
-                        'status-confirmed': appt.status === 'confirmed',
-                        'status-rescheduled': appt.status === 'rescheduled'
-                      }">
-                  {{ appt.status }}
-                </span>
-
-              </div>
-
-              <div class="schedule-actions">
-                <button class="btn view-item-btn" (click)="navigateToAppointment(appt._id)">
-                  <i class="bi bi-eye"></i> View
-                </button>
+                <div class="schedule-actions">
+                  <button class="btn view-item-btn" (click)="navigateToAppointment(appt._id)">
+                    <i class="bi bi-eye"></i> View
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -315,6 +288,93 @@
           [events]="events"
           (eventClicked)="onCalendarEventClick($event)">
         </app-home-calendar>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ================= DAILY NOTES & REMINDERS ================= -->
+  <div class="notes-grid">
+
+    <!-- Daily Notes -->
+    <div class="notes-section">
+      <div class="section-header">
+        <h5>
+          <i class="bi bi-journal-text me-2"></i>
+          Daily Notes
+        </h5>
+        
+      </div>
+
+      <div class="glass-card notes-card">
+        <textarea
+          class="notes-textarea"
+          [(ngModel)]="dailyNote"
+          placeholder="Type your notes for today… follow-ups, observations, things to remember…"
+          rows="7">
+        </textarea>
+
+        <div class="notes-footer">
+          <span class="notes-timestamp" *ngIf="noteLastSaved">
+            <i class="bi bi-check2-circle"></i>
+            Saved {{ noteLastSaved | date:'shortTime' }}
+          </span>
+          <span class="notes-timestamp" *ngIf="!noteLastSaved">
+            <i class="bi bi-pencil"></i>
+            Unsaved
+          </span>
+
+          <button class="notes-save-btn" [ngClass]="{ saved: noteSaved }" (click)="saveNote()">
+            <i class="bi" [ngClass]="noteSaved ? 'bi-check-lg' : 'bi-floppy'"></i>
+            {{ noteSaved ? 'Saved!' : 'Save Note' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reminders Checklist -->
+    <div class="notes-section">
+      <div class="section-header">
+        <h5>
+          <i class="bi bi-list-check me-2"></i>
+          Today's Reminders
+        </h5>
+        <span class="badge" style="background: rgba(45,55,101,0.12); color: #2D3765;">
+          {{ reminders.length - completedReminders }} remaining
+        </span>
+      </div>
+
+      <div class="glass-card notes-card">
+        <div class="reminders-list">
+          <div
+            *ngFor="let r of reminders; let i = index"
+            class="reminder-item"
+            [ngClass]="{ done: r.done }"
+            (click)="toggleReminder(i)">
+            <input type="checkbox" [checked]="r.done" (click)="$event.stopPropagation(); toggleReminder(i)" />
+            <span class="reminder-text">{{ r.text }}</span>
+            <span class="reminder-priority" [ngClass]="r.priority"></span>
+          </div>
+
+          <div *ngIf="reminders.length === 0" class="empty-state" style="padding: 1.5rem;">
+            <div class="empty-icon-wrap">
+              <i class="bi bi-check2-all"></i>
+            </div>
+            <p>No reminders yet</p>
+          </div>
+        </div>
+
+        <div class="add-reminder-row">
+          <input
+            class="add-reminder-input"
+            [(ngModel)]="newReminderText"
+            placeholder="Add a reminder…"
+            (keyup.enter)="addReminder()" />
+          <button class="add-reminder-btn" (click)="addReminder()">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </div>
       </div>
     </div>
 

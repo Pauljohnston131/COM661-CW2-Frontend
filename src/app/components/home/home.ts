@@ -6,6 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { Api } from '../../services/api';
@@ -15,13 +16,14 @@ import { HomeCalendarComponent } from './calendar/home-calendar.component';
 /**
  * Home dashboard component for GP users.
  * Displays key system statistics, recent appointments, pending requests,
- * interactive maps, and a calendar overview.
+ * interactive maps, a calendar overview, and daily notes/reminders.
  */
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     GoogleMapsModule,
     HomeCalendarComponent,
@@ -90,6 +92,28 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   hoveredStat: string | null = null;
   hoveredSection: string | null = null;
 
+  // ── Daily Notes ──────────────────────────────────────────
+  /** Current text in the daily notes textarea */
+  dailyNote = '';
+
+  /** Timestamp of the last save */
+  noteLastSaved: Date | null = null;
+
+  /** Transient "Saved!" feedback flag */
+  noteSaved = false;
+
+  private noteSaveTimer: any;
+  private readonly NOTES_KEY = 'gp_daily_note';
+
+  // ── Reminders ────────────────────────────────────────────
+  reminders: { text: string; done: boolean; priority: 'high' | 'medium' | 'low' }[] = [];
+  newReminderText = '';
+  private readonly REMINDERS_KEY = 'gp_reminders';
+
+  get completedReminders(): number {
+    return this.reminders.filter(r => r.done).length;
+  }
+
   constructor(
     private api: Api,
     public router: Router,
@@ -98,11 +122,93 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.loadNotes();
+    this.loadReminders();
   }
 
   ngAfterViewInit(): void {}
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    if (this.noteSaveTimer) clearTimeout(this.noteSaveTimer);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // DAILY NOTES
+  // ─────────────────────────────────────────────────────────
+
+  /** Load today's note from localStorage (keyed by date) */
+  private loadNotes(): void {
+    const key = `${this.NOTES_KEY}_${this.todayKey()}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      this.dailyNote = parsed.text || '';
+      this.noteLastSaved = parsed.savedAt ? new Date(parsed.savedAt) : null;
+    }
+  }
+
+  /** Save the current note to localStorage */
+  saveNote(): void {
+    const key = `${this.NOTES_KEY}_${this.todayKey()}`;
+    const payload = { text: this.dailyNote, savedAt: new Date().toISOString() };
+    localStorage.setItem(key, JSON.stringify(payload));
+    this.noteLastSaved = new Date();
+    this.noteSaved = true;
+    if (this.noteSaveTimer) clearTimeout(this.noteSaveTimer);
+    this.noteSaveTimer = setTimeout(() => {
+      this.noteSaved = false;
+      this.cdr.detectChanges();
+    }, 2500);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // REMINDERS
+  // ─────────────────────────────────────────────────────────
+
+  /** Load today's reminders from localStorage */
+  private loadReminders(): void {
+    const key = `${this.REMINDERS_KEY}_${this.todayKey()}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      this.reminders = JSON.parse(saved);
+    } else {
+      // Seed with a couple of default reminders on first visit
+      this.reminders = [
+        { text: 'Review triage inbox', done: false, priority: 'high' }
+      ];
+      this.persistReminders();
+    }
+  }
+
+  /** Toggle a reminder's done state */
+  toggleReminder(index: number): void {
+    this.reminders[index].done = !this.reminders[index].done;
+    this.persistReminders();
+  }
+
+  /** Add a new reminder from the input field */
+  addReminder(): void {
+    const text = this.newReminderText.trim();
+    if (!text) return;
+    this.reminders.push({ text, done: false, priority: 'medium' });
+    this.newReminderText = '';
+    this.persistReminders();
+  }
+
+  /** Persist reminders to localStorage */
+  private persistReminders(): void {
+    const key = `${this.REMINDERS_KEY}_${this.todayKey()}`;
+    localStorage.setItem(key, JSON.stringify(this.reminders));
+  }
+
+  /** Returns a YYYY-MM-DD string for today, used as part of storage keys */
+  private todayKey(): string {
+    return this.today.toISOString().slice(0, 10);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // DASHBOARD DATA
+  // ─────────────────────────────────────────────────────────
 
   /**
    * Loads all main dashboard data
@@ -192,10 +298,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Returns a CSS class string based on urgency level and triage score.
-   * Used to colour-code pending clinical review badges.
-   * High score (>=7) or 'urgent' urgency → red
-   * Medium score (>=4) or 'moderate' urgency → amber
-   * Otherwise → green (routine)
    */
   getUrgencyClass(appt: any): string {
     const urgency = appt.urgency?.toLowerCase();
@@ -228,8 +330,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Returns a human-readable waiting time string from a submitted_at timestamp.
-   * e.g. "Just now", "3 hours ago", "2 days ago"
-   * If no timestamp is available, returns an empty string.
    */
   getWaitingTime(appt: any): string {
     const submitted = appt.submitted_at || appt.created_at || appt.datetime;
@@ -251,8 +351,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Returns a CSS class for the waiting time label.
-   * Cases waiting over 48 hours are highlighted red as overdue.
-   * Cases waiting over 24 hours are highlighted amber.
    */
   getWaitingTimeClass(appt: any): string {
     const submitted = appt.submitted_at || appt.created_at || appt.datetime;

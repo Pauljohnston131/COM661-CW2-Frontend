@@ -1,4 +1,4 @@
-
+/* ── BASE LAYOUT ────────────────────────────────────────────────── */
 .patient-portal-container {
   padding: 6rem 1.5rem 3rem;
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -6,24 +6,11 @@
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
-}
-
-
-.portal-header {
-  margin-bottom: 2.5rem;
-}
-
-.patient-portal-container {
-  width: 100%;
   overflow-x: hidden;
 }
 
-.portal-content {
-  width: 100%;
-}
-
-.glass-card {
-  max-width: 100%;
+.portal-header {
+  margin-bottom: 2.5rem;
 }
 
 .portal-title {
@@ -45,6 +32,7 @@
   border-radius: 2px;
 }
 
+/* ── BADGES ─────────────────────────────────────────────────────── */
 .patient-info-badges {
   display: flex;
   gap: 0.75rem;
@@ -70,6 +58,7 @@
   border: none;
 }
 
+/* ── GLASS CARD ─────────────────────────────────────────────────── */
 .glass-card {
   background: rgba(255, 255, 255, 0.75);
   border-radius: 20px;
@@ -78,67 +67,211 @@
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  animation: fadeInUp 0.4s ease-out;
+  max-width: 100%;
 }
 
 .glass-card:hover {
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
 }
 
-
+/* ── TOAST ──────────────────────────────────────────────────────── */
 .alert-toast {
   border-radius: 12px;
   border: none;
   animation: slideIn 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* ── LOADING ────────────────────────────────────────────────────── */
 .loading-state {
   border-radius: 18px;
   margin: 2rem 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   APPROVAL NOTIFICATION BANNER  — centred, constrained width
+   ═══════════════════════════════════════════════════════════════════ */
+.approval-banner-outer {
+  display: flex;
+  justify-content: center;
+  animation: slideIn 0.35s ease;
+}
+
+.approval-banner-container {
+  width: 100%;
+  max-width: 580px;
+}
+
+.dismiss-all-btn {
+  color: #72CFD4;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.dismiss-all-btn:hover {
+  color: #2D3765;
+  text-decoration: none;
+}
+
+/* Base card */
+.approval-card {
+  border-left: 5px solid transparent;
+  transition: all 0.3s ease;
+  animation: slideIn 0.3s ease;
+}
+
+.approval-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.13) !important;
+}
+
+/* Status variants */
+.approval-confirmed {
+  border-left-color: #28a745;
+  background: rgba(40, 167, 69, 0.04) !important;
+}
+
+.approval-rescheduled {
+  border-left-color: #72CFD4;
+  background: rgba(114, 207, 212, 0.05) !important;
+}
+
+.approval-declined {
+  border-left-color: #dc3545;
+  background: rgba(220, 53, 69, 0.04) !important;
+}
+
+/* Icon wrapper */
+.approval-icon-wrap {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.approval-confirmed .approval-icon-wrap {
+  background: rgba(40, 167, 69, 0.12);
+  color: #28a745;
+}
+
+.approval-rescheduled .approval-icon-wrap {
+  background: rgba(114, 207, 212, 0.15);
+  color: #5bc0c5;
+}
+
+.approval-declined .approval-icon-wrap {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+/* Text */
+.approval-title {
+  color: #2D3765;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.approval-message {
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.approval-gp-note {
+  color: #666;
+  font-size: 0.82rem;
+  font-style: italic;
+  padding: 0.35rem 0.6rem;
+  background: rgba(45, 55, 101, 0.04);
+  border-radius: 6px;
+}
+
+.approval-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Mark as seen button */
+.approval-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 0.75rem;
+}
+
+.approval-seen-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  color: #666;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.approval-seen-btn:hover {
+  background: rgba(45, 55, 101, 0.06);
+  border-color: rgba(45, 55, 101, 0.25);
+  color: #2D3765;
+}
+
+/* Urgency pill (inline badge) */
+.urgency-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.urgency-emergency {
+  background: rgba(220, 53, 69, 0.12);
+  color: #dc3545;
+}
+
+.urgency-urgent {
+  background: rgba(255, 152, 0, 0.12);
+  color: #e65100;
+}
+
+.urgency-routine {
+  background: rgba(45, 55, 101, 0.08);
+  color: #2D3765;
+}
+
+.urgency-low {
+  background: rgba(114, 207, 212, 0.12);
+  color: #3a9ea3;
+}
+
+/* ── GRID ───────────────────────────────────────────────────────── */
 .portal-grid {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
   gap: 2rem;
 }
 
-.portal-left-column {
+.portal-left-column,
+.portal-right-column {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
+/* ── CARD TITLE ─────────────────────────────────────────────────── */
 .card-title {
   color: #2D3765;
   font-weight: 700;
   font-size: 1.3rem;
 }
 
-.request-input, .request-textarea {
-  border-radius: 12px;
-  border: 2px solid rgba(45, 55, 101, 0.1);
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0.75rem 1rem;
-  transition: all 0.3s;
-}
-
-.request-input:focus, .request-textarea:focus {
-  border-color: #72CFD4;
-  box-shadow: 0 0 0 0.25rem rgba(114, 207, 212, 0.25);
-  outline: none;
-}
-
+/* ── REQUEST BUTTON ─────────────────────────────────────────────── */
 .request-btn {
   background: linear-gradient(135deg, #2D3765, #3b4a68);
   color: white;
@@ -149,18 +282,114 @@
   transition: all 0.3s;
 }
 
-.request-btn:hover:not(:disabled) {
+.request-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(45, 55, 101, 0.25);
   background: linear-gradient(135deg, #23315a, #324167);
+  color: white;
 }
 
-.request-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* ── PENDING REQUESTS ───────────────────────────────────────────── */
+.pending-count {
+  background: #ffc107;
+  color: #000;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
 }
 
-/* Careplans */
+.pending-request-item {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 193, 7, 0.04);
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+}
+
+.pending-request-item:last-child {
+  margin-bottom: 0;
+}
+
+.request-date {
+  color: #2D3765;
+  font-weight: 500;
+}
+
+.request-status {
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+}
+
+.request-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ── APPOINTMENTS ───────────────────────────────────────────────── */
+.appointment-item {
+  padding: 1rem;
+  transition: background 0.2s;
+}
+
+.appointment-item:hover {
+  background: rgba(114, 207, 212, 0.05);
+  border-radius: 10px;
+}
+
+.appointment-item:last-child {
+  border-bottom: none !important;
+}
+
+.appointment-status {
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+}
+
+.appointment-gp-note {
+  background: rgba(45, 55, 101, 0.04);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid rgba(114, 207, 212, 0.5);
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Detail rows inside confirmed appointment cards */
+.appointment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.appt-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.appt-detail-icon {
+  color: #72CFD4;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.appointment-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ── CAREPLANS ──────────────────────────────────────────────────── */
 .careplan-item {
   padding: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -188,63 +417,7 @@
   border-radius: 8px;
 }
 
-.portal-right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.pending-count {
-  background: #ffc107;
-  color: #000;
-  font-weight: 700;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-}
-
-.pending-request-item {
-  padding: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgba(255, 193, 7, 0.05);
-  border-radius: 10px;
-  margin-bottom: 0.75rem;
-}
-
-.pending-request-item:last-child {
-  margin-bottom: 0;
-}
-
-.request-date {
-  color: #2D3765;
-  font-weight: 500;
-}
-
-.request-status {
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-}
-
-.appointment-item {
-  padding: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: background 0.2s;
-}
-
-.appointment-item:hover {
-  background: rgba(114, 207, 212, 0.05);
-}
-
-.appointment-item:last-child {
-  border-bottom: none;
-}
-
-.appointment-status {
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-}
-
+/* ── PRESCRIPTIONS ──────────────────────────────────────────────── */
 .prescription-item {
   padding: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -270,11 +443,13 @@
   border-radius: 8px;
 }
 
+/* ── EMPTY STATE ────────────────────────────────────────────────── */
 .empty-state {
   border-radius: 12px;
   background: rgba(45, 55, 101, 0.03);
 }
 
+/* ── VIEW MORE BUTTON ───────────────────────────────────────────── */
 .view-more-btn {
   color: #72CFD4;
   font-weight: 600;
@@ -289,6 +464,7 @@
   background: rgba(114, 207, 212, 0.1);
 }
 
+/* ── STATUS BADGE COLOUR OVERRIDES ─────────────────────────────── */
 .bg-warning.text-dark {
   background: linear-gradient(135deg, #ffc107, #ff9800) !important;
   color: #000 !important;
@@ -314,12 +490,30 @@
   color: #2D3765 !important;
 }
 
+.bg-secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+  color: white !important;
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .portal-grid {
     grid-template-columns: 1fr;
   }
-  
-  .portal-left-column, .portal-right-column {
+
+  .portal-left-column,
+  .portal-right-column {
     width: 100%;
   }
 }
@@ -328,29 +522,18 @@
   .patient-portal-container {
     padding: 5rem 1rem 2rem;
   }
-  
+
   .portal-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.5rem;
   }
-  
+
   .patient-info-badges {
     justify-content: flex-start;
   }
-}
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  .approval-card {
+    padding: 1rem !important;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.glass-card {
-  animation: fadeInUp 0.4s ease-out;
 }

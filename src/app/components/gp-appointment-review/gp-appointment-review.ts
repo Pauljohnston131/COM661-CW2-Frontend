@@ -41,17 +41,18 @@ export class GpAppointmentReviewComponent implements OnInit {
   }
 
   loadAppointment(id: string): void {
-    this.api.getAppointmentDetails(id).subscribe({
-      next: (res) => {
-        this.appointment = res.data?.appointment;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading appointment:', err);
-        this.loading = false;
-      }
-    });
-  }
+  this.api.getAppointmentDetails(id).subscribe({
+    next: (res) => {
+      console.log('APPOINTMENT DATA:', res.data?.appointment);
+      this.appointment = res.data?.appointment;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error loading appointment:', err);
+      this.loading = false;
+    }
+  });
+}
 
   confirmAppointment(): void {
     this.processing = true;

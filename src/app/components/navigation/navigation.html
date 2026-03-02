@@ -2,10 +2,17 @@
 
   <div class="container-fluid">
 
-    <a class="navbar-brand fw-bold d-flex align-items-center" [routerLink]="['/']">
-      <i class="bi bi-heart-pulse me-2"></i>
-      HealthCare Portal
-    </a>
+    <!-- In navigation.html - replace the existing brand section -->
+<!-- In navigation.html - replace the existing brand section -->
+<a class="navbar-brand fw-bold d-flex align-items-center" [routerLink]="['/']">
+  <!-- Custom heart+ SVG - larger and with right margin increased -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ms-3 brand-icon">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    <line x1="12" y1="9" x2="12" y2="15"/>
+    <line x1="9" y1="12" x2="15" y2="12"/>
+  </svg>
+  
+</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>

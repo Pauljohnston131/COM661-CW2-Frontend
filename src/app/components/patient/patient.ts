@@ -146,29 +146,59 @@ export class PatientComponent implements OnInit {
     this.loading = true;
 
     this.api.getPatient(id).subscribe({
-      next: (res) => {
-        this.patient = res.data as Patient;
+      // In loadPatient(), replace the existing next: handler with this:
 
-        this.appointments = (this.patient.appointments || []).sort((a, b) => {
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
-        });
+next: (res) => {
+  this.patient = res.data as Patient;
 
-        this.prescriptions = this.patient.prescriptions || [];
-        this.careplans = this.patient.careplans || [];
+  const regular = (this.patient.appointments || []);
 
-        const coords = this.patient.location?.coordinates;
-        if (coords) {
-          this.patient_lng = coords[0];
-          this.patient_lat = coords[1];
+  // Fetch triage appointments and merge
+  this.api.getPatientTriageAppointments(id).subscribe({
+    next: (triageRes) => {
+      const triageAppts = (triageRes.data?.appointments || []).map((t: any) => ({
+  _id: t._id || t.id,
+  date: t.datetime || t.date,
+  doctor: t.doctor || '',
+  notes: t.notes || '',
+  status: t.status || 'scheduled',
+  _source: 'triage',
+  urgency: t.urgency,
+  category: t.category,
+  body_area: t.body_area,
+  pain_level: t.pain_level,
+  duration_days: t.duration_days,
+  duration_weeks: t.duration_weeks,
+  specific_symptoms: t.specific_symptoms,
+  fever: t.fever,
+  chest_pain: t.chest_pain,
+  breathing_difficulty: t.breathing_difficulty,
+  mobility_impact: t.mobility_impact
+}));
 
-          this.map_options = {
-            center: { lat: this.patient_lat, lng: this.patient_lng },
-            zoom: 13
-          };
+      this.appointments = [...regular, ...triageAppts].sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    },
+    error: () => {
+      // Triage fetch failed — just show regular appointments
+      this.appointments = regular.sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    }
+  });
 
-          this.map_markers = [{ lat: this.patient_lat, lng: this.patient_lng }];
-        }
-      },
+  this.prescriptions = this.patient.prescriptions || [];
+  this.careplans = this.patient.careplans || [];
+
+  const coords = this.patient.location?.coordinates;
+  if (coords) {
+    this.patient_lng = coords[0];
+    this.patient_lat = coords[1];
+    this.map_options = { center: { lat: this.patient_lat, lng: this.patient_lng }, zoom: 13 };
+    this.map_markers = [{ lat: this.patient_lat, lng: this.patient_lng }];
+  }
+},
       error: () => this.showToast('Failed to load patient', 'error'),
       complete: () => this.loading = false
     });

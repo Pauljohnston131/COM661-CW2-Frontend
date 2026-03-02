@@ -88,53 +88,92 @@
 
             <div class="appointments-list">
               @for (a of (showAllAppointments ? appointments : appointments.slice(0, 3)); track a._id) {
-                <div class="appointment-item glass-card"
-                    [appHighlightUrgent]="a.status === 'requested'">
+                <div class="appointment-item glass-card" [appHighlightUrgent]="a.status === 'requested'">
 
-                  <div class="appointment-header d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <div class="appointment-date">
-                        <i class="bi bi-calendar-check me-2"></i>
-                        <strong>{{ fmt(a.date) }}</strong>
-                      </div>
-                      <div class="appointment-doctor mt-2">
-                        <span class="badge doctor-badge">
-                          <i class="bi bi-person-badge me-1"></i>
-                          Dr. {{ a.doctor || 'Not assigned' }}
-                        </span>
-                      </div>
+                  <!-- Top row: date left, badges right -->
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="appointment-date">
+                      <i class="bi bi-calendar-check me-2"></i>
+                      <strong>{{ fmt(a.date) }}</strong>
                     </div>
-                    <span class="badge appointment-status" [ngClass]="badge(a.status)">
-                      {{ a.status }}
+                    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                      <span class="badge appointment-status" [ngClass]="badge(a.status)">
+                        {{ a.status }}
+                      </span>
+                      <span *ngIf="a.urgency" class="badge urgency-badge"
+                            [ngClass]="{
+                              'urgency-high':   a.urgency === 'high' || a.urgency === 'emergency',
+                              'urgency-medium': a.urgency === 'medium',
+                              'urgency-low':    a.urgency === 'low'  || a.urgency === 'routine'
+                            }">
+                        {{ a.urgency | titlecase }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Regular appointment: doctor name -->
+                  <div *ngIf="!a._source" class="mb-2">
+                    <span class="badge doctor-badge">
+                      <i class="bi bi-person-badge me-1"></i>
+                      Dr. {{ a.doctor || 'Not assigned' }}
                     </span>
                   </div>
-                  
-                  @if (a.notes) {
-                    <div class="appointment-notes mt-3">
-                      <p class="mb-0 text-muted">{{ a.notes }}</p>
-                    </div>
-                  }
+
+                  <!-- Triage appointment: summary line -->
+                  <div *ngIf="a._source === 'triage'" class="triage-summary mb-2">
+                    <span class="badge triage-source-badge me-2">
+                      <i class="bi bi-activity me-1"></i>Triage
+                    </span>
+                    <small class="text-muted">
+                      <span *ngIf="a.category">{{ a.category | titlecase }}</span>
+                      <span *ngIf="a.body_area"> · {{ a.body_area | titlecase }}</span>
+                      <span *ngIf="a.pain_level != null"> · Pain {{ a.pain_level }}/10</span>
+                      <span *ngIf="a.duration_days"> · {{ a.duration_days }}d duration</span>
+                      <span *ngIf="a.duration_weeks"> · {{ a.duration_weeks }}wk duration</span>
+                    </small>
+                  </div>
+
+                  <!-- Warning flags (only show if any are true) -->
+                  <div *ngIf="a.fever || a.chest_pain || a.breathing_difficulty || a.mobility_impact"
+                       class="d-flex flex-wrap gap-1 mb-2">
+                    <span *ngIf="a.fever" class="flag-chip flag-warning">
+                      <i class="bi bi-thermometer me-1"></i>Fever
+                    </span>
+                    <span *ngIf="a.chest_pain" class="flag-chip flag-danger">
+                      <i class="bi bi-heart-pulse me-1"></i>Chest Pain
+                    </span>
+                    <span *ngIf="a.breathing_difficulty" class="flag-chip flag-danger">
+                      <i class="bi bi-wind me-1"></i>Breathing Difficulty
+                    </span>
+                    <span *ngIf="a.mobility_impact" class="flag-chip flag-warning">
+                      <i class="bi bi-person-walking me-1"></i>Mobility Impact
+                    </span>
+                  </div>
+
+                  <!-- Symptom tags -->
+                  <div *ngIf="a.specific_symptoms?.length" class="d-flex flex-wrap gap-1 mb-2">
+                    <span *ngFor="let s of a.specific_symptoms" class="symptom-chip">{{ s }}</span>
+                  </div>
+
+                  <!-- Notes -->
+                  <div *ngIf="a.notes" class="mb-2">
+                    <small class="text-muted">
+                      <i class="bi bi-chat-left-text me-1"></i>{{ a.notes }}
+                    </small>
+                  </div>
 
                   <div class="appointment-actions mt-3">
-                    <button class="btn action-btn edit-btn"
-                            (click)="startEditAppointment(a)">
-                      <i class="bi bi-pencil me-1"></i>
-                      Edit
+                    <button class="btn action-btn edit-btn" (click)="startEditAppointment(a)">
+                      <i class="bi bi-pencil me-1"></i>Edit
                     </button>
-                    <button class="btn action-btn complete-btn"
-                            (click)="updateAppointmentStatus(a, 'completed')">
-                      <i class="bi bi-check-circle me-1"></i>
-                      Complete
+                    <button class="btn action-btn complete-btn" (click)="updateAppointmentStatus(a, 'completed')">
+                      <i class="bi bi-check-circle me-1"></i>Complete
                     </button>
-                    <button class="btn action-btn cancel-btn"
-                            (click)="updateAppointmentStatus(a, 'cancelled')">
-                      <i class="bi bi-x-circle me-1"></i>
-                      Cancel
+                    <button class="btn action-btn cancel-btn" (click)="updateAppointmentStatus(a, 'cancelled')">
+                      <i class="bi bi-x-circle me-1"></i>Cancel
                     </button>
-                    <button class="btn action-btn delete-btn"
-                            (click)="deleteAppointment(a)">
-                      <i class="bi bi-trash me-1"></i>
-                      Delete
+                    <button class="btn action-btn delete-btn" (click)="deleteAppointment(a)">
+                      <i class="bi bi-trash me-1"></i>Delete
                     </button>
                   </div>
                 </div>
@@ -186,18 +225,13 @@
                 </div>
 
                 <div class="col-12 mt-3">
-                  <button class="btn primary-btn me-2"
-                          [disabled]="appointmentForm.invalid">
+                  <button class="btn primary-btn me-2" [disabled]="appointmentForm.invalid">
                     <i class="bi" [ngClass]="editingAppointmentId ? 'bi-save' : 'bi-plus-circle'"></i>
                     {{ editingAppointmentId ? 'Save Changes' : 'Add Appointment' }}
                   </button>
-
-                  <button *ngIf="editingAppointmentId"
-                          type="button"
-                          class="btn secondary-btn"
+                  <button *ngIf="editingAppointmentId" type="button" class="btn secondary-btn"
                           (click)="cancelEditAppointment()">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Cancel Edit
+                    <i class="bi bi-x-circle me-1"></i>Cancel Edit
                   </button>
                 </div>
               </div>
@@ -240,17 +274,12 @@
                       {{ rx.status }}
                     </span>
                   </div>
-                  
                   <div class="prescription-actions mt-3">
-                    <button class="btn action-btn edit-btn"
-                            (click)="startEditPrescription(rx)">
-                      <i class="bi bi-pencil me-1"></i>
-                      Edit
+                    <button class="btn action-btn edit-btn" (click)="startEditPrescription(rx)">
+                      <i class="bi bi-pencil me-1"></i>Edit
                     </button>
-                    <button class="btn action-btn delete-btn"
-                            (click)="deletePrescription(rx)">
-                      <i class="bi bi-trash me-1"></i>
-                      Delete
+                    <button class="btn action-btn delete-btn" (click)="deletePrescription(rx)">
+                      <i class="bi bi-trash me-1"></i>Delete
                     </button>
                   </div>
                 </div>
@@ -280,17 +309,14 @@
                   <label class="form-label">Medication Name</label>
                   <input class="form-control form-input" formControlName="name" placeholder="e.g., Amoxicillin 500mg">
                 </div>
-
                 <div class="col-md-6">
                   <label class="form-label">Start Date</label>
                   <input type="date" class="form-control form-input" formControlName="start">
                 </div>
-
                 <div class="col-md-6">
                   <label class="form-label">Stop Date (optional)</label>
                   <input type="date" class="form-control form-input" formControlName="stop">
                 </div>
-
                 <div class="col-md-6">
                   <label class="form-label">Status</label>
                   <select class="form-control form-select" formControlName="status">
@@ -299,20 +325,14 @@
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
-
                 <div class="col-12 mt-3">
-                  <button class="btn primary-btn me-2"
-                          [disabled]="prescriptionForm.invalid">
+                  <button class="btn primary-btn me-2" [disabled]="prescriptionForm.invalid">
                     <i class="bi" [ngClass]="editingPrescriptionId ? 'bi-save' : 'bi-plus-circle'"></i>
                     {{ editingPrescriptionId ? 'Save Changes' : 'Add Prescription' }}
                   </button>
-
-                  <button *ngIf="editingPrescriptionId"
-                          type="button"
-                          class="btn secondary-btn"
+                  <button *ngIf="editingPrescriptionId" type="button" class="btn secondary-btn"
                           (click)="cancelEditPrescription()">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Cancel Edit
+                    <i class="bi bi-x-circle me-1"></i>Cancel Edit
                   </button>
                 </div>
               </div>
@@ -351,17 +371,12 @@
                       {{ fmt(c.start) }} - {{ fmt(c.stop) }}
                     </small>
                   </div>
-                  
                   <div class="careplan-actions mt-3">
-                    <button class="btn action-btn edit-btn"
-                            (click)="startEditCareplan(c)">
-                      <i class="bi bi-pencil me-1"></i>
-                      Edit
+                    <button class="btn action-btn edit-btn" (click)="startEditCareplan(c)">
+                      <i class="bi bi-pencil me-1"></i>Edit
                     </button>
-                    <button class="btn action-btn delete-btn"
-                            (click)="deleteCareplan(c)">
-                      <i class="bi bi-trash me-1"></i>
-                      Delete
+                    <button class="btn action-btn delete-btn" (click)="deleteCareplan(c)">
+                      <i class="bi bi-trash me-1"></i>Delete
                     </button>
                   </div>
                 </div>
@@ -379,7 +394,6 @@
 
           <hr class="my-4">
 
-        
           <div class="careplan-form">
             <h5 class="form-title">
               <i class="bi" [ngClass]="editingCareplanId ? 'bi-pencil' : 'bi-plus-circle'"></i>
@@ -393,30 +407,22 @@
                   <input class="form-control form-input" formControlName="description" 
                          placeholder="e.g., Diabetes management plan">
                 </div>
-
                 <div class="col-md-6">
                   <label class="form-label">Start Date</label>
                   <input type="date" class="form-control form-input" formControlName="start">
                 </div>
-
                 <div class="col-md-6">
                   <label class="form-label">Stop Date (optional)</label>
                   <input type="date" class="form-control form-input" formControlName="stop">
                 </div>
-
                 <div class="col-12 mt-3">
-                  <button class="btn primary-btn me-2"
-                          [disabled]="careplanForm.invalid">
+                  <button class="btn primary-btn me-2" [disabled]="careplanForm.invalid">
                     <i class="bi" [ngClass]="editingCareplanId ? 'bi-save' : 'bi-plus-circle'"></i>
                     {{ editingCareplanId ? 'Save Changes' : 'Add Careplan' }}
                   </button>
-
-                  <button *ngIf="editingCareplanId"
-                          type="button"
-                          class="btn secondary-btn"
+                  <button *ngIf="editingCareplanId" type="button" class="btn secondary-btn"
                           (click)="cancelEditCareplan()">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Cancel Edit
+                    <i class="bi bi-x-circle me-1"></i>Cancel Edit
                   </button>
                 </div>
               </div>
@@ -425,25 +431,20 @@
         </div>
       </div>
 
-      
       <div class="col-lg-4">
-        
-       
+
         <div class="glass-card p-4 mb-4">
           <h4 class="section-title mb-3">
             <i class="bi bi-geo-alt me-2"></i>
             Patient Location
           </h4>
-          
           <div class="map-container">
             <google-map height="250px" width="100%" [options]="map_options">
               @for (m of map_markers; track m.lat + ',' + m.lng) {
-  <map-marker [position]="m"></map-marker>
-}
-
+                <map-marker [position]="m"></map-marker>
+              }
             </google-map>
           </div>
-          
           <div class="mt-3">
             <small class="text-muted">
               <i class="bi bi-info-circle me-1"></i>
@@ -452,21 +453,17 @@
           </div>
         </div>
 
-       
         <div class="glass-card p-4">
           <h4 class="section-title mb-3">
             <i class="bi bi-clipboard2-pulse me-2"></i>
             Clinical Summary
           </h4>
-          
           <div class="clinical-summary">
             <p class="text-muted">
               Patient presents with <strong>{{ patient.condition || 'no recorded condition' }}</strong>. 
               Treatment includes {{ prescriptions.length }} prescription(s) 
               and {{ careplans.length }} care plan(s).
             </p>
-            
-            
             <div class="summary-stats-small mt-4">
               <div class="stat-small">
                 <div class="stat-small-value">{{ appointments.length }}</div>
@@ -486,7 +483,6 @@
       </div>
 
     </div>
-
   </div>
 
 </div>

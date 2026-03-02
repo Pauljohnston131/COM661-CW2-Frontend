@@ -1,274 +1,340 @@
-<div *ngIf="loading" class="gp-appointment-loading">
-  <div class="loading-spinner"></div>
-  <span>Loading appointment details…</span>
+<!-- Loading State -->
+<div *ngIf="loading" class="gpar-loading">
+  <div class="gpar-spinner"></div>
+  <p>Loading appointment…</p>
 </div>
 
-<div *ngIf="appointment" class="gp-appointment-review-container">
-  <div class="gp-appointment-review-content">
-    
-    <!-- Back Button -->
-    <button class="gp-appointment-back-btn" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i> Back to Dashboard
+<div *ngIf="!loading && appointment" class="gpar-page">
+
+  <!-- ── Top ar ── -->
+  <header classb="gpar-topbar">
+    <button class="gpar-back" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+      <span>Dashboard</span>
     </button>
-    
-    <!-- Status Banner -->
-    <div class="status-banner" [ngClass]="getStatusClass()">
-      <div class="status-indicator">
-        <span class="status-dot"></span>
-        <span class="status-text">{{ getCaseStatus() }}</span>
-      </div>
-      <span class="case-id" *ngIf="appointment._id">Appt #{{ appointment._id.slice(-6) }}</span>
-    </div>
-    
-    <!-- Patient Header -->
-    <div class="gp-appointment-patient-header">
-      <div class="patient-title-section">
-        <h1 class="gp-appointment-patient-name">{{ appointment.patient_name || 'Patient' }}</h1>
-        <span class="patient-dob" *ngIf="appointment.patient_dob">
-          <i class="bi bi-calendar3"></i> DOB: {{ appointment.patient_dob | date:'dd/MM/yyyy' }}
-          <span class="age-badge">({{ calculateAge(appointment.patient_dob) }} yrs)</span>
-        </span>
-      </div>
-      
-      <div class="gp-appointment-meta-info">
-        <div class="priority-section">
-          <span class="meta-label">Priority:</span>
-          <span class="gp-appointment-priority-badge" [ngClass]="getUrgencyClass(appointment.urgency)">
-            {{ getUrgencyBadge(appointment.urgency) }}
-          </span>
-        </div>
-        
-        <div class="score-section" *ngIf="appointment.score">
-          <span class="meta-label">Severity Score:</span>
-          <span class="score-value">{{ appointment.score }}/10</span>
-        </div>
-        
-        <div class="timestamp-section" *ngIf="appointment.created_at">
-          <i class="bi bi-clock"></i>
-          Requested: {{ appointment.created_at | date:'EEEE, MMMM d, yyyy \'at\' h:mm a' }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Action Cards -->
-    <div class="quick-action-cards">
-      <div class="action-card" (click)="confirmAppointment()" [class.disabled]="processing">
-        <div class="action-icon">
-          <i class="bi bi-check2-circle"></i>
-        </div>
-        <div class="action-details">
-          <h4>Confirm Appointment</h4>
-          <p>Accept this appointment request</p>
-        </div>
-      </div>
-      
-      <div class="action-card" (click)="openRescheduleModal()" [class.disabled]="processing">
-        <div class="action-icon">
-          <i class="bi bi-calendar-plus"></i>
-        </div>
-        <div class="action-details">
-          <h4>Reschedule</h4>
-          <p>Propose a new time</p>
-        </div>
-      </div>
-      
-      <div class="action-card" (click)="declineAppointment()" [class.disabled]="processing">
-        <div class="action-icon">
-          <i class="bi bi-x-circle"></i>
-        </div>
-        <div class="action-details">
-          <h4>Decline Request</h4>
-          <p>Reject this appointment</p>
-        </div>
-      </div>
-    </div>
-
-    <hr class="section-divider" />
-
-    <!-- Main Clinical Information Grid -->
-    <div class="clinical-grid">
-      
-      <!-- Left Column - Patient & Appointment Info -->
-      <div class="clinical-left">
-        
-        <!-- Patient Contact Card -->
-        <div class="clinical-card patient-contact-card">
-          <div class="card-header">
-            <i class="bi bi-person-circle"></i>
-            <h3>Patient Information</h3>
-          </div>
-          <div class="card-body">
-            <div class="info-list">
-              <div class="info-row">
-                <span class="info-label">Patient ID:</span>
-                <span class="info-value">#{{ appointment.patient_id?.slice(-6) || 'N/A' }}</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">Phone:</span>
-                <span class="info-value">{{ appointment.patient_phone || 'Not provided' }}</span>
-              </div>
-              <div *ngIf="appointment.patient_email" class="info-row">
-                <span class="info-label">Email:</span>
-                <span class="info-value">{{ appointment.patient_email }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Appointment Details Card -->
-        <div class="clinical-card appointment-details-card">
-          <div class="card-header">
-            <i class="bi bi-calendar-check"></i>
-            <h3>Appointment Details</h3>
-          </div>
-          <div class="card-body">
-            <div class="requested-time highlight-box">
-              <i class="bi bi-clock-fill"></i>
-              <div>
-                <span class="detail-label">Requested Time</span>
-                <span class="detail-value large">{{ formatDate(appointment.datetime) }}</span>
-              </div>
-            </div>
-
-            <!-- Red Flags -->
-            <!-- Update the red flag section in the Appointment Details Card -->
-<div *ngIf="appointment.red_flags?.length" class="red-flags-section">
-  <h4>Red Flags</h4>
-  <div class="red-flags-list">
-    <span *ngFor="let flag of appointment.red_flags" class="red-flag-badge">
-      {{ formatRedFlag(flag) | titlecase }}
-    </span>
-  </div>
-</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column - Triage Summary & Notes -->
-      <div class="clinical-right">
-        
-        <!-- Triage Summary Card -->
-        <div *ngIf="appointment.triage" class="clinical-card">
-
-  <div class="card-header">
-    <i class="bi bi-clipboard-pulse"></i>
-    <h3>Full Triage Details</h3>
-  </div>
-
-  <div class="card-body">
-
-    <div class="info-row">
-      <strong>Category:</strong>
-      {{ appointment.triage.category | titlecase }}
-    </div>
-
-    <div class="mt-3">
-      <strong>Symptoms:</strong>
-      <div>
-        {{ formatSymptoms(appointment.triage.symptoms, appointment.triage.category) }}
-      </div>
-    </div>
-
-    <div class="mt-3">
-      <strong>Severity Score:</strong>
-      {{ appointment.score }}/10
-    </div>
-
-    <div *ngIf="appointment.red_flags?.length" class="mt-3">
-      <strong>Red Flags:</strong>
-      <span *ngFor="let flag of appointment.red_flags"
-            class="badge bg-danger me-2">
-        {{ formatRedFlag(flag) | titlecase }}
+    <div class="gpar-topbar-meta">
+      <span class="gpar-appt-id">APT–{{ appointment._id?.slice(-6) }}</span>
+      <span class="gpar-status-chip" [ngClass]="getStatusClass()">
+        <span class="gpar-status-dot"></span>
+        {{ getCaseStatus() }}
       </span>
     </div>
+  </header>
 
-    <div *ngIf="appointment.ai?.ai_gp_note" class="mt-4">
-      <strong>AI Clinical Note:</strong>
-      <div class="mt-2">
-        {{ appointment.ai.ai_gp_note }}
+  <div class="gpar-body">
+
+    <!-- ══════════════════════════════════
+         LEFT RAIL — patient + triage data
+    ══════════════════════════════════ -->
+    <aside class="gpar-left">
+
+      <!-- Patient card -->
+      <div class="gpar-card gpar-patient-card">
+        <div class="gpar-patient-avatar">
+          {{ (appointment.patient?.name || 'P').charAt(0).toUpperCase() }}
+        </div>
+        <h1 class="gpar-patient-name">{{ appointment.patient?.name || 'Patient' }}</h1>
+        <div class="gpar-patient-sub" *ngIf="appointment.patient_dob">
+          <i class="bi bi-calendar3"></i>
+          {{ appointment.patient_dob | date:'dd MMM yyyy' }}
+          <span class="gpar-age-pill">{{ calculateAge(appointment.patient_dob) }} yrs</span>
+        </div>
+       
+        <div class="gpar-patient-sub" *ngIf="appointment.patient_id">
+          <i class="bi bi-person-badge"></i>
+          ID #{{ appointment.patient_id?.slice(-6) }}
+        </div>
       </div>
-    </div>
 
-  </div>
+      <!-- Priority card -->
+      <div class="gpar-card gpar-priority-card">
+        <div class="gpar-section-label">TRIAGE PRIORITY</div>
+        <div class="gpar-priority-display" [ngClass]="getUrgencyClass(appointment.urgency)">
+          <span class="gpar-priority-label">{{ getUrgencyBadge(appointment.triage?.urgency) }}</span>
+          <span class="gpar-priority-score" *ngIf="appointment.score">
+            Score {{ appointment.score }}
+          </span>
+        </div>
 
-</div>
-
-        <!-- GP Notes Card -->
-        <div class="clinical-card gp-notes-card">
-          <div class="card-header">
-            <i class="bi bi-chat-text"></i>
-            <h3>GP Notes</h3>
+        <div class="gpar-priority-meta">
+          <div class="gpar-meta-row" *ngIf="appointment.triage_category">
+            <span class="gpar-meta-key">Category</span>
+            <span class="gpar-meta-val">{{ appointment.triage_category | titlecase }}</span>
           </div>
-          <div class="card-body">
-            <textarea class="gp-notes-input" 
-                      rows="4" 
-                      [(ngModel)]="gpNotes"
-                      placeholder="Add clinical notes, observations, or instructions for this appointment..."></textarea>
+          <div class="gpar-meta-row" *ngIf="appointment.datetime">
+            <span class="gpar-meta-key">Requested</span>
+            <span class="gpar-meta-val">{{ formatDate(appointment.datetime) }}</span>
+          </div>
+          <div class="gpar-meta-row" *ngIf="appointment.created_at">
+            <span class="gpar-meta-key">Submitted</span>
+            <span class="gpar-meta-val">{{ appointment.created_at | date:'dd MMM, HH:mm' }}</span>
+          </div>
+        </div>
+
+        <!-- Red flags — prominent, not buried -->
+        <div *ngIf="appointment.red_flags?.length" class="gpar-redflags">
+          <div class="gpar-redflag-header">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Red Flags
+          </div>
+          <div class="gpar-redflag-list">
+            <span *ngFor="let flag of appointment.red_flags" class="gpar-redflag-chip">
+              {{ formatRedFlag(flag) | titlecase }}
+            </span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Processing Overlay -->
-    <div *ngIf="processing" class="processing-overlay">
-      <div class="processing-content">
-        <div class="loading-spinner"></div>
-        <span>Processing request...</span>
+    </aside>
+
+    <!-- ══════════════════════════════════
+         MAIN — clinical detail + actions
+    ══════════════════════════════════ -->
+    <main class="gpar-main">
+
+      <!-- ── Section 1: Appointment time ── -->
+      <div class="gpar-card gpar-appt-time-card">
+        <div class="gpar-appt-time-icon">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="22"
+       height="22"
+       viewBox="0 0 24 24"
+       fill="none"
+       stroke="currentColor"
+       stroke-width="1.8"
+       stroke-linecap="round"
+       stroke-linejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    <line x1="12" y1="9" x2="12" y2="15"/>
+    <line x1="9" y1="12" x2="15" y2="12"/>
+  </svg>
+</div>
+        <div>
+          <div class="gpar-section-label">REQUESTED APPOINTMENT</div>
+          <div class="gpar-appt-time-value">{{ formatDate(appointment.datetime) }}</div>
+        </div>
       </div>
+
+      <!-- ── Section 2: Triage breakdown ── -->
+      <div class="gpar-card" *ngIf="appointment.triage">
+        <div class="gpar-card-header">
+          <i class="bi bi-clipboard-pulse"></i>
+          <h2>Triage Summary</h2>
+        </div>
+
+        <!-- Symptom rows -->
+        <div class="gpar-symptom-grid">
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.body_area">
+            <span class="gpar-symptom-key">Body area</span>
+            <span class="gpar-symptom-val">{{ appointment.triage.symptoms.body_area | titlecase }}</span>
+          </div>
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.pain_level !== undefined">
+            <span class="gpar-symptom-key">Pain level</span>
+            <span class="gpar-symptom-val">
+              <span class="gpar-pain-track">
+                <span class="gpar-pain-fill"
+                  [style.width.%]="appointment.triage.symptoms.pain_level * 10"
+                  [ngClass]="appointment.triage.symptoms.pain_level >= 7 ? 'high' : appointment.triage.symptoms.pain_level >= 4 ? 'mid' : 'low'">
+                </span>
+              </span>
+              {{ appointment.triage.symptoms.pain_level }}/10
+            </span>
+          </div>
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.duration_days">
+            <span class="gpar-symptom-key">Duration</span>
+            <span class="gpar-symptom-val">{{ appointment.triage.symptoms.duration_days }} days</span>
+          </div>
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.fever">
+            <span class="gpar-symptom-key">Fever</span>
+            <span class="gpar-symptom-val gpar-flag-yes"><i class="bi bi-check-circle-fill"></i> Reported</span>
+          </div>
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.mobility_impact">
+            <span class="gpar-symptom-key">Mobility</span>
+            <span class="gpar-symptom-val gpar-flag-yes"><i class="bi bi-check-circle-fill"></i> Affected</span>
+          </div>
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.breathing_difficulty">
+            <span class="gpar-symptom-key">Breathing</span>
+            <span class="gpar-symptom-val gpar-flag-warn"><i class="bi bi-exclamation-circle-fill"></i> Difficulty reported</span>
+          </div>
+
+          <!-- Mental health fields -->
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.mental_severity">
+            <span class="gpar-symptom-key">MH Severity</span>
+            <span class="gpar-symptom-val">{{ appointment.triage.symptoms.mental_severity }}/10</span>
+          </div>
+
+          <div class="gpar-symptom-item" *ngIf="appointment.triage.symptoms?.duration_weeks">
+            <span class="gpar-symptom-key">Duration</span>
+            <span class="gpar-symptom-val">{{ appointment.triage.symptoms.duration_weeks }} weeks</span>
+          </div>
+
+        </div>
+
+        <!-- Specific symptoms chips -->
+        <div *ngIf="appointment.triage.symptoms?.specific_symptoms?.length" class="gpar-chips-section">
+          <div class="gpar-section-label">REPORTED SYMPTOMS</div>
+          <div class="gpar-chips">
+            <span *ngFor="let s of appointment.triage.symptoms.specific_symptoms" class="gpar-chip">
+              {{ s.replace('_', ' ') | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Mental health symptoms -->
+        <div *ngIf="appointment.triage.symptoms?.mental_symptoms?.length" class="gpar-chips-section">
+          <div class="gpar-section-label">MENTAL HEALTH SYMPTOMS</div>
+          <div class="gpar-chips">
+            <span *ngFor="let s of appointment.triage.symptoms.mental_symptoms" class="gpar-chip">
+              {{ s.replace('_', ' ') | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Free-text description (unsure category) -->
+        <div *ngIf="appointment.triage.symptoms?.described_symptoms" class="gpar-described">
+          <div class="gpar-section-label">PATIENT DESCRIPTION</div>
+          <p class="gpar-described-text">"{{ appointment.triage.symptoms.described_symptoms }}"</p>
+        </div>
+
+        <!-- Patient notes -->
+        <div *ngIf="appointment.triage.symptoms?.notes" class="gpar-described">
+          <div class="gpar-section-label">PATIENT NOTES</div>
+          <p class="gpar-described-text">{{ appointment.triage.symptoms.notes }}</p>
+        </div>
+      </div>
+
+      <!-- ── Section 3: AI clinical note ── -->
+      <div *ngIf="appointment.ai?.ai_gp_note" class="gpar-card gpar-ai-card">
+        <div class="gpar-card-header">
+          <i class="bi bi-robot"></i>
+          <h2>Decision Support</h2>
+          <span class="gpar-ai-badge">AI Advisory</span>
+        </div>
+
+        <p class="gpar-ai-note">{{ appointment.ai.ai_gp_note }}</p>
+
+        <div *ngIf="appointment.ai.alternative_considerations?.length" class="gpar-ai-alts">
+          <div class="gpar-section-label">ALTERNATIVE CONSIDERATIONS</div>
+          <div class="gpar-alt-list">
+            <div *ngFor="let alt of appointment.ai.alternative_considerations" class="gpar-alt-row">
+              <span class="gpar-alt-label">{{ alt.summary }}</span>
+              <div class="gpar-alt-conf-wrap">
+                <div class="gpar-alt-bar">
+                  <div class="gpar-alt-fill" [style.width.%]="alt.confidence * 100"></div>
+                </div>
+                <span class="gpar-alt-pct">{{ (alt.confidence * 100).toFixed(0) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="gpar-ai-disclaimer">{{ appointment.ai.confidence_note }}</p>
+      </div>
+
+      <!-- ── Section 4: GP notes + actions ── -->
+      <div class="gpar-card gpar-action-card">
+        <div class="gpar-card-header">
+          <i class="bi bi-pencil-square"></i>
+          <h2>Review & Decision</h2>
+        </div>
+
+        <div class="gpar-notes-wrap">
+          <label class="gpar-notes-label">Clinical notes (optional)</label>
+          <textarea
+            class="gpar-notes-input"
+            rows="3"
+            [(ngModel)]="gpNotes"
+            placeholder="Add any notes, instructions, or reason for decision…">
+          </textarea>
+        </div>
+
+        <div class="gpar-action-row">
+          <button class="gpar-btn gpar-btn-confirm"
+                  (click)="confirmAppointment()"
+                  [disabled]="processing">
+            <i class="bi bi-check-lg"></i>
+            Confirm
+          </button>
+          <button class="gpar-btn gpar-btn-reschedule"
+                  (click)="openRescheduleModal()"
+                  [disabled]="processing">
+            <i class="bi bi-calendar-plus"></i>
+            Reschedule
+          </button>
+          <button class="gpar-btn gpar-btn-decline"
+                  (click)="declineAppointment()"
+                  [disabled]="processing">
+            <i class="bi bi-x-lg"></i>
+            Decline
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Processing overlay -->
+  <div *ngIf="processing" class="gpar-overlay">
+    <div class="gpar-overlay-box">
+      <div class="gpar-spinner"></div>
+      <span>Processing…</span>
     </div>
   </div>
 </div>
 
-<!-- Reschedule Modal -->
-<div class="modal-overlay" *ngIf="showRescheduleModal" (click)="showRescheduleModal = false">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <div class="modal-header">
+<!-- ── Reschedule modal ── -->
+<div class="gpar-modal-bg" *ngIf="showRescheduleModal" (click)="showRescheduleModal = false">
+  <div class="gpar-modal" (click)="$event.stopPropagation()">
+
+    <div class="gpar-modal-head">
       <h3>Reschedule Appointment</h3>
-      <button class="modal-close" (click)="showRescheduleModal = false">&times;</button>
+      <button class="gpar-modal-close" (click)="showRescheduleModal = false">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
-    
-    <div class="modal-body">
-      
-      <!-- Manual Date Selection -->
-      <div class="form-group">
-        <label class="form-label">Select New Date & Time</label>
-        <div class="datetime-inputs">
-          <input type="date" class="form-control" [(ngModel)]="newDate">
-          <input type="time" class="form-control" [(ngModel)]="newTime">
+
+    <div class="gpar-modal-body">
+      <div class="gpar-form-group">
+        <label class="gpar-form-label">New date & time</label>
+        <div class="gpar-datetime-row">
+          <input type="date" class="gpar-input" [(ngModel)]="newDate">
+          <input type="time" class="gpar-input" [(ngModel)]="newTime">
         </div>
       </div>
 
-      <!-- Available Slots -->
-      <div *ngIf="availableSlots.length" class="form-group">
-        <label class="form-label">Or choose from available slots:</label>
-        <div class="slot-grid">
-          <button *ngFor="let slot of availableSlots" 
-                  class="slot-btn"
-                  [class.active]="selectedSlot === slot.datetime"
+      <div *ngIf="availableSlots.length" class="gpar-form-group">
+        <label class="gpar-form-label">Or pick an available slot</label>
+        <div class="gpar-slot-grid">
+          <button *ngFor="let slot of availableSlots"
+                  class="gpar-slot"
+                  [class.selected]="selectedSlot === slot.datetime"
                   (click)="selectSlot(slot.datetime)">
             {{ slot.display }}
           </button>
         </div>
       </div>
 
-      <!-- Reschedule Notes -->
-      <div class="form-group">
-        <label class="form-label">Reason for rescheduling (optional)</label>
-        <textarea class="form-control" 
-                  rows="2" 
+      <div class="gpar-form-group">
+        <label class="gpar-form-label">Reason (optional)</label>
+        <textarea class="gpar-input gpar-textarea"
+                  rows="2"
                   [(ngModel)]="gpNotes"
-                  placeholder="Add reason for rescheduling..."></textarea>
+                  placeholder="Reason for rescheduling…"></textarea>
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button class="modal-btn secondary" (click)="showRescheduleModal = false">
-        Cancel
-      </button>
-      <button class="modal-btn primary" 
+    <div class="gpar-modal-foot">
+      <button class="gpar-btn gpar-btn-ghost" (click)="showRescheduleModal = false">Cancel</button>
+      <button class="gpar-btn gpar-btn-confirm"
               (click)="submitReschedule()"
               [disabled]="processing">
-        {{ processing ? 'Processing...' : 'Confirm Reschedule' }}
+        {{ processing ? 'Processing…' : 'Confirm Reschedule' }}
       </button>
     </div>
   </div>
